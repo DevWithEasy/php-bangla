@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+/* VS Code Dark+ Syntax Highlighting Theme for Code Editor */
+.vscode-code-pre, .vscode-code-pre code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
+/* Base text */
+.token.plain-text {
+  color: #d4d4d4;
+}
+
+/* Comments */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #6a9955 !important;
+  font-style: italic;
+}
+
+/* Punctuation & Brackets */
+.token.punctuation {
+  color: #d4d4d4;
+}
+
+/* Bracket Pair Colorization (VS Code 3-tier style) */
+.token.bracket-gold,
+.token.bracket-curly {
+  color: #ffd700 !important; /* Tier 1 Gold */
+  font-weight: 600;
+}
+.token.bracket-purple,
+.token.bracket-round {
+  color: #da70d6 !important; /* Tier 2 Orchid / Purple */
+  font-weight: 600;
+}
+.token.bracket-blue,
+.token.bracket-square {
+  color: #179fff !important; /* Tier 3 Sky Blue */
+  font-weight: 600;
+}
+
+/* Variables (e.g. $var, $_POST, $this) */
+.token.variable {
+  color: #9cdcfe !important; /* Light sky blue */
+}
+
+/* PHP Keywords */
+.token.keyword {
+  color: #c586c0 !important; /* Purple/pink */
+  font-weight: 600;
+}
+
+/* Functions & Methods */
+.token.function {
+  color: #dcdcaa !important; /* Warm light yellow */
+}
+
+/* Strings */
+.token.string {
+  color: #ce9178 !important; /* Warm coral/orange */
+}
+
+/* Numbers & Booleans */
+.token.number {
+  color: #b5cea8 !important; /* Soft light green */
+}
+.token.boolean {
+  color: #569cd6 !important; /* Blue */
+  font-weight: 600;
+}
+
+/* Constants & Classes */
+.token.constant,
+.token.class-name {
+  color: #4ec9b0 !important; /* Teal / Mint */
+}
+
+/* Operators (=>, ->, ::, ==, +, etc.) */
+.token.operator {
+  color: #d4d4d4 !important;
+}
+
+/* HTML Tags inside PHP scripts (<p>, <div>, etc.) */
+.token.tag {
+  color: #569cd6 !important;
+}
+.token.tag .token.punctuation {
+  color: #808080 !important;
+}
+.token.attr-name {
+  color: #9cdcfe !important;
+}
+.token.attr-value {
+  color: #ce9178 !important;
+}
+
+/* Custom Highlighted HTML Tags (e.g. inside strings echo "<h3>...</h3>") */
+.token.html-tag-custom {
+  color: #569cd6 !important;
+}
+.token.html-tag-custom .tag-name {
+  color: #569cd6 !important;
+  font-weight: 600;
+}
+.token.html-tag-custom .tag-angle {
+  color: #808080 !important;
+}
+
+/* Delimiters & PHP Tags <?php, ?> */
+.token.php.language-php {
+  color: #d4d4d4;
+}
+.token.delimiter {
+  color: #e5c07b !important;
+  font-weight: bold;
+}

@@ -1,0 +1,6 @@
+{
+  "name": "PHP Mastery & Interactive Editor",
+  "description": "3-column PHP documentation with topics list, deep architectural details in Bengali, and live WebAssembly code editor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
