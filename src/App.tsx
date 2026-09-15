@@ -5,14 +5,41 @@ import { TopicSidebar } from './components/TopicSidebar';
 import { TopicDetails } from './components/TopicDetails';
 import { CodeEditor } from './components/CodeEditor';
 import { PresentationMode } from './components/PresentationMode';
+import { SplashScreen } from './components/SplashScreen';
+import { HomeScreen } from './components/HomeScreen';
 import { ALL_TOPICS, getTopicById, getAdjacentTopics } from './data';
 import { runPhpCode, subscribeEngineStatus, EngineStatus } from './services/phpRunner';
+import { 
+  getLastTopicId, 
+  saveLastTopic, 
+  getVisitedTopics, 
+  getLastVisitedTime, 
+  formatTimeAgo, 
+  resetProgress 
+} from './utils/progressTracker';
 import { CodeExecutionResult, ViewMode } from './types';
 
+type AppScreen = 'splash' | 'home' | 'workspace';
+
 export default function App() {
-  const [selectedTopicId, setSelectedTopicId] = useState<string>('php-home');
-  const [currentTopic, setCurrentTopic] = useState(() => getTopicById('php-home'));
+  // Screen Management (Splash -> Home -> Workspace)
+  const [appScreen, setAppScreen] = useState<AppScreen>(() => {
+    if (typeof window === 'undefined') return 'home';
+    const seen = sessionStorage.getItem('php_mastery_splash_seen');
+    return seen ? 'home' : 'splash';
+  });
+
+  // Tracked previous topic and user progress
+  const [lastTopicId, setLastTopicId] = useState<string | null>(() => getLastTopicId());
+  const [visitedTopics, setVisitedTopics] = useState<string[]>(() => getVisitedTopics());
+  const [lastVisitedDate, setLastVisitedDate] = useState<string | null>(() => getLastVisitedTime());
+
+  // Active topic & editor code
+  const initialTopicId = lastTopicId && getTopicById(lastTopicId) ? lastTopicId : 'php-home';
+  const [selectedTopicId, setSelectedTopicId] = useState<string>(initialTopicId);
+  const [currentTopic, setCurrentTopic] = useState(() => getTopicById(initialTopicId));
   const [editorCode, setEditorCode] = useState<string>(() => currentTopic.sampleCode);
+
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [executionResult, setExecutionResult] = useState<CodeExecutionResult | null>(null);
   const [engineStatus, setEngineStatus] = useState<EngineStatus>('uninitialized');
@@ -37,13 +64,39 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  // Update editor code when topic changes
+  // Select topic, sync editor code, and update persistence
   const handleSelectTopic = useCallback((topicId: string) => {
     const topic = getTopicById(topicId);
     setSelectedTopicId(topicId);
     setCurrentTopic(topic);
     setEditorCode(topic.sampleCode);
     setExecutionResult(null);
+
+    // Persist progress
+    saveLastTopic(topicId);
+    setLastTopicId(topicId);
+    setVisitedTopics(getVisitedTopics());
+    setLastVisitedDate(new Date().toISOString());
+  }, []);
+
+  // Start learning from Home or Splash
+  const handleStartLearning = useCallback((topicId?: string) => {
+    const targetId = topicId || lastTopicId || 'php-home';
+    handleSelectTopic(targetId);
+    sessionStorage.setItem('php_mastery_splash_seen', 'true');
+    setAppScreen('workspace');
+  }, [lastTopicId, handleSelectTopic]);
+
+  const handleGoToHome = useCallback(() => {
+    sessionStorage.setItem('php_mastery_splash_seen', 'true');
+    setAppScreen('home');
+  }, []);
+
+  const handleResetProgress = useCallback(() => {
+    resetProgress();
+    setLastTopicId(null);
+    setVisitedTopics([]);
+    setLastVisitedDate(null);
   }, []);
 
   // Reset code to current topic's default sample
@@ -163,6 +216,49 @@ export default function App() {
     };
   }, [isResizing, sidebarOpen]);
 
+  // SCREEN 1: SPLASH SCREEN (Shown on initial visit)
+  if (appScreen === 'splash') {
+    return (
+      <SplashScreen
+        onStartLearning={handleStartLearning}
+        onGoToHome={handleGoToHome}
+        lastTopic={lastTopicId ? getTopicById(lastTopicId) : null}
+        lastVisitedTimeText={formatTimeAgo(lastVisitedDate)}
+      />
+    );
+  }
+
+  // SCREEN 2: HOME & ABOUT SCREEN (Overview, curriculum, trainer info, resume banner)
+  if (appScreen === 'home') {
+    return (
+      <div className="min-h-screen w-full overflow-y-auto bg-slate-50">
+        <HomeScreen
+          onStartLearning={handleStartLearning}
+          onOpenPresentation={() => setIsPresentationOpen(true)}
+          lastTopic={lastTopicId ? getTopicById(lastTopicId) : null}
+          lastVisitedTimeText={formatTimeAgo(lastVisitedDate)}
+          visitedTopics={visitedTopics}
+          onResetProgress={handleResetProgress}
+        />
+        {/* Presentation Modal if opened from Home */}
+        {isPresentationOpen && (
+          <PresentationMode
+            topic={currentTopic}
+            onClose={() => setIsPresentationOpen(false)}
+            onLoadCodeToEditor={(code) => {
+              handleLoadCodeToEditor(code);
+              setAppScreen('workspace');
+            }}
+            onNavigateTopic={handleSelectTopic}
+            prevTopic={prev}
+            nextTopic={next}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // SCREEN 3: INTERACTIVE LEARNING WORKSPACE (3-Column layout with resizer)
   return (
     <div className="h-screen w-full flex flex-col antialiased bg-slate-50 text-slate-800 font-sans overflow-hidden">
       {/* 1. Global Header */}
@@ -178,6 +274,7 @@ export default function App() {
         isEditorVisible={isEditorVisible}
         onToggleEditor={handleToggleEditor}
         onOpenPresentation={() => setIsPresentationOpen(true)}
+        onGoToHome={handleGoToHome}
       />
 
       {/* 2. Main Layout with Resizable Panels */}
@@ -307,4 +404,5 @@ export default function App() {
     </div>
   );
 }
+
 

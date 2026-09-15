@@ -49,9 +49,14 @@ const SPECIFIC_PEDAGOGY: Record<string, TopicPedagogyOverrides> = {
     ],
     interviewQuestions: [
       {
-        questionBn: 'PHP এর পূর্ণরূপ কী এবং এটি কীভাবে ইন্টারনেটের ওয়েব পেজ তৈরি করে?',
-        answerBn: 'PHP এর পূর্ণরূপ "Hypertext Preprocessor" (একটি রিকার্সিভ এক্রোনিম)। এটি সার্ভার-সাইডে রান হয় এবং ডাটাবেস বা বিজনেস লজিক প্রসেস করে ডায়নামিক HTML/JSON তৈরি করে ব্রাউজারে ফেরত পাঠায়।',
-        seniorTipBn: 'ভাইভায় ইন্টারভিউয়ারকে অবশ্যই উল্লেখ করবেন যে পিএইচপি সোর্স কোড ক্লায়েন্ট ব্রাউজারে কখনই সরাসরি এক্সপোজ হয় না, ক্লায়েন্ট কেবল জেনারেটেড আউটপুট পায়।'
+        questionBn: 'PHP কী এবং বাস্তব বিশ্বে এটি মূলত কোথায় কোথায় ব্যবহার হয়?',
+        answerBn: 'PHP হলো একটি জনপ্রিয় Server-Side Programming Language, যা মূলত Web Development ও Backend Development-এর জন্য ব্যবহৃত হয়। এটি দিয়ে Dynamic Website, Web Application (ERP, CRM, POS), E-commerce (WooCommerce/Magento), User Auth (RBAC), Database-driven Apps (MySQL, PostgreSQL), REST API (React/Flutter ব্যাকএন্ড), File Handling এবং Laravel ও WordPress পরিচালিত প্ল্যাটফর্ম তৈরি ও মেইনটেইন করা হয়।',
+        seniorTipBn: 'ভাইভায় ইন্টারভিউয়ারকে বলবেন: একজন PHP Developer মূলত ক্লায়েন্ট রিকোয়েস্ট রিসিভ করে ডাটাবেস/বিজনেস লজিক প্রসেসিং শেষে নিরাপদ HTML বা JSON রেসপন্স ব্রাউজার বা মোবাইল অ্যাপে পাঠায়।'
+      },
+      {
+        questionBn: 'PHP-এর সাধারণ আর্কিটেকচার ফ্লো কীভাবে কাজ করে?',
+        answerBn: 'User ➔ Browser ➔ HTTP Request ➔ PHP Application ➔ Database / File / External API ➔ PHP Processing ➔ HTML / JSON Response ➔ Browser।',
+        seniorTipBn: 'ইন্টারভিউতে বলুন যে পিএইচপি সোর্স কোড ক্লায়েন্ট ব্রাউজারে কখনই সরাসরি দৃশ্যমান হয় না, ক্লায়েন্ট কেবল রানটাইম প্রসেসড আউটপুট গ্রহণ করে।'
       },
       {
         questionBn: 'PHP 8-এ JIT (Just-In-Time) কম্পাইলার আসার সুবিধা কী?',
@@ -77,6 +82,135 @@ echo "<div style='font-family:sans-serif; padding:16px; border:2px solid #04AA6D
 echo "<h2>প্রফেশনাল PHP ট্রেইনিং ড্যাশবোর্ড</h2>";
 echo "<p>ডেভেলপারের নাম: <b>$developerName</b></p>";
 echo "<p>সাল: <b>$currentYear</b> | ইঞ্জিন: <b>PHP $phpVer</b></p>";
+echo "</div>";
+?>`
+    }
+  },
+
+  'php-install': {
+    trainerMetaphorBn:
+      'PHP হলো একটি পাওয়ারফুল ইঞ্জিন, কিন্তু এটি শুধু তৈরি করা গাড়ি ছাড়া চলতে পারে না। একটি পূর্ণাঙ্গ গাড়ি তৈরি করতে ইঞ্জিন (PHP), রোড ও ট্রাফিক কন্ট্রোলার (Apache Web Server) এবং তেল ও কার্গো বক্স (MySQL Database) লাগে। XAMPP হলো একটি অল-ইন-ওয়ান প্যাকেজ যা আপনাকে পুরো গাড়িটি এক ক্লিকেই রেডি করে দেয়।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'PHP Runtime ও XAMPP ইন্সটলেশন',
+        explanationBn: 'XAMPP ডাউনলোড করে ইন্সটল করুন। এটি C:\\xampp ডিরেক্টরিতে Apache, PHP ও MySQL একসাথে সেটআপ করে।'
+      },
+      {
+        step: 2,
+        title: 'Environment Variable (PATH) সেট করা',
+        explanationBn: '"php is not recognized" সমস্যা হলে Windows PATH-এ C:\\xampp\\php পাথ যোগ করুন এবং কমান্ড প্রম্পটে "php -v" দিয়ে ভেরিফাই করুন।'
+      },
+      {
+        step: 3,
+        title: 'htdocs এবং প্রথম প্রজেক্ট রান',
+        explanationBn: 'C:\\xampp\\htdocs\\hello.php ফাইলে কোড লিখে XAMPP Control Panel-এ Apache স্টার্ট করে ব্রাউজারে http://localhost/hello.php ভিজিট করুন।'
+      }
+    ],
+    trainerSecretsBn: [
+      'প্রফেশনাল টিপ: বড় প্রজেক্ট বা Laravel ডেভেলপমেন্টে Docker অথবা Laravel Herd/Valet ও Composer ব্যবহার করা বেশি জনপ্রিয় ও ক্লিন।',
+      'প্রোডাকশনে কখনো XAMPP ব্যবহার করবেন না; প্রোডাকশন সার্ভারে সর্বদা Ubuntu/Debian-এ Nginx + PHP-FPM অথবা কন্টেইনারাইজড ক্লাউড রান ব্যবহার করা হয়।',
+      'টার্মিনালে নিয়মিত php -m (extensions) এবং php --ini (কনফিগারেশন লোকেশন) চেক করার অভ্যাস তৈরি করুন।'
+    ],
+    commonGotchasBn: [
+      'ভুল ডিরেক্টরি: htdocs-এর বাইরে কোড রাখলে Apache সার্ভার ব্রাউজার থেকে তা এক্সেস করতে পারে না।',
+      'পোর্ট কনফ্লিক্ট: Skype বা অন্য কোনো সফটওয়্যার পোর্ট ৮০ বা ৪৪৩ ব্লক করে রাখলে Apache স্টার্ট হতে ব্যর্থ হয়।',
+      'Windows-এ PATH সেট না করে টার্মিনাল রিস্টার্ট না করা।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'ব্রাউজার থেকে যখন http://localhost/hello.php রিকোয়েস্ট পাঠানো হয়, ব্যাকএন্ডে কী কী ঘটে?',
+        answerBn: '১. ব্রাউজার লোকালহোস্টের ৮০ পোর্টে HTTP রিকোয়েস্ট পাঠায়। ২. Apache সার্ভার রিকোয়েস্ট গ্রহণ করে C:\\xampp\\htdocs\\hello.php ফাইলটি লোকেট করে। ৩. ফাইলের এক্সটেনশন .php হওয়ায় Apache এটি PHP ইন্টারপ্রেটারকে এক্সিকিউট করতে দেয়। ৪. PHP ইঞ্জিন কোড রান করে বিশুদ্ধ HTML/টেক্সট আউটপুট তৈরি করে Apache-কে ফেরত দেয়। ৫. Apache সেই রেসপন্স ব্রাউজারে পাঠায়।',
+        seniorTipBn: 'ভাইভায় এই ফ্লো-টি ধাপে ধাপে বলতে পারলে ইন্টারভিউয়ার বুঝবেন আপনার ক্লায়েন্ট-সার্ভার আর্কিটেকচারের স্পষ্ট ধারণা রয়েছে।'
+      },
+      {
+        questionBn: 'PHP CLI এবং PHP-FPM / Apache মডিউলের মধ্যে পার্থক্য কী?',
+        answerBn: 'CLI (Command Line Interface) ব্যবহৃত হয় টার্মিনাল স্ক্রিপ্ট, ব্যাকগ্রাউন্ড ক্রন জব ও অটোমেশন চালানোর জন্য। আর PHP-FPM বা Web Server Module ব্যবহৃত হয় ওয়েব ব্রাউজারের ইনকামিং HTTP রিকোয়েস্ট হ্যান্ডেল করে রেসপন্স দেওয়ার জন্য।',
+        seniorTipBn: 'CLI-এর max_execution_time ডিফল্টভাবে আনলিমিটেড (0) থাকে, কিন্তু ওয়েব সার্ভার রিকোয়েস্টে সাধারণত ৩০ বা ৬০ সেকেন্ড লিমিট থাকে।'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: পিএইচপি রানটাইম এনভায়রনমেন্ট চেক',
+      taskBn: 'ডানপাশের এডিটরে আপনার পিএইচপি ভার্সন, মেমোরি লিমিট ও বর্তমান টাইমজোন প্রিন্ট করে একটি সুন্দর স্ট্যাটাস তৈরি করুন।',
+      hintBn: 'phpversion(), ini_get("memory_limit"), date_default_timezone_get() ফাংশন ব্যবহার করুন।',
+      starterCode: `<?php
+// এখানে রানটাইম ইনফো তৈরি করুন
+echo "PHP Version: " . phpversion();
+?>`,
+      solutionCode: `<?php
+echo "<div style='font-family:sans-serif; padding:12px; background:#f0fdf4; border:1px solid #86efac; border-radius:6px;'>";
+echo "<h4>PHP Environment Status</h4>";
+echo "<p>Version: <b>" . phpversion() . "</b></p>";
+echo "<p>Memory Limit: <b>" . ini_get('memory_limit') . "</b></p>";
+echo "<p>Timezone: <b>" . date_default_timezone_get() . "</b></p>";
+echo "</div>";
+?>`
+    }
+  },
+
+  'php-syntax': {
+    trainerMetaphorBn:
+      'PHP Syntax হলো ভাষার ব্যাকরণ। যেমন বাংলায় বাক্য শেষে "দাঁড়ি" দিতে হয়, PHP-তে তেমনি স্টেটমেন্ট শেষে সেমিকোলন (;) দিতে হয়। আর ভেরিয়েবলের সামনে ডলার ($) চিহ্ন হলো তার পরিচয়পত্র—ডলার দেখলেই পিএইচপি ইঞ্জিন বুঝে নেয় এটি একটি ভেরিয়েবল মেমোরি বক্স।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'ওপেনিং ট্যাগ ও সেমিকোলন',
+        explanationBn: 'সবসময় <?php দিয়ে স্ক্রিপ্ট শুরু করুন এবং প্রতি স্টেটমেন্টের শেষে সেমিকোলন (;) নিশ্চিত করুন।'
+      },
+      {
+        step: 2,
+        title: 'ভেরিয়েবল ডিক্লারেশন ও কেস সেনসিটিভিটি',
+        explanationBn: 'ভেরিয়েবল সর্বদা $ দিয়ে শুরু হয়। মনে রাখবেন $name এবং $Name দুটি সম্পূর্ণ ভিন্ন ভেরিয়েবল।'
+      },
+      {
+        step: 3,
+        title: 'echo এবং String Concatenation',
+        explanationBn: 'আউটপুটের জন্য echo ব্যবহার করুন এবং স্ট্রিং বা ভেরিয়েবল জোড়া লাগাতে ডট (.) অপারেটর ব্যবহার করুন।'
+      }
+    ],
+    trainerSecretsBn: [
+      'PSR-12 কোডিং স্ট্যান্ডার্ড: পিউর পিএইচপি ফাইলে কখনো সমাপনী ?> ট্যাগ দেবেন না। এটি হেডার ও সেশন এরর রোধ করে।',
+      'ডাবল কোটেশন ("...") ভেরিয়েবল ইন্টারপোলেট করে দ্রুত টেমপ্লেটিংয়ে সাহায্য করে, কিন্তু ফিক্সড টেক্সটের জন্য সিঙ্গেল কোট (\'...\') সামান্য হলেও বেশি পারফরম্যান্ট।',
+      'Short echo tag <?= $val ?> টেমপ্লেট ভিউতে কোড অনেক ক্লিন রাখে।'
+    ],
+    commonGotchasBn: [
+      'সেমিকোলন বাদ দেওয়া (PHP Parse error: syntax error, unexpected token)।',
+      'স্ট্রিং কোটেশনের ম্যাচিং ভুল (যেমন সিঙ্গেল কোট শুরু করে ডাবল কোটে শেষ করা)।',
+      'কেস সেনসিটিভিটি ভুলে গিয়ে $myVar ডিফাইন করে $myvar দিয়ে রিড করার চেষ্টা করা।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'PHP-তে ভেরিয়েবল নাম এবং ফাংশন নামের কেস-সেনসিটিভিটির মধ্যে পার্থক্য কী?',
+        answerBn: 'PHP-তে ভেরিয়েবল নাম ($user vs $User) শতভাগ কেস-সেনসিটিভ। কিন্তু ফাংশন নাম, ক্লাস মেথড এবং বিল্ট-ইন কি-ওয়ার্ড (echo, if, while) কেস-ইনসেনসিটিভ। তবে বেস্ট প্র্যাকটিস হলো সর্বদা সব জায়গায় সামঞ্জস্যপূর্ণ সঠিক কেস মেনে চলা।',
+        seniorTipBn: 'PSR-12 স্ট্যান্ডার্ড অনুযায়ী মেথড বা ফাংশন সবসময় camelCase এবং ক্লাস নাম PascalCase মেনে চলা উচিত।'
+      },
+      {
+        questionBn: 'পিউর PHP স্ক্রিপ্ট ফাইলে ক্লোজিং ট্যাগ ?> না দেওয়া কেন স্ট্যান্ডার্ড নিয়ম?',
+        answerBn: 'ক্লোজিং ট্যাগ ?> দেওয়ার পর যদি ফাইলে কোনো অনিচ্ছাকৃত ফাঁকা লাইন বা স্পেস (trailing whitespace) থেকে যায়, তবে পিএইচপি ইঞ্জিন তা ব্রাউজারে আউটপুট হিসেবে পাঠিয়ে দেয়। এর ফলে পরবর্তীতে header(), session_start() বা setcookie() কল করলে "Headers already sent" এরর ঘটে। তাই ক্লোজিং ট্যাগ বাদ দেওয়া আন্তর্জাতিক স্ট্যান্ডার্ড।',
+        seniorTipBn: 'ইন্টারভিউতে "Headers already sent" সমস্যাটির সমাধান হিসেবে ক্লোজিং ট্যাগ বাদ দেওয়া উল্লেখ করলে প্রফেশনাল অভিজ্ঞতা প্রকাশ পায়।'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: ডাইনামিক প্রোডাক্ট রিসিপ্ট তৈরি',
+      taskBn: 'প্রোডাক্টের নাম, দাম, পরিমাণ ভেরিয়েবল তৈরি করে মোট বিল হিসাব করুন এবং echo দিয়ে ফরম্যাটেড এইচটিএমএল আউটপুট দিন।',
+      hintBn: '$total = $price * $quantity; এবং <?= $total ?> বা ডাবল কোট ব্যবহার করুন।',
+      starterCode: `<?php
+// এখানে প্রোডাক্ট রিসিপ্ট সিনট্যাক্স লিখুন
+$item = "কীবোর্ড";
+$price = 1200;
+$qty = 2;
+?>`,
+      solutionCode: `<?php
+$item = "মেকানিক্যাল কীবোর্ড";
+$price = 2500;
+$qty = 2;
+$total = $price * $qty;
+
+echo "<div style='font-family:sans-serif; padding:14px; border:1px solid #cbd5e1; border-radius:8px;'>";
+echo "<h3 style='margin:0 0 8px 0; color:#0f172a;'>পণ্য চালান রসিদ</h3>";
+echo "<p>পণ্য: <b>$item</b></p>";
+echo "<p>একক মূল্য: <b>$price ৳</b> | পরিমাণ: <b>$qty</b></p>";
+echo "<p style='color:#16a34a; font-size:16px;'>সর্বমোট মূল্য: <b>$total ৳</b></p>";
 echo "</div>";
 ?>`
     }

@@ -18,7 +18,9 @@ import {
   Award,
   Terminal,
   Eye,
-  EyeOff
+  EyeOff,
+  Copy,
+  Check
 } from 'lucide-react';
 import { TopicItem, ActiveTab } from '../types';
 import { getTopicPedagogy } from '../data/trainerPedagogy';
@@ -50,6 +52,8 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('concept');
   const [showChallengeSolution, setShowChallengeSolution] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedSectionIndex, setCopiedSectionIndex] = useState<number | null>(null);
 
   const pedagogy = getTopicPedagogy(topic);
 
@@ -250,16 +254,126 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
       {/* TAB 1: Concept & Beginner Walkthrough */}
       {activeTab === 'concept' && (
         <div className="space-y-6 leading-relaxed text-sm text-slate-700">
-          {/* Main Definition Card */}
-          <div className="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200">
-            <h3 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-emerald-600" />
-              <span>মূল ধারণা ও প্রেক্ষাপট:</span>
-            </h3>
-            <p className="text-slate-700 leading-relaxed text-sm sm:text-base">
-              {topic.deepDive.conceptBn}
-            </p>
-          </div>
+          {/* If lessonSections exists: Render Interleaved Explanation + Code Blocks */}
+          {topic.deepDive.lessonSections && topic.deepDive.lessonSections.length > 0 ? (
+            <div className="space-y-5">
+              {/* Optional General Concept Header if provided */}
+              {topic.deepDive.conceptBn && topic.deepDive.conceptBn.trim() !== '' && (
+                <div className="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs">
+                  <h3 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-emerald-600" />
+                    <span>পাঠের ভূমিকা ও ওভারভিউ:</span>
+                  </h3>
+                  <p className="text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">
+                    {topic.deepDive.conceptBn}
+                  </p>
+                </div>
+              )}
+
+              {/* Step-by-Step Interleaved Sections: একটু ব্যাখ্যা ➔ সাথে সাথে তার কোড ➔ আবার ব্যাখ্যা ➔ আবার কোড */}
+              <div className="space-y-5">
+                {topic.deepDive.lessonSections.map((sec, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 sm:p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:border-emerald-300 transition"
+                  >
+                    {/* Section Header */}
+                    {sec.title && (
+                      <div className="flex items-center gap-2.5 mb-2.5 pb-2 border-b border-slate-100">
+                        <span className="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                          {idx + 1}
+                        </span>
+                        <h4 className="font-bold text-slate-900 text-sm sm:text-base">
+                          {sec.title}
+                        </h4>
+                      </div>
+                    )}
+
+                    {/* Section Explanation (একটু Explain) */}
+                    <div className="text-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                      {sec.explanationBn}
+                    </div>
+
+                    {/* Section Code Example (সাথে সাথে কোড ও এডিটরে রান করার বাটন) */}
+                    {sec.code && (
+                      <div className="mt-3.5 rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
+                        <div className="px-3.5 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                          <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                            <Code2 className="w-3.5 h-3.5" />
+                            <span>{sec.codeLanguage || 'PHP 8.2 Live Code'}</span>
+                          </span>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                navigator.clipboard?.writeText(sec.code || '');
+                                setCopiedSectionIndex(idx);
+                                setTimeout(() => setCopiedSectionIndex(null), 1800);
+                              }}
+                              className="hover:text-emerald-400 flex items-center gap-1 transition cursor-pointer text-slate-400 px-2 py-0.5 rounded hover:bg-slate-800"
+                            >
+                              {copiedSectionIndex === idx ? (
+                                <>
+                                  <Check className="w-3 h-3 text-emerald-400" />
+                                  <span className="text-emerald-400">কপি হয়েছে!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>কপি করুন</span>
+                                </>
+                              )}
+                            </button>
+
+                            {/* এডিটরে পাঠান ও টেস্ট করুন বাটন */}
+                            <button
+                              onClick={() => onLoadCodeToEditor(sec.code || '')}
+                              className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-2xs cursor-pointer transition active:scale-95"
+                              title="এই কোডটি সরাসরি কোড এডিটরে লোড করে রান বা পরিবর্তন করুন"
+                            >
+                              <Play className="w-3 h-3 fill-white" />
+                              <span>এডিটরে রান ও টেস্ট করুন</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <pre className="p-3.5 text-emerald-300 font-mono text-xs overflow-x-auto leading-relaxed">
+                          {sec.code}
+                        </pre>
+
+                        {/* Optional Output Preview */}
+                        {sec.outputPreview && (
+                          <div className="px-3.5 py-2 bg-slate-900/90 border-t border-slate-800/80 text-slate-300 font-mono text-[11px]">
+                            <span className="text-amber-400 font-bold block mb-0.5">আউটপুট প্রিভিউ:</span>
+                            <span className="text-slate-200 whitespace-pre-line">{sec.outputPreview}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Optional Note */}
+                    {sec.noteBn && (
+                      <div className="mt-2.5 text-xs text-amber-800 bg-amber-50 border border-amber-200/80 rounded-lg p-2.5 flex items-start gap-1.5">
+                        <span className="font-bold shrink-0">📌 নোট:</span>
+                        <span>{sec.noteBn}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* Fallback to Standard Single Concept Card */
+            <div className="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200">
+              <h3 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-emerald-600" />
+                <span>মূল ধারণা ও প্রেক্ষাপট:</span>
+              </h3>
+              <p className="text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">
+                {topic.deepDive.conceptBn}
+              </p>
+            </div>
+          )}
 
           {/* Progressive Beginner Steps */}
           {pedagogy.beginnerSteps && pedagogy.beginnerSteps.length > 0 && (
@@ -319,19 +433,100 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
           {/* Sample Snippet Preview */}
           <div className="mt-5">
             <div className="flex items-center justify-between mb-2 text-xs">
-              <span className="font-bold text-slate-800">উদাহরণ কোড:</span>
+              <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                <Code2 className="w-4 h-4 text-emerald-600" />
+                <span>মূল উদাহরণ কোড (Primary Interactive Example):</span>
+              </span>
               <button
                 onClick={() => onLoadCodeToEditor(topic.sampleCode)}
-                className="text-[#04AA6D] hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                className="text-[#04AA6D] hover:underline font-bold flex items-center gap-1 cursor-pointer bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 transition hover:bg-emerald-100"
               >
                 <span>ডানদিকের এডিটরে ওপেন ও রান করুন</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
-            <pre className="p-4 bg-slate-950 text-emerald-300 font-mono text-xs rounded-xl overflow-x-auto leading-relaxed border border-slate-800">
+            <pre className="p-4 bg-slate-950 text-emerald-300 font-mono text-xs rounded-xl overflow-x-auto leading-relaxed border border-slate-800 shadow-inner">
               {topic.sampleCode}
             </pre>
           </div>
+
+          {/* Additional Practice Examples */}
+          {topic.deepDive.practiceExamples && topic.deepDive.practiceExamples.length > 0 && (
+            <div className="mt-8 space-y-4 pt-6 border-t border-slate-200">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-amber-500" />
+                  <span>সম্পর্কিত অতিরিক্ত প্র্যাকটিস কোড উদাহরণ ({topic.deepDive.practiceExamples.length}টি):</span>
+                </h4>
+                <span className="text-xs text-slate-500 font-medium">
+                  প্রতিটি কোড ব্লকের "এডিটরে এডিট ও রান করুন" বাটনে ক্লিক করে সরাসরি পরিবর্তন ও পরীক্ষা করতে পারবেন
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {topic.deepDive.practiceExamples.map((ex, idx) => (
+                  <div 
+                    key={idx} 
+                    className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 shadow-2xs hover:border-emerald-300 transition"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                            {idx + 1}
+                          </span>
+                          <h5 className="font-bold text-slate-900 text-sm">
+                            {ex.title}
+                          </h5>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-1 pl-7 leading-relaxed">
+                          {ex.descriptionBn}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => onLoadCodeToEditor(ex.code)}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer transition active:scale-95"
+                        title="এই কোডটি সরাসরি কোড এডিটরে লোড করে রান বা এডিট করুন"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-white" />
+                        <span>এডিটরে এডিট ও রান করুন</span>
+                      </button>
+                    </div>
+
+                    <div className="mt-2.5 rounded-lg overflow-hidden border border-slate-800 bg-slate-950">
+                      <div className="px-3 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                        <span>PHP Script</span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard?.writeText(ex.code);
+                            setCopiedIndex(idx);
+                            setTimeout(() => setCopiedIndex(null), 1800);
+                          }}
+                          className="hover:text-emerald-400 flex items-center gap-1 transition cursor-pointer text-slate-400"
+                        >
+                          {copiedIndex === idx ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-400" />
+                              <span className="text-emerald-400">কপি হয়েছে!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>কপি করুন</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <pre className="p-3.5 text-emerald-300 font-mono text-xs overflow-x-auto leading-relaxed">
+                        {ex.code}
+                      </pre>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -76,9 +76,26 @@ export interface PedagogicalDetails {
   slides: PresentationSlide[];
 }
 
+export interface LessonSection {
+  title?: string;
+  explanationBn: string;
+  code?: string;
+  codeLanguage?: string;
+  outputPreview?: string;
+  noteBn?: string;
+}
+
+export interface PracticeExample {
+  title: string;
+  descriptionBn: string;
+  code: string;
+}
+
 export interface DeepDiveTabs {
   conceptBn: string;
+  lessonSections?: LessonSection[];
   keyPointsBn: string[];
+  practiceExamples?: PracticeExample[];
   comparison?: JuniorVsSeniorComparison;
   zendInternals?: ZendInternalsInfo;
   security?: SecurityInfo;

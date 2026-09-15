@@ -1,5 +1,16 @@
 import React from 'react';
-import { Play, Terminal, Layers, FileCode2, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Presentation } from 'lucide-react';
+import { 
+  Play, 
+  Terminal, 
+  Layers, 
+  FileCode2, 
+  PanelLeftClose, 
+  PanelLeftOpen, 
+  PanelRightClose, 
+  PanelRightOpen, 
+  Presentation, 
+  Home 
+} from 'lucide-react';
 import { EngineStatus } from '../services/phpRunner';
 import { ViewMode } from '../types';
 
@@ -15,6 +26,7 @@ interface HeaderProps {
   isEditorVisible: boolean;
   onToggleEditor: () => void;
   onOpenPresentation?: () => void;
+  onGoToHome?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -29,11 +41,23 @@ export const Header: React.FC<HeaderProps> = ({
   isEditorVisible,
   onToggleEditor,
   onOpenPresentation,
+  onGoToHome,
 }) => {
   return (
     <header className="h-14 bg-white border-b border-slate-200 px-3 sm:px-4 flex items-center justify-between shrink-0 z-40">
       {/* Brand & Sidebar Toggle Button */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {onGoToHome && (
+          <button
+            onClick={onGoToHome}
+            title="হোম পেজে ফিরে যান (Back to Home)"
+            className="flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-bold text-slate-700 hover:text-emerald-800 hover:bg-slate-100 border border-slate-200 transition cursor-pointer shadow-2xs"
+          >
+            <Home className="w-4 h-4 text-slate-600" />
+            <span className="hidden sm:inline">হোম</span>
+          </button>
+        )}
+
         <button
           onClick={onToggleSidebar}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold border transition cursor-pointer select-none ${
@@ -56,21 +80,25 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </button>
 
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#04AA6D] flex items-center justify-center text-white font-mono font-black text-sm shadow-sm">
+        <div 
+          onClick={onGoToHome} 
+          className="flex items-center gap-2.5 cursor-pointer select-none group"
+          title="হোমে যেতে ক্লিক করুন"
+        >
+          <div className="w-8 h-8 rounded-lg bg-[#04AA6D] group-hover:bg-[#038354] flex items-center justify-center text-white font-mono font-black text-sm shadow-sm transition">
             &lt;?
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-900 text-sm tracking-tight">
-                PHP Mastery &amp; Interactive Editor
+              <span className="font-bold text-slate-900 text-sm tracking-tight group-hover:text-emerald-700 transition">
+                PHP Mastery &amp; Sandbox
               </span>
               <span className="hidden sm:inline text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
-                20+ Years Trainer Masterclass
+                20+ Years Trainer
               </span>
             </div>
             <p className="text-[11px] text-slate-500 hidden md:block">
-              বিগিনার টু প্রফেশনাল প্রেজেন্টেশন • ২০ বছরের ইন্ডাস্ট্রিয়াল গাইড • লাইভ পিএইচপি ৮.২ স্যান্ডবক্স
+              প্র্যাকটিক্যাল এন্টারপ্রাইজ লার্নিং • ব্রাউজার স্যান্ডবক্স
             </p>
           </div>
         </div>
