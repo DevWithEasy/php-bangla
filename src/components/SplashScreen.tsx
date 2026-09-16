@@ -79,7 +79,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
         {/* Badges */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-4">
           <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-          <span>২০+ বছরের ইন্ডাস্ট্রিয়াল সিনিয়র ট্রেইনার মেথডোলজি</span>
+          <span>আধুনিক পিএইচপি ৮.২ প্র্যাকটিক্যাল লার্নিং প্ল্যাটফর্ম</span>
         </div>
 
         {/* Title */}

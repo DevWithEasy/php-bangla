@@ -5,6 +5,7 @@ import { FORMS_TOPICS } from './formsTopics';
 import { ADVANCED_TOPICS } from './advancedTopics';
 import { OOP_TOPICS } from './oopTopics';
 import { MYSQL_TOPICS } from './mysqlTopics';
+import { AJAX_TOPICS } from './ajaxTopics';
 import { ARCHITECT_TOPICS } from './architectTopics';
 
 export { CATEGORIES };
@@ -16,6 +17,7 @@ export const ALL_TOPICS: TopicItem[] = [
   ...ADVANCED_TOPICS,
   ...OOP_TOPICS,
   ...MYSQL_TOPICS,
+  ...AJAX_TOPICS,
   ...ARCHITECT_TOPICS
 ];
 
@@ -26,6 +28,7 @@ export const TOPICS_BY_CATEGORY: Record<TopicCategory, TopicItem[]> = {
   advanced: ADVANCED_TOPICS,
   oop: OOP_TOPICS,
   mysql: MYSQL_TOPICS,
+  ajax: AJAX_TOPICS,
   architect: ARCHITECT_TOPICS
 };
 

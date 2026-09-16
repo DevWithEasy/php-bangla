@@ -578,6 +578,619 @@ function authenticateUserSimulated(string $inputEmail, string $inputPassword): s
 echo authenticateUserSimulated('student@techacademy.edu', 'SecretPass@123');
 ?>`
     }
+  },
+
+  'php-form-handling': {
+    trainerMetaphorBn:
+      'HTTP Form Handling-কে কল্পনা করুন একটি সরকারি ডাকঘরের (Post Office) সাথে। GET মেথড হলো একটি উন্মুক্ত পোস্টকার্ড—রাস্তার যেকোনো মানুষ (বা ব্রাউজার হিস্ট্রি ও প্রক্সি সার্ভার) পোস্টকার্ডে লেখা গোপন তথ্য পড়ে ফেলতে পারে। আর POST মেথড হলো সিলগালা করা একটি সুরক্ষিত খাম (Envelope)—যার ভেতরের তথ্য বাইরে থেকে দেখা যায় না এবং শুধুমাত্র নির্দিষ্ট প্রাপক (সার্ভার) খাম খুলে দেখতে পায়। সংবেদনশীল তথ্য পাঠাতে সর্বদা সিলগালা খাম (POST) ব্যবহার করতে হয়।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'HTML Form মেথড নির্ধারণ (GET vs POST)',
+        explanationBn: 'সার্চ বা পেজিংয়ের জন্য method="GET" এবং পাসওয়ার্ড, ডাটাবেস পরিবর্তন বা ফাইল আপলোডের জন্য method="POST" ব্যবহার করুন।'
+      },
+      {
+        step: 2,
+        title: '$_SERVER["REQUEST_METHOD"] ভেরিফিকেশন',
+        explanationBn: 'সরাসরি পেজ লোড ও ফর্ম সাবমিশনের পার্থক্য বুঝতে if ($_SERVER["REQUEST_METHOD"] === "POST") চেক করুন।'
+      },
+      {
+        step: 3,
+        title: '$_POST থেকে নিরাপদে ডেটা রিড ও স্যানিটাইজ করা',
+        explanationBn: 'নাল কোলেসিং ($val = $_POST["field"] ?? "") এবং htmlspecialchars() দিয়ে ডেটা রিসিভ করুন।'
+      }
+    ],
+    trainerSecretsBn: [
+      '২০ বছরের অভিজ্ঞতা থেকে বলছি: কখনো $_REQUEST ব্যবহার করবেন না। এটি মেথড অস্পষ্ট রাখে এবং সিকিউরিটি দুর্বলতা বাড়ায়।',
+      'প্রোডাকশন ফর্মে সর্বদা CSRF Token এবং HTTPS বাধ্যতামূলক করবেন যাতে ম্যান-ইন-দ্য-মিডল অ্যাটাক প্রতিহত হয়।'
+    ],
+    commonGotchasBn: [
+      'মেথড চেক না করে সরাসরি $_POST["field"] এক্সেস করায় "Undefined array key" ওয়ার্নিং আসা।',
+      'লগইন বা পাসওয়ার্ড চেঞ্জ ফর্মে ভুল করে method="GET" রেখে দেওয়া।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'GET এবং POST মেথডের মধ্যে প্রযুক্তিগত পার্থক্য কী?',
+        answerBn: 'GET রিকোয়েস্টে ডেটা URL কুয়েরি স্ট্রিংয়ে পাস হয়, ব্রাউজার হিস্ট্রিতে জমা থাকে এবং ক্যারেক্টার সাইজ লিমিট (~২KB) থাকে। POST রিকোয়েস্টে ডেটা HTTP Request Body-তে থাকে, ব্রাউজার হিস্ট্রিতে দৃশ্যমান হয় না এবং বড় ডেটা বা ফাইল আপলোড করা যায়।',
+        seniorTipBn: 'ইন্টারভিউতে যোগ করবেন: "GET requests must be idempotent (safe to repeat), whereas POST requests represent state-changing operations."'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: সুরক্ষিত রিকোয়েস্ট মেথড ডিটেক্টর',
+      taskBn: 'একটি পিএইচপি স্ক্রিপ্ট লিখুন যা চেক করবে রিকোয়েস্টটি POST নাকি GET এবং সে অনুযায়ী উপযুক্ত মেসেজ প্রিন্ট করবে।',
+      hintBn: '$_SERVER["REQUEST_METHOD"] ব্যবহার করুন।',
+      starterCode: `<?php
+// রিকোয়েস্ট মেথড চেক লজিক লিখুন
+?>`,
+      solutionCode: `<?php
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $user = htmlspecialchars($_POST["username"] ?? "Guest", ENT_QUOTES, "UTF-8");
+    echo "POST রিকোয়েস্টে প্রাপ্ত ইউজার: <b>$user</b>";
+} else {
+    echo "ব্রাউজারে সরাসরি GET মেথডে পেজ লোড হয়েছে।";
+}
+?>`
+    }
+  },
+
+  'php-form-validation': {
+    trainerMetaphorBn:
+      'Form Validation-কে কল্পনা করুন একটি আন্তর্জাতিক বিমানবন্দরের ইমিগ্রেশন ও মেটাল ডিটেক্টরের মতো। আপনি বাইরে থেকে যতই ভালো কাপড় পরে আসুন না কেন (Client-side HTML5 validation), ইমিগ্রেশন অফিসার (PHP Server-side Validation) প্রতিটি পাসপোর্ট ও ব্যাগ স্ক্যান করবেই। কোনো হ্যাকার যদি ব্রাউজারের মেটাল ডিটেক্টর বাইপাস করে অবৈধ অস্ত্র (<script> XSS পেলোড) নিয়ে ঢুকে পড়তে চায়, তবে সার্ভার-সাইড স্যানিটাইজার তাকে ধরে ফেলে নিষ্ক্রিয় (HTML Entity) করে দেয়।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'ইউজার ইনপুটের অতিরিক্ত স্পেস মুছতে trim() ব্যবহার করুন',
+        explanationBn: 'ইনপুটের শুরুতে ও শেষে অসাবধানতাবশত দেওয়া স্পেস বা ট্যাব দূর করে।'
+      },
+      {
+        step: 2,
+        title: 'অপ্রয়োজনীয় ব্যাকস্ল্যাশ মুছতে stripslashes() ব্যবহার করুন',
+        explanationBn: 'এস্কেপড ক্যারেক্টারগুলো স্বাভাবিক ফর্মে রূপান্তর করে।'
+      },
+      {
+        step: 3,
+        title: 'XSS প্রতিরোধে htmlspecialchars() এনফোর্স করুন',
+        explanationBn: '<script> বা HTML ট্যাগকে &lt;script&gt; তে রূপান্তর করে ব্রাউজার স্ক্রিপ্ট এক্সিকিউশন বন্ধ করে।'
+      }
+    ],
+    trainerSecretsBn: [
+      'সুবর্ণ নিয়ম: Never Trust User Input! ক্লায়েন্ট-সাইড ভ্যালিডেশন কেবল ইউজার সুবিধার জন্য, নিরাপত্তার জন্য সার্ভার-সাইড ভ্যালিডেশনই একমাত্র ভরসা।',
+      'ডাটাবেসে সেভ করার সময় কাঁচা htmlspecialchars ডাটা সেভ না করে স্ট্রিং ক্লিন করে সেভ করুন এবং ভিউতে রেন্ডার করার সময় htmlspecialchars() দিয়ে এস্কেপ করুন।'
+    ],
+    commonGotchasBn: [
+      '$_SERVER["PHP_SELF"] ফর্মে ব্যবহারের সময় htmlspecialchars() না দেওয়ায় XSS এর সুযোগ তৈরি হওয়া।',
+      'HTML5 required এট্রিবিউট দিয়েই সিকিউরিটি নিশ্চিত হয়েছে মনে করে সার্ভার-সাইড চেক বাদ দেওয়া।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'XSS (Cross-Site Scripting) কী এবং PHP-তে এটি কীভাবে ঠেকানো যায়?',
+        answerBn: 'XSS হলো এমন এক ধরনের সাইবার আক্রমণ যেখানে আক্রমণকারী ফর্মে ক্ষতিকর জাভাস্ক্রিপ্ট কোড সাবমিট করে অন্য ব্যবহারকারীর সেশন কুকি চুরি বা ব্রাউজার ম্যানিপুলেট করে। পিএইচপিতে আউটপুট রেন্ডার করার সময় htmlspecialchars($data, ENT_QUOTES, "UTF-8") ব্যবহার করে এটি পুরোপুরি ঠেকানো যায়।',
+        seniorTipBn: 'ইন্টারভিউতে বলবেন: "Context-aware output encoding is the primary defense against XSS."'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: ইনপুট স্যানিটাইজার ফাংশন টেস্ট',
+      taskBn: 'একটি test_input() ফাংশন তৈরি করুন যা trim(), stripslashes() ও htmlspecialchars() প্রয়োগ করে একটি ক্ষতিকর স্ক্রিপ্ট ট্যাগকে সেফ টেক্সটে রূপান্তর করবে।',
+      hintBn: 'ENT_QUOTES ও "UTF-8" ফ্ল্যাগ ব্যবহার করুন।',
+      starterCode: `<?php
+// স্যানিটাইজার ফাংশন লিখুন
+?>`,
+      solutionCode: `<?php
+function test_input(string $data): string {
+    return htmlspecialchars(stripslashes(trim($data)), ENT_QUOTES, 'UTF-8');
+}
+
+$raw = "  <script>alert('hack');</script>  ";
+echo "নিরাপদ টেক্সট: " . test_input($raw);
+?>`
+    }
+  },
+
+  'php-form-required': {
+    trainerMetaphorBn:
+      'Required Field Validation-কে কল্পনা করুন একটি ব্যাংক চেক বই লেখার সাথে। আপনি যদি টাকার অংক বা স্বাক্ষরের জায়গা ফাঁকা রেখে জমা দেন, তবে ব্যাংক ক্যাশিয়ার চেকটি গ্রহণ না করে লাল কালির দাগ দিয়ে আপনাকে ফেরত দেবে। একইভাবে পিএইচপিতে আবশ্যক তথ্য ছাড়া সাবমিট করা ডেটা ডাটাবেসে সেভ না করে ফর্মে কোন কোন ফিল্ডে ভুল হয়েছে তা লাল রঙে স্পষ্ট হাইলাইট করে ইউজারকে সতর্ক করতে হয়।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'empty(trim($val)) দিয়ে ফাঁকা ইনপুট ডিটেক্ট করুন',
+        explanationBn: 'শুধু স্পেস চাপলেও যেন ইনপুটটি ফাঁকা হিসেবে ধরা পড়ে তা নিশ্চিত করুন।'
+      },
+      {
+        step: 2,
+        title: 'সেন্ট্রালাইজড এরর অ্যারে ($errors) ম্যানেজ করুন',
+        explanationBn: 'প্রতিটি ফিল্ডের এরর মেসেজ সুনির্দিষ্ট কি-তে সংরক্ষণ করুন ($errors["email"])।'
+      },
+      {
+        step: 3,
+        title: 'Form Repopulation নিশ্চিত করুন',
+        explanationBn: 'ভুল হলে ইউজার যেন তার টাইপ করা আগের সঠিক ফিল্ডগুলো আবার টাইপ করতে বাধ্য না হয়।'
+      }
+    ],
+    trainerSecretsBn: [
+      'কখনোই empty($field) এর ওপর অন্ধভাবে ভরসা করবেন না যদি ইনপুট সংখ্যা "0" হতে পারে, কারণ empty("0") পিএইচপিতে ট্রু রিটার্ন করে! স্ট্রিং ফিল্ডে trim($val) === "" চেক করা বেশি নিরাপদ।',
+      'প্রোডাকশন ফর্মে ক্লায়েন্ট যেন একাধিকবার দ্রুত সাবমিট করে সার্ভার জ্যাম করতে না পারে সেজন্য সাবমিট বাটনে লোডিং স্টেট দিন।'
+    ],
+    commonGotchasBn: [
+      'ইনপুটে কেবল স্পেস ("   ") থাকলে empty() বাইপাস হয়ে যাওয়া (trim না করার কারণে)।',
+      'ভ্যালিডেশন ফেইল হলে ইউজারের ইতিপূর্বে পূরণকৃত ফর্ম ফাঁকা করে ফেলা।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'PHP-তে isset() এবং empty() এর মধ্যে সূক্ষ্ম পার্থক্য কী?',
+        answerBn: 'isset() কেবল চেক করে ভ্যারিয়েবলটি ডিক্লেয়ার করা হয়েছে কিনা এবং এর মান null নয় কিনা। আর empty() চেক করে ভ্যারিয়েবলটি আনসেট অথবা ফলসি মান (যেমন: "", 0, "0", null, false, []) ধারণ করে কিনা।',
+        seniorTipBn: 'ইন্টারভিউতে উল্লেখ করবেন: "empty() treats string \'0\' as empty, which can be an edge-case bug for numeric quantity inputs."'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: মাল্টি-ফিল্ড রিকোয়ার্ড ভ্যালিডেটর',
+      taskBn: 'একটি সিমুলেটেড ফর্মের নাম ও ইমেইল ফাঁকা কিনা পরীক্ষা করে একটি এরর অ্যারে তৈরি করুন এবং স্ট্যাটাস প্রিন্ট করুন।',
+      hintBn: 'empty(trim($val)) দিয়ে চেক করুন।',
+      starterCode: `<?php
+// রিকোয়ার্ড ফিল্ড লজিক লিখুন
+?>`,
+      solutionCode: `<?php
+$postData = ['name' => '', 'email' => 'student@gmail.com'];
+$errors = [];
+
+if (empty(trim($postData['name'] ?? ''))) {
+    $errors['name'] = 'নাম প্রদান করা বাধ্যতামূলক!';
+}
+if (empty(trim($postData['email'] ?? ''))) {
+    $errors['email'] = 'ইমেইল প্রদান করা বাধ্যতামূলক!';
+}
+
+if (!empty($errors)) {
+    echo "<span style='color:red;'>ফর্মটিতে " . count($errors) . "টি ভুল পাওয়া গেছে!</span>";
+} else {
+    echo "<span style='color:green;'>সব রিকোয়ার্ড ফিল্ড সঠিক আছে।</span>";
+}
+?>`
+    }
+  },
+
+  'php-form-url-email': {
+    trainerMetaphorBn:
+      'Email ও URL Validation-কে কল্পনা করুন একটি আন্তর্জাতিক পার্সেল ডেলিভারি ঠিকানার পোস্টাল কোড চেকারের সাথে। কোনো ঠিকানায় যদি @ সাইন না থাকে বা ডোমেইন এক্সটেনশন মিসিং থাকে, তবে ডাক বিভাগের সিস্টেম পার্সেলটি গ্রহণ করে না। PHP-র filter_var() এবং RegEx হলো সেই স্বয়ংক্রিয় রোবট যা প্রতিটি অক্ষর ও ফরম্যাট যাচাই করে আন্তর্জাতিক স্ট্যান্ডার্ড নিশ্চিত করে।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'filter_var($email, FILTER_VALIDATE_EMAIL)',
+        explanationBn: 'RFC কমপ্লায়েন্ট ইমেইল ফরম্যাট যাচাই করে।'
+      },
+      {
+        step: 2,
+        title: 'filter_var($url, FILTER_VALIDATE_URL)',
+        explanationBn: 'বৈধ প্রোটোকল ও ওয়েব ইউআরএল লিঙ্ক নিশ্চিত করে।'
+      },
+      {
+        step: 3,
+        title: 'preg_match() দিয়ে নামের বর্ণমালা রেজেক্স প্যাটার্ন',
+        explanationBn: '/^[a-zA-Z-\' ]*$/ দিয়ে নামে শুধুমাত্র বর্ণমালা, স্পেস ও হাইফেন অনুমোদন করুন।'
+      }
+    ],
+    trainerSecretsBn: [
+      'FILTER_VALIDATE_URL ডিফল্টভাবে javascript://alert(1) বা file:///etc/passwd কেও ইউআরএল হিসেবে বৈধ গণ্য করতে পারে। তাই প্রোডাকশনে সর্বদা preg_match("/^https?:\\/\\//i", $url) দিয়ে HTTP/HTTPS নিশ্চিত করবেন।',
+      'প্রোডাকশন ইমেইল ভ্যালিডেশনে সিনট্যাক্স চেকের পর ডোমেইনের DNS MX রেকর্ড (checkdnsrr($domain, "MX")) যাচাই করা একটি উচ্চমানের কৌশল।'
+    ],
+    commonGotchasBn: [
+      'দুর্বল রেজেক্স লিখে আন্তর্জাতিক বা হাইফেনেটেড নাম (যেমন Mary-Jane O\'Connor) রিজেক্ট করে ফেলা।',
+      'ইমেইল ফিল্টার করার আগে trim() না করে হোয়াইটস্পেসের কারণে ভ্যালিডেশন ফেইল করানো।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'PHP-তে filter_var() ব্যবহারের সুবিধা কী?',
+        answerBn: 'filter_var() হলো পিএইচপির অত্যন্ত দ্রুতগতিসম্পন্ন সি-লেভেল বিল্ট-ইন ফিল্টারিং এপিআই। এটি জটিল রেগুলার এক্সপ্রেশন না লিখেও ইমেইল, আইপি অ্যাড্রেস, ইউআরএল, ইন্টিজার এবং বুলিয়ান ডেটা অত্যন্ত নির্ভুলভাবে ভ্যালিডেট ও স্যানিটাইজ করে।',
+        seniorTipBn: 'ইন্টারভিউতে FILTER_SANITIZE_* এবং FILTER_VALIDATE_* এর পার্থক্য স্পষ্ট করে বুঝিয়ে বলবেন।'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: ইমেইল ও ইউআরএল ভ্যালিডেশন গেটওয়ে',
+      taskBn: 'একটি ইমেইল ও একটি ওয়েবসাইট ইউআরএল ভ্যালিড কিনা তা filter_var দিয়ে পরীক্ষা করে ফলাফল টেবিল আকারে দেখান।',
+      hintBn: 'FILTER_VALIDATE_EMAIL ও FILTER_VALIDATE_URL ব্যবহার করুন।',
+      starterCode: `<?php
+// ভ্যালিডেশন টেস্ট কোড লিখুন
+?>`,
+      solutionCode: `<?php
+$email = "test.dev@company.com";
+$website = "https://myportfolio.io";
+
+$emailValid = filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+$urlValid = filter_var($website, FILTER_VALIDATE_URL) !== false;
+
+echo "ইমেইল ভ্যালিডিটি: " . ($emailValid ? "<b style='color:green;'>Valid</b>" : "<b style='color:red;'>Invalid</b>") . "<br>";
+echo "URL ভ্যালিডিটি: " . ($urlValid ? "<b style='color:green;'>Valid</b>" : "<b style='color:red;'>Invalid</b>");
+?>`
+    }
+  },
+
+  'php-form-complete': {
+    trainerMetaphorBn:
+      'Complete Form Architecture-কে কল্পনা করুন একটি রকেট উৎক্ষেপণের ফাইনাল কাউন্টডাউন চেকলিস্টের মতো। জ্বালানি ট্যাঙ্ক (Text Input), নেভিগেশন সুইচ (Radio/Dropdown), সিস্টেম সেন্সর (Checkboxes), সুরক্ষা শিল্ড (CSRF & Sanitization) এবং গ্রাউন্ড কন্ট্রোল ডিরেকশন (PRG Redirect)—সবগুলো টেস্ট ১০০% সফল (Green) হলেই কেবল রকেট মহাকাশে উড়াল দেয় (ডাটাবেসে সেভ হয়)। কোনো একটিতে সমস্যা থাকলে কাউন্টডাউন পজ করে ইঞ্জিনিয়ারকে সুনির্দিষ্ট ত্রুটি জানানো হয়।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'মাল্টিপল ইনপুট টাইপ ম্যানেজমেন্ট',
+        explanationBn: 'Text, Email, URL, Radio Button, Select Dropdown, Checkbox Array ও Textarea হ্যান্ডেল করুন।'
+      },
+      {
+        step: 2,
+        title: 'Post-Back State Preservation (Repopulation)',
+        explanationBn: 'ইনপুটে value="", রেডিওতে checked এবং সিলেক্ট অপশনে selected ডায়নামিকালি সেট করুন।'
+      },
+      {
+        step: 3,
+        title: 'Post-Redirect-Get (PRG) প্যাটার্ন বাস্তবায়ন',
+        explanationBn: 'সফল সাবমিশনের পর header("Location: success.php"); দিয়ে ব্রাউজার রিফ্রেশ ডুপ্লিকেট সাবমিশন রোধ করুন।'
+      }
+    ],
+    trainerSecretsBn: [
+      '২০ বছরের সিনিয়র আর্কিটেক্ট নীতি: ফর্ম সাবমিশনের পর কখনোই সরাসরি একই রিকোয়েস্টে Success HTML রেন্ডার করবেন না। সবসময় PRG (Post-Redirect-Get) প্যাটার্ন ব্যবহার করবেন Flash Session মেসেজ সহ।',
+      'বট বা স্প্যাম সাবমিশন রোধ করতে একটি অদৃশ্য HoneyPot ইনপুট ফিল্ড (style="display:none") রাখুন; বটরা এটি পূরণ করলেই রিকোয়েস্ট সাইলেন্টলি ড্রপ করে দিন।'
+    ],
+    commonGotchasBn: [
+      'ফর্ম সাবমিট হওয়ার পর ব্রাউজারে F5 চাপলে ডাটাবেসে একই রেকর্ড ডাবল ইনসার্ট হওয়া (PRG প্যাটার্ন না মানায়)।',
+      'মাল্টিপল চেকবক্সের নামের শেষে ব্র্যাকেট না দেওয়া (name="skills" এর বদলে name="skills[]" দিতে হবে)।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'Post-Redirect-Get (PRG) প্যাটার্ন কী এবং কেন এটি ফর্ম হ্যান্ডলিংয়ে অপরিহার্য?',
+        answerBn: 'PRG হলো একটি ওয়েব ডেভেলপমেন্ট ডিজাইন প্যাটার্ন। ইউজার যখন POST ফর্মে ডাটা পাঠায় এবং সার্ভারে তা সফলভাবে প্রসেস হয়, তখন সার্ভার সরাসরি HTML রেন্ডার না করে 302/303 হেডার দিয়ে একটি GET পেজে (যেমন Dashboard বা Success পেজ) রিডাইরেক্ট করে। এর ফলে ইউজার ব্রাউজার রিফ্রেশ (F5) চাপলেও পুনরায় POST রিকোয়েস্ট যায় না এবং ডুপ্লিকেট ট্রানজ্যাকশন রোধ হয়।',
+        seniorTipBn: 'ভাইভায় এটি উল্লেখ করলে ইন্টারভিউয়ার বুঝতে পারবেন আপনার রিয়েল-ওয়ার্ল্ড ওয়েব আর্কিটেকচারের গভীর অভিজ্ঞতা রয়েছে।'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: ড্রপডাউন ও চেকবক্স সহ মিনি রেজিস্ট্রেশন ফর্ম',
+      taskBn: 'একটি ফর্ম তৈরি করুন যেখানে শহরের ড্রপডাউন এবং স্কিল চেকবক্স থাকবে এবং সাবমিশনের পর নির্বাচিত মানগুলো সামারি আকারে প্রিন্ট হবে।',
+      hintBn: 'name="skills[]" এবং selected/checked কন্ডিশন ব্যবহার করুন।',
+      starterCode: `<?php
+// মিনি ফর্ম ও ডাটা ডিসপ্লে কোড লিখুন
+?>`,
+      solutionCode: `<?php
+$selectedCity = "Dhaka";
+$skills = ["PHP", "MySQL"];
+
+echo "<div style='font-family:sans-serif; padding:15px; border:1px solid #334155; border-radius:8px;'>";
+echo "<h4>নির্বাচিত তথ্য সামারি:</h4>";
+echo "শহর: <b>$selectedCity</b><br>";
+echo "স্কিলসমূহ: <b>" . implode(", ", $skills) . "</b>";
+echo "</div>";
+?>`
+    }
+  },
+
+  'ajax-intro': {
+    trainerMetaphorBn:
+      'AJAX কে কল্পনা করুন একটি রেস্তোরাঁর স্মার্ট ওয়েটারের সাথে। ট্র্যাডিশনাল ওয়েব হলো এমন এক রেস্তোরাঁ যেখানে আপনি ১ কাপ চা চাইতে গেলেও পুরো ডাইনিং রুমের সব চেয়ার-টেবিল খালি করে নতুন করে সাজিয়ে নিয়ে আসে! আর AJAX হলো সেই চটপটে ওয়েটার যে আপনার টেবিলে বসে থাকা অবস্থাতেই কিচেন (PHP সার্ভার) থেকে নিঃশব্দে শুধু চা এনে টেবিলে সার্ভ করে যায়।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'অ্যাসিঙ্ক্রোনাস কমিউনিকেশনের সুবিধা বুঝুন',
+        explanationBn: 'পেজ স্ক্রল বা স্টেট না হারিয়ে ব্যাকগ্রাউন্ডে নেটওয়ার্ক রিকোয়েস্ট পরিচালনা।'
+      },
+      {
+        step: 2,
+        title: 'fetch() ও Promises হ্যান্ডলিং',
+        explanationBn: 'জাভাস্ক্রিপ্ট থেকে ব্যাকএন্ড এপিআই কল করা এবং রেসপন্স রিসিভ করা।'
+      },
+      {
+        step: 3,
+        title: 'DOM আপডেট ও লোডিং ইন্ডিকেটর',
+        explanationBn: 'ব্যবহারকারীকে ভিজ্যুয়াল লোডিং স্পিনার ও তাৎক্ষণিক ফিডব্যাক প্রদান।'
+      }
+    ],
+    trainerSecretsBn: [
+      'AJAX রিকোয়েস্টে কখনোই অতিরিক্ত ভারী এইচটিএমএল রিটার্ন করবেন না, সর্বদা কম্প্যাক্ট JSON রিটার্ন করুন এবং ক্লায়েন্টে টেমপ্লেট রেন্ডার করুন।',
+      'প্রোডাকশনে একাধিক দ্রুত ক্লিক আটকাতে সাবমিট বাটনে debounce বা disabled স্টেট নিশ্চিত করুন।'
+    ],
+    commonGotchasBn: [
+      'CORS (Cross-Origin Resource Sharing) এরর এড়িয়ে যাওয়া যখন ক্লায়েন্ট ও ব্যাকএন্ড আলাদা পোর্টে চলে।',
+      'HTTP Status Code 500/404 এর ক্ষেত্রে ক্লায়েন্টে এরর হ্যান্ডলার (catch/reject) না রাখা।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'AJAX-এ Asynchronous শব্দের আসল অর্থ কী?',
+        answerBn: 'Asynchronous মানে হলো ব্রাউজার যখন সার্ভারে ডেটা রিকোয়েস্ট পাঠায়, তখন ব্রাউজারের মেইন ইউজার ইন্টারফেস থ্রেড ফ্রিজ বা ব্লক হয় না। ইউজার পেজে অন্যান্য কাজ চালিয়ে যেতে পারেন, আর ব্যাকগ্রাউন্ডে ডেটা আসামাত্র ইভেন্ট লুপের মাধ্যমে UI আপডেট হয়।',
+        seniorTipBn: 'ইন্টারভিউতে Event Loop ও Non-blocking I/O এর সাথে তুলনা করে উত্তর দিন।'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: সিম্পল AJAX JSON রেসপন্ডার',
+      taskBn: 'PHP দিয়ে একটি JSON এপিআই রেসপন্স তৈরি করুন যা বর্তমান সার্ভার টাইম ও একটি সাকসেস মেসেজ রিটার্ন করবে।',
+      hintBn: 'json_encode() এবং header() ব্যবহার করুন।',
+      starterCode: `<?php
+// JSON রেসপন্স স্ক্রিপ্ট লিখুন
+?>`,
+      solutionCode: `<?php
+$data = [
+    'success' => true,
+    'serverTime' => date('H:i:s'),
+    'message' => 'AJAX Connection OK'
+];
+echo json_encode($data, JSON_PRETTY_PRINT);
+?>`
+    }
+  },
+
+  'ajax-php': {
+    trainerMetaphorBn:
+      'PHP AJAX হ্যান্ডলারকে কল্পনা করুন একটি ব্যাংকের স্পেশাল ক্যাশ ডিপোজিট ড্রপবক্সের মতো। সাধারণ কাস্টমাররা লাইনে দাঁড়িয়ে কাউন্টারে স্লিপ দেয় (Traditional Form), আর AJAX ইউজাররা অটোমেটিক কিয়স্কে ডিজিটালি কার্ড সোয়াইপ করে তাৎক্ষণিক রিসিট নিয়ে যায়। PHP স্ক্রিপ্টটি সেই কিয়স্কের কোর ব্যাংকিং এপিআই ইঞ্জিন।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'file_get_contents("php://input") বোঝা',
+        explanationBn: 'জাভাস্ক্রিপ্ট থেকে পাঠানো কাঁচা JSON পে-লোড রিড করার একমাত্র নিরাপদ মাধ্যম।'
+      },
+      {
+        step: 2,
+        title: 'json_decode($json, true) দিয়ে পার্সিং',
+        explanationBn: 'জেসনকে পিএইচপি অ্যাসোসিয়েটিভ অ্যারেতে রূপান্তর।'
+      },
+      {
+        step: 3,
+        title: 'সঠিক HTTP স্ট্যাটাস কোড প্রদান',
+        explanationBn: 'http_response_code(200 / 400 / 422) দিয়ে ক্লায়েন্টকে নির্ভুল স্ট্যাটাস জানানো।'
+      }
+    ],
+    trainerSecretsBn: [
+      'JSON_UNESCAPED_UNICODE ফ্ল্যাগ ছাড়া json_encode ব্যবহার করলে বাংলা বা যেকোনো ইউনিকোড ফন্ট \u0985 কোড হিসেবে ক্লায়েন্টে যায় যা ব্যান্ডউইথ নষ্ট করে।',
+      'রেসপন্স জেনারেটের পর সবসময় exit; কল করুন, যাতে কোনো ইনক্লুডেড ফাইল থেকে অবাঞ্ছিত হোয়াইটস্পেস বা এইচটিএমএল ঢুকে JSON নষ্ট না করে।'
+    ],
+    commonGotchasBn: [
+      'fetch(..., {body: JSON.stringify()}) পাঠালে $_POST দিয়ে ধরার চেষ্টা করা ($_POST তখন ফাঁকা থাকে)।',
+      'PHP Warning/Notice অন থাকলে JSON আউটপুটের আগে ওয়ার্নিং টেক্সট প্রিন্ট হয়ে ক্লায়েন্টের JSON.parse ক্র্যাশ করা।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'AJAX POST রিকোয়েস্টে $_POST অ্যারে কেন মাঝে মাঝে ফাঁকা থাকে?',
+        answerBn: 'যখন ক্লায়েন্ট Content-Type: application/json দিয়ে কাঁচা JSON স্ট্রিং পাঠায়, PHP নিজে থেকে সেটিকে $_POST এ রূপান্তর করে না। $_POST শুধুমাত্র application/x-www-form-urlencoded অথবা multipart/form-data হলে পপুলেট হয়। JSON বডি রিড করতে file_get_contents("php://input") ব্যবহার করতে হয়।',
+        seniorTipBn: 'এই প্রশ্নে অনেক ইন্টারভিউয়ার পরীক্ষার্থীর ডেটা স্ট্রিম ও HTTP বডি বোঝার গভীরতা যাচাই করেন।'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: ইনকামিং JSON প্রসেসর',
+      taskBn: 'একটি ইনকামিং JSON স্ট্রিং পার্স করে ইউজারের রোল ভ্যালিডেট করুন এবং রেসপন্স তৈরি করুন।',
+      hintBn: 'json_decode() ব্যবহার করুন।',
+      starterCode: `<?php
+$rawJson = '{"username":"admin","role":"superadmin"}';
+// JSON পার্স করে আউটপুট দিন
+?>`,
+      solutionCode: `<?php
+$rawJson = '{"username":"admin","role":"superadmin"}';
+$payload = json_decode($rawJson, true);
+
+if (isset($payload['role']) && $payload['role'] === 'superadmin') {
+    echo "অ্যাক্সেস অনুমোদিত: " . htmlspecialchars($payload['username']);
+} else {
+    echo "অননুমোদিত অ্যাক্সেস!";
+}
+?>`
+    }
+  },
+
+  'ajax-database': {
+    trainerMetaphorBn:
+      'AJAX Database ইন্টিগ্রেশন হলো একটি লাইব্রেরির ডিজিটাল ক্যাটালগ কার্ড স্ক্যানারের মতো। আপনি নির্দিষ্ট কোনো ক্যাটাগরি বা বইয়ের নামের কার্ড সোয়াইপ করার সাথে সাথে পেছনের অটোমেটিক রোবোটিক আর্ম (PDO Prepared Query) ঠিক সেই বইটি শেলফ থেকে এনে টেবিলে হাজির করে, আপনাকে পুরো লাইব্রেরি হেঁটে খুঁজতে হয় না।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'ইভেন্ট লিসেনারে প্যারামিটার সংগ্রহ',
+        explanationBn: 'ড্রপডাউন নির্বাচন বা আইডি থেকে প্যারামিটার তৈরি।'
+      },
+      {
+        step: 2,
+        title: 'PDO Prepared Statement এ বাইন্ডিং',
+        explanationBn: 'SQL Injection চিরতরে বন্ধ করতে প্লেসহোল্ডার ব্যবহার।'
+      },
+      {
+        step: 3,
+        title: 'ডায়নামিক টেবিল রেন্ডারিং',
+        explanationBn: 'ক্লায়েন্টে টেবিল রো বা কার্ডে ডেটা ইনসার্ট করা।'
+      }
+    ],
+    trainerSecretsBn: [
+      'AJAX ডাটাবেস এন্ডপয়েন্টে সবসময় SELECT * পরিহার করুন; শুধুমাত্র UI-তে প্রদর্শনের জন্য প্রয়োজনীয় কলামগুলো উল্লেখ করুন।',
+      'প্রয়োজনীয় ক্ষেত্রে ডাটাবেস লেভেলে কলামে ইনডেক্সিং (INDEX) নিশ্চিত করুন যাতে রিয়েলটাইম ফিল্টারে সার্ভার ল্যাগ না করে।'
+    ],
+    commonGotchasBn: [
+      'GET রিকোয়েস্টে আসা আইডি সরাসরি কুয়েরিতে বসিয়ে SQL Injection ঝুঁকিতে পড়া।',
+      'ডাটাবেস কানেকশন ফেইল হলে পুরো ডাটাবেস এরর মেসেজ ও ক্রেডেনশিয়ালস ক্লায়েন্টে এক্সপোজ করে ফেলা।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'AJAX ডাটাবেস কুয়েরির নিরাপত্তা কিভাবে নিশ্চিত করবেন?',
+        answerBn: '১. ইনপুট টাইপ কাস্টিং ও ভ্যালিডেশন (যেমন filter_var FILTER_VALIDATE_INT), ২. শতভাগ ক্ষেত্রে PDO Prepared Statement প্লেসহোল্ডার ব্যবহার, ৩. জেনেরিক এরর হ্যান্ডলিং ও ৪. রেট লিমিটিং প্রয়োগ করে।',
+        seniorTipBn: 'ভাইভায় বলুন: "Never trust client parameters in AJAX endpoints; treat them as hostile public inputs."'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: প্যারামিটারাইজড ডাটাবেস ফিল্টার সিমুলেশন',
+      taskBn: 'একটি প্রোডাক্ট অ্যারে থেকে নির্দিষ্ট ক্যাটাগরির প্রোডাক্ট ফিল্টার করে একটি HTML টেবিল রেন্ডার করুন।',
+      hintBn: 'array_filter() দিয়ে ফিল্টার করুন।',
+      starterCode: `<?php
+$products = [
+  ['name' => 'Mouse', 'cat' => 'electronics'],
+  ['name' => 'Book', 'cat' => 'stationery']
+];
+$target = 'electronics';
+// ফিল্টার করে প্রিন্ট করুন
+?>`,
+      solutionCode: `<?php
+$products = [
+  ['name' => 'Mouse', 'cat' => 'electronics'],
+  ['name' => 'Book', 'cat' => 'stationery']
+];
+$target = 'electronics';
+
+$filtered = array_filter($products, fn($p) => $p['cat'] === $target);
+foreach ($filtered as $item) {
+    echo "পণ্য: " . htmlspecialchars($item['name']) . "<br>";
+}
+?>`
+    }
+  },
+
+  'ajax-xml': {
+    trainerMetaphorBn:
+      'XML কে কল্পনা করুন প্রাচীন সিলমোহরযুক্ত অফিসিয়াল রাজকীয় চিঠির সাথে। চিঠিটি অনেক নিয়মকানুন ও ভারী খামে মোড়ানো (Tags), যা খুলতে কিছুটা সময় লাগে কিন্তু এর ফরম্যাট ও প্রোটোকল অত্যন্ত সুনির্দিষ্ট। বিপরীতে JSON হলো আধুনিক দ্রুতগতির হোয়াটসঅ্যাপ মেসেজ। এন্টারপ্রাইজ সিস্টেম ও লিগ্যাসি ব্যাংকিং প্রোটোকলে এখনও XML চিঠির কদর রয়েছে।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'XML ডকুমেন্টের গঠন বোঝা',
+        explanationBn: 'রুট এলিমেন্ট, চাইল্ড নোড ও অ্যাট্রিবিউটের সমন্বয়।'
+      },
+      {
+        step: 2,
+        title: 'PHP SimpleXMLElement ব্যবহার',
+        explanationBn: 'পিএইচপিতে সহজ পদ্ধতিতে XML নোড তৈরি ও ম্যানিপুলেশন।'
+      },
+      {
+        step: 3,
+        title: 'Content-Type: text/xml হেডার সেট করা',
+        explanationBn: 'ব্রাউজারকে জানানো যে রেসপন্সটি একটি XML ডকুমেন্ট।'
+      }
+    ],
+    trainerSecretsBn: [
+      'SimpleXML এ নোড টেক্সট যোগ করার সময় স্পেশাল ক্যারেক্টার (&, <, >) থাকলে স্বয়ংক্রিয়ভাবে বা htmlspecialchars দিয়ে এস্কেপ করুন, অন্যথায় XML পার্সিং ফেইল করবে।',
+      'ক্লায়েন্ট থেকে এক্সএমএল আপলোড নেওয়ার সময় XXE (XML External Entity) অ্যাটাক বন্ধে libxml_disable_entity_loader(true) এনফোর্স করুন।'
+    ],
+    commonGotchasBn: [
+      'Content-Type হেডার না দিয়ে প্লেইন টেক্সট হিসেবে XML পাঠানো, ফলে ক্লায়েন্টে responseXML নাল হয়ে যাওয়া।',
+      'XML রুট এলিমেন্ট একাধিক বানিয়ে Malformed XML তৈরি করা।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'আধুনিক ওয়েব আর্কিটেকচারে XML এর পরিবর্তে JSON কেন প্রাধান্য পেয়েছে?',
+        answerBn: 'JSON অনেক বেশি কম্প্যাক্ট ও লাইটওয়েট (কোনো ক্লোজিং ট্যাগ নেই), জাভাস্ক্রিপ্ট নেটিভলি সরাসরি JSON.parse() দিয়ে দ্রুত অবজেক্টে রূপান্তর করতে পারে এবং নেটওয়ার্ক ব্যান্ডউইথ ৫০-৭০% কম খরচ করে।',
+        seniorTipBn: 'ইন্টারভিউতে উল্লেখ করবেন: তবে SOAP ও ব্যাংকিং লিগ্যাসি সিস্টেমে স্কিমা ভ্যালিডেশনের জন্য XML এখনও প্রাসঙ্গিক।'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: SimpleXML নোড জেনারেটর',
+      taskBn: 'SimpleXMLElement দিয়ে একটি বুক ক্যাটালগের XML তৈরি করে স্ট্রিং আকারে আউটপুট দিন।',
+      hintBn: 'new SimpleXMLElement() এবং addChild() ব্যবহার করুন।',
+      starterCode: `<?php
+// SimpleXML কোড লিখুন
+?>`,
+      solutionCode: `<?php
+$xml = new SimpleXMLElement('<catalog/>');
+$book = $xml->addChild('book');
+$book->addChild('title', 'Mastering PHP');
+$book->addChild('price', '29.99');
+echo htmlspecialchars($xml->asXML());
+?>`
+    }
+  },
+
+  'ajax-live-search': {
+    trainerMetaphorBn:
+      'Live Search কে কল্পনা করুন একটি অভিধানের ইনডেক্স বুথের সাথে। আপনি যখন দ্রুত ‘P-H-P’ টাইপ করছেন, বুথটি আপনার প্রতি আঙুলের নড়াচড়ায় দৌড় না দিয়ে আপনার টাইপিং থামার জন্য এক পলক (৩০০ মিলিসেকেন্ড ডিবৌন্স) অপেক্ষা করে এবং তারপর একবারে নিখুঁত পাতাটি খুলে আপনার সামনে মেলে ধরে। এতে সহকারী (ডাটাবেস) ক্লান্ত হয় না।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'কিবোর্ড ইভেন্ট (keyup/input)',
+        explanationBn: 'ইউজার টাইপ করার সাথে সাথে ইনপুট ভ্যালু ট্র্যাকিং।'
+      },
+      {
+        step: 2,
+        title: 'ডিবৌন্সিং (Debounce 300ms) কৌশল',
+        explanationBn: 'অপ্রয়োজনীয় কুয়েরি বন্যা ঠেকিয়ে সার্ভারকে সুরক্ষিত রাখা।'
+      },
+      {
+        step: 3,
+        title: 'SQL LIKE ও LIMIT সহ কুয়েরি এক্সিকিউশন',
+        explanationBn: 'পারফরম্যান্ট ও ফাস্ট সার্চ রেজাল্ট ড্রপডাউন প্রদর্শন।'
+      }
+    ],
+    trainerSecretsBn: [
+      'কখনোই ১ ক্যারেক্টারের জন্য ডাটাবেস সার্চ ট্রিগার করবেন না; মিনিমাম ২ বা ৩ ক্যারেক্টার হলে তবেই AJAX রিকোয়েস্ট পাঠান।',
+      'প্রোডাকশন ই-কমার্সে ডাটাবেসের ওপর চাপ কমাতে ঘনঘন সার্চ হওয়া কি-ওয়ার্ডগুলো Redis বা Memcached-এ ক্যাশ করে রাখুন।'
+    ],
+    commonGotchasBn: [
+      'ডিবৌন্স ছাড়া প্রতি কি-স্ট্রোকে রিকোয়েস্ট পাঠানো, ফলে ১০০০ ইউজারের টাইপিংয়ে সার্ভার ক্র্যাশ করা।',
+      'সার্চ রেজাল্টে LIMIT না দেওয়া, ফলে ১ লক্ষ রো লোড হয়ে ব্রাউজার হ্যাং করা।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'লাইভ সার্চে Debouncing এবং Throttling এর মধ্যে পার্থক্য কী?',
+        answerBn: 'Debouncing হলো ইভেন্ট ঘটার পর একটি নির্দিষ্ট সময় পর্যন্ত অপেক্ষা করা এবং ব্যবহারকারী থামা পর্যন্ত ফাংশন এক্সিকিউশন স্থগিত রাখা (টাইপিং এর জন্য সেরা)। আর Throttling হলো একটি নির্দিষ্ট সময় পর পর (যেমন প্রতি ৫০০ms এ একবার) বাধ্যতামূলকভাবে ফাংশন রান করানো (উইন্ডো স্ক্রল বা রিসাইজের জন্য সেরা)।',
+        seniorTipBn: 'ইন্টারভিউতে ফ্রন্টএন্ড-ব্যাকএন্ড পারফরম্যান্স অপ্টিমাইজেশনের একটি প্রিয় প্রশ্ন এটি।'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: লাইভ সার্চ ফিল্টারিং লজিক',
+      taskBn: 'একটি ফ্রুটস অ্যারে থেকে ইনপুট স্ট্রিং অনুযায়ী ম্যাচিং ফ্রুটস খুঁজে বের করে প্রিন্ট করুন।',
+      hintBn: 'stripos() বা str_contains() ব্যবহার করুন।',
+      starterCode: `<?php
+$fruits = ['Apple', 'Banana', 'Mango', 'Avocado', 'Pineapple'];
+$search = 'an';
+// ফিল্টার করে প্রিন্ট করুন
+?>`,
+      solutionCode: `<?php
+$fruits = ['Apple', 'Banana', 'Mango', 'Avocado', 'Pineapple'];
+$search = 'an';
+
+foreach ($fruits as $fruit) {
+    if (stripos($fruit, $search) !== false) {
+        echo "ম্যাচ: " . htmlspecialchars($fruit) . "<br>";
+    }
+}
+?>`
+    }
+  },
+
+  'ajax-poll': {
+    trainerMetaphorBn:
+      'AJAX Poll হলো একটি ডিজিটাল লাইভ স্টেডিয়াম স্ক্রিনের মতো। যখন দশ হাজার দর্শক তাদের সিটের রিমোট বোতামে চাপ দেয়, সেন্ট্রাল সার্ভার প্রতিটি বোতামের চাপ এক নিমিষে গুনে নিয়ে বিশাল পর্দায় প্রতিটি খেলোয়াড়ের রেটিং বার ও পার্সেন্টেজ গ্রাফ তাৎক্ষণিক বড় বা ছোট করে দেখায়, পুরো স্ক্রিন বন্ধ করে আবার অন করার কোনো প্রয়োজন হয় না।',
+    beginnerSteps: [
+      {
+        step: 1,
+        title: 'ভোট অপশন নির্বাচন ও ক্লিক ইভেন্ট',
+        explanationBn: 'রেডিও বাটন বা বাটনে ক্লিকে AJAX রিকোয়েস্ট ট্রিগার।'
+      },
+      {
+        step: 2,
+        title: 'অ্যাটমিক ডাটাবেস ইনক্রিমেন্ট (votes = votes + 1)',
+        explanationBn: 'কনকারেন্সি ও রেস কন্ডিশন সেফ আপডেট পরিচালনা।'
+      },
+      {
+        step: 3,
+        title: 'শতাংশ ক্যালকুলেশন ও প্রোগ্রেস বার অ্যানিমেশন',
+        explanationBn: 'মোট ভোটের সাপেক্ষে প্রতিটি অপশনের পার্সেন্টেজ প্রদর্শন।'
+      }
+    ],
+    trainerSecretsBn: [
+      'ভোট গণনার ক্ষেত্রে কোডে আগে SELECT করে পরে যোগ করে UPDATE করবেন না (Race Condition)। সরাসরি SQL-এ `votes = votes + 1` লিখুন।',
+      'ব্যবহারকারী যাতে পেজ রিফ্রেশ করে আবার ভোট দিতে না পারে সেজন্য সেশন, কুকি এবং প্রয়োজনে আইপি/ইউজারআইডি ট্র্যাকিং নিশ্চিত করুন।'
+    ],
+    commonGotchasBn: [
+      'মোট ভোট শূন্য (Total = 0) থাকলে ডিভিশন বাই জিরো (Division by zero error) ক্র্যাশ হওয়া।',
+      'ভোট বাটনে বারবার ক্লিক আটকাতে ডিসেবল স্টেট না দেওয়া।'
+    ],
+    interviewQuestions: [
+      {
+        questionBn: 'হাই-কনকারেন্সি পোলিং সিস্টেমে Race Condition কিভাবে সমাধান করবেন?',
+        answerBn: '১. ডাটাবেসে অ্যাটমিক আপডেট কোয়েরি (UPDATE poll SET votes = votes + 1 WHERE id = ?) ব্যবহার করে, ২. ডাটাবেস ট্রানজ্যাকশন ও রো-লেভেল লকিং (SELECT FOR UPDATE) নিশ্চিত করে, অথবা ৩. অতি উচ্চ ট্রাফিকের ক্ষেত্রে Redis-এর INCR কমান্ড ব্যবহার করে মেমোরিতে ভোট গণনা করে পরে ডাটাবেসে সিঙ্ক করার মাধ্যমে।',
+        seniorTipBn: 'আর্কিটেকচারাল ভাইভায় Redis Atomic INCR এর উল্লেখ আপনাকে সেরা ক্যান্ডিডেট হিসেবে তুলে ধরবে।'
+      }
+    ],
+    studentChallenge: {
+      title: 'ল্যাব চ্যালেঞ্জ: পোল পার্সেন্টেজ ক্যালকুলেটর',
+      taskBn: 'চারটি অপশনের ভোট সংখ্যা থেকে মোট ভোট ও প্রতিটি অপশনের সঠিক শতকরা হার নির্ণয় করে প্রিন্ট করুন।',
+      hintBn: 'array_sum() এবং round(($votes / $total) * 100, 1) ব্যবহার করুন।',
+      starterCode: `<?php
+$poll = ['PHP' => 50, 'JS' => 30, 'Python' => 20];
+// পার্সেন্টেজ ক্যালকুলেট করুন
+?>`,
+      solutionCode: `<?php
+$poll = ['PHP' => 50, 'JS' => 30, 'Python' => 20];
+$total = array_sum($poll);
+
+foreach ($poll as $opt => $count) {
+    $pct = $total > 0 ? round(($count / $total) * 100, 1) : 0;
+    echo "$opt: $pct% ($count ভোট)<br>";
+}
+?>`
+    }
   }
 };
 
@@ -636,7 +1249,7 @@ export function getTopicPedagogy(topic: TopicItem): PedagogicalDetails {
     solutionCode: topic.sampleCode
   };
 
-  // Build high-impact presentation slides for classroom / projector lecture
+  // Build high-impact presentation slides from topic details & all lesson sections / examples
   const metaphorText = specific?.trainerMetaphorBn || defaultMetaphor;
   const steps = specific?.beginnerSteps || defaultBeginnerSteps;
   const secrets = specific?.trainerSecretsBn || defaultSecrets;
@@ -644,90 +1257,130 @@ export function getTopicPedagogy(topic: TopicItem): PedagogicalDetails {
   const interview = specific?.interviewQuestions || defaultInterview;
   const challenge = specific?.studentChallenge || defaultChallenge;
 
-  const slides: PresentationSlide[] = [
-    {
+  let slides: PresentationSlide[] = [];
+  const lessonSections = topic.deepDive?.lessonSections || [];
+
+  if (lessonSections.length > 0) {
+    // 1. Topic Overview Slide
+    slides.push({
       slideNumber: 1,
-      title: `মাস্টারক্লাস পরিচিতি: ${topic.title}`,
-      subtitle: `${topic.subtitleBn} [${topic.phpVersion}]`,
+      title: `${topic.title}: মূল বিষয়বস্তু ও ওভারভিউ`,
+      subtitle: `${topic.subtitleBn} [${topic.phpVersion}] • মোট ${lessonSections.length}টি পাঠ ও কোড উদাহরণ`,
       bulletPoints: [
-        `টপিক ক্যাটাগরি: ${topic.category.toUpperCase()} • ট্যাগ: ${topic.tag}`,
-        'বাস্তব জীবনের রূপক ও মানসিক মডেল (Mental Model)',
-        'ক্লাসরুম লেকচার: কনসেপ্ট থেকে এন্টারপ্রাইজ প্রোডাকশন আর্কিটেকচার',
-        'হ্যান্ডস-অন লাইভ কোডিং ও ইনস্ট্যান্ট ব্রাউজার রানার'
+        `ক্যাটাগরি: ${topic.category.toUpperCase()} • ট্যাগ: ${topic.tag}`,
+        `টপিক পরিচিতি: ${topic.subtitleBn}`,
+        `সম্পূর্ণ মডিউলে অন্তর্ভুক্ত: ${lessonSections.length}টি বিস্তারিত লেসন সেকশন ও কোড উদাহরণ`,
+        'পরবর্তী স্লাইডগুলোতে প্রতিটি উদাহরণের থিওরি, কোড ও আউটপুট বিশ্লেষণ রয়েছে।'
       ],
-      trainerSpeechNotes: `স্বাগতম প্রিয় শিক্ষার্থীরা! আমি আপনাদের ২০ বছরের অভিজ্ঞতার আলোকে আজ ${topic.title} এর আদ্যোপান্ত শেখাব। কোনো মুখস্থ বিদ্যা নয়, আমরা বাস্তব উদাহরণ দিয়ে শিখব যাতে সারাজীবন মনে থাকে।`,
-      analogyOrHighlight: metaphorText
-    },
-    {
-      slideNumber: 2,
-      title: 'বিগিনার ধাপে ধাপে শেখার গাইড (Step-by-Step)',
-      subtitle: 'একটি শক্তিশালী ফাউন্ডেশন গড়ে তোলার ৩টি ধাপ',
-      bulletPoints: steps.map((s) => `ধাপ ${s.step}: ${s.title} — ${s.explanationBn}`),
-      trainerSpeechNotes: 'এই ধাপগুলো মনোযোগ দিয়ে লক্ষ্য করুন। প্রতিটি ধাপে আমরা প্রথমে থিওরি বুঝব, তারপর বাস্তবে প্রয়োগ করব।'
-    },
-    {
-      slideNumber: 3,
-      title: 'লাইভ কোড স্যাম্পল ও আর্কিটেকচারাল রান',
-      subtitle: 'স্ক্রিনেই সরাসরি পিএইচপি এক্সিকিউশন দেখুন',
-      bulletPoints: [
-        'স্ট্যান্ডার্ড কোডিং ফরম্যাট ও টাইপ সেফটি',
-        'ইনপুট থেকে আউটপুটের সরাসরি রূপান্তর',
-        'রাইট সাইড ইন্টারেক্টিভ এডিটরে যেকোনো সময় পরিবর্তনযোগ্য'
-      ],
+      explanationBn: topic.deepDive?.conceptBn || '',
       codeSnippet: topic.sampleCode,
-      trainerSpeechNotes: 'স্ক্রিনে প্রদর্শিত কোডটি লক্ষ্য করুন। ডানপাশের এডিটরে এটি লোড করে রান করে দেখুন কীভাবে আউটপুট জেনারেট হচ্ছে।'
-    },
-    {
-      slideNumber: 4,
-      title: 'জুনিয়র বনাম ২০ বছরের সিনিয়র কোড রিভিউ',
-      subtitle: 'কোম্পানিগুলো যে কারণে আপনাকে জুনিয়র থেকে সিনিয়র পদে প্রমোট করবে',
-      bulletPoints: topic.deepDive.comparison
-        ? [
-            `জুনিয়র অ্যান্টি-প্যাটার্ন: ${topic.deepDive.comparison.juniorProblems[0] || 'টাইপ সেফটি ও স্কেলেবিলিটির অভাব'}`,
-            `সিনিয়র স্ট্যান্ডার্ড সল্যুশন: ${topic.deepDive.comparison.seniorBenefits[0] || 'টাইপ সেফ, টেস্টেবল ও ক্লিন ডিজাইন'}`,
-            `আর্কিটেকচারাল গাইডলাইন: ${topic.deepDive.comparison.architectAdvice || 'দীর্ঘমেয়াদী মেইনটেইনেবিলিটি ও পারফরম্যান্স'}`
-          ]
-        : [
-            'জুনিয়র অ্যান্টি-প্যাটার্ন: তাৎক্ষণিক কাজ চালানোর জন্য অপরিকল্পিত কোড যা ভবিষ্যতে স্কেল করে না।',
-            'সিনিয়র স্ট্যান্ডার্ড সল্যুশন: টাইপ-সেফ, টেস্টেবল, ক্লিন এবং সুরক্ষিত আর্কিটেকচারাল প্যাটার্ন।',
-            'আর্কিটেকচারাল গাইডলাইন: কোড লেখার সময় সর্বদা দীর্ঘমেয়াদী সফটওয়্যার মেইনটেন্যান্স বিবেচনা করুন।'
-          ],
-      trainerSpeechNotes: 'ইন্ডাস্ট্রিতে শুধু কাজ হলেই হয় না। কোডটি ভবিষ্যতে বাগ-ফ্রি থাকবে কিনা এবং অন্য ডেভেলপাররা সহজে বুঝতে পারবে কিনা সেটাই আসল আর্কিটেকচার।'
-    },
-    {
-      slideNumber: 5,
-      title: '২০ বছরের অভিজ্ঞতার ট্রেইনার সিক্রেটস ও কমন ফাঁদ',
-      subtitle: 'বাস্তব প্রজেক্টের অভিজ্ঞতা থেকে প্রাপ্ত সতর্কবার্তা',
+      trainerSpeechNotes: `${topic.title} টপিকের ওভারভিউ। এই মডিউলে মোট ${lessonSections.length}টি বাস্তব উদাহরণ ও কোড সেকশন রয়েছে যা ধারাবাহিকভাবে পরবর্তী স্লাইডগুলোতে সাজানো হয়েছে।`,
+      analogyOrHighlight: metaphorText
+    });
+
+    // 2. Each Lesson Section / Example Block becomes its own dedicated Slide
+    lessonSections.forEach((sec, idx) => {
+      slides.push({
+        slideNumber: slides.length + 1,
+        title: sec.title || `${topic.title} — সেকশন ${idx + 1}`,
+        subtitle: `${topic.title} • পাঠ ও কোড উদাহরণ (${idx + 1}/${lessonSections.length})`,
+        bulletPoints: [],
+        explanationBn: sec.explanationBn,
+        codeSnippet: sec.code,
+        codeLanguage: sec.codeLanguage || 'PHP 8.2 Live Code',
+        outputPreview: sec.outputPreview,
+        noteBn: sec.noteBn,
+        trainerSpeechNotes: `এই স্লাইডে "${sec.title || topic.title}" এর কনসেপ্ট ও আউটপুট দেখানো হয়েছে। প্রয়োজনে কোডটি এডিটরে পাঠিয়ে রান করে পরীক্ষা করুন।`
+      });
+    });
+
+    // 3. Best Practices & Gotchas Slide
+    slides.push({
+      slideNumber: slides.length + 1,
+      title: `${topic.title} — বেস্ট প্র্যাকটিস ও পরিহার্য ভুল`,
+      subtitle: 'প্রোডাকশন-গ্রেড কোডিং নিয়ম ও বাগ প্রতিরোধ',
       bulletPoints: [
-        ...secrets.slice(0, 2).map((sec) => `প্রোডাকশন বেস্ট প্র্যাকটিস: ${sec}`),
-        ...gotchas.slice(0, 2).map((g) => `সতর্কতা ও পরিহার্য ভুল: ${g}`)
+        `বেস্ট প্র্যাকটিস: ${secrets[0] || 'কোড রিডাবিলিটি ও স্ট্যান্ডার্ড সিনট্যাক্স মেনে চলুন।'}`,
+        `বেস্ট প্র্যাকটিস: ${secrets[1] || 'সঠিক টাইপ ডিক্লারেশন ও ভ্যালিডেশন নিশ্চিত করুন।'}`,
+        `সতর্কতা: ${gotchas[0] || 'সিনট্যাক্স ও আন-ইনিশিয়ালাইজড ভেরিয়েবলের ভুল পরিহার করুন।'}`,
+        `সতর্কতা: ${gotchas[1] || 'নিরাপত্তা ও এক্সেপশন হ্যান্ডলিং সঠিকভাবে করুন।'}`
       ],
-      trainerSpeechNotes: 'এই ভুলগুলো আমি আমার ২০ বছরের ক্যারিয়ারে শত শত জুনিয়র ডেভেলপারকে করতে দেখেছি। আপনারা যেন এই ফাঁদে না পড়েন সেজন্যই এই সতর্কবার্তা।'
-    },
-    {
-      slideNumber: 6,
-      title: 'টেকনিক্যাল ইন্টারভিউ ও ভাইভা প্রস্তুতি',
-      subtitle: 'শীর্ষস্থানীয় আইটি কোম্পানিতে এই টপিক থেকে যা জিজ্ঞাসা করা হয়',
-      bulletPoints: [
-        `ইন্টারভিউ প্রশ্ন: ${interview[0]?.questionBn || 'টপিকের মূল আর্কিটেকচারাল কনসেপ্ট'}`,
-        `স্ট্যান্ডার্ড উত্তর: ${interview[0]?.answerBn || 'ক্লিন আর্কিটেকচার ও নিরাপত্তা ভিত্তিক ব্যাখ্যা'}`,
-        `সিনিয়র আর্কিটেক্টের পরামর্শ: ${interview[0]?.seniorTipBn || 'বাস্তব প্রজেক্টের অভিজ্ঞতা ও সুরক্ষার প্রভাব তুলে ধরুন'}`
-      ],
-      trainerSpeechNotes: 'ভাইভা বোর্ডে কখনই শুধু মুখস্থ এক লাইনের সংজ্ঞা দেবেন না। সবসময় এর বাস্তবিক প্রভাব ও সুরক্ষার দিকটি তুলে ধরবেন।'
-    },
-    {
-      slideNumber: 7,
-      title: 'হ্যান্ডস-অন ল্যাব চ্যালেঞ্জ',
-      subtitle: 'এবার আপনার পালা! নিজে কোড করে প্র্যাকটিস করুন',
-      bulletPoints: [
-        `টাস্ক: ${challenge.taskBn}`,
-        `ইঙ্গিত (Hint): ${challenge.hintBn}`,
-        'ডানপাশের এডিটরে কোড রান করে ফলাফল যাচাই করুন'
-      ],
-      codeSnippet: challenge.starterCode,
-      trainerSpeechNotes: 'প্রোগ্রামিং শেখার একমাত্র মূলমন্ত্র হলো নিজের হাতে কোড লেখা। এখনই এডিটরে এই চ্যালেঞ্জটি সমাধান করুন!'
+      trainerSpeechNotes: 'বাস্তব প্রজেক্টে বাগ কমানো ও সিকিউরিটি নিশ্চিত করার জন্য এই বেস্ট প্র্যাকটিসগুলো মেনে চলুন।'
+    });
+
+    // 4. Comparison slide if exists
+    if (topic.deepDive?.comparison) {
+      slides.push({
+        slideNumber: slides.length + 1,
+        title: `${topic.title} — জুনিয়র বনাম সিনিয়র সলিউশন`,
+        subtitle: 'এন্টারপ্রাইজ ক্লিন কোড আর্কিটেকচার ও কোড রিভিউ',
+        bulletPoints: [
+          `জুনিয়র অ্যান্টি-প্যাটার্ন: ${topic.deepDive.comparison.juniorProblems[0] || 'তাৎক্ষণিক কাজ চালানোর জন্য অপরিকল্পিত কোড যা স্কেল করে না।'}`,
+          `সিনিয়র স্ট্যান্ডার্ড: ${topic.deepDive.comparison.seniorBenefits[0] || 'টাইপ-সেফ, টেস্টেবল, ক্লিন এবং সুরক্ষিত আর্কিটেকচারাল প্যাটার্ন।'}`,
+          `আর্কিটেকচারাল গাইডলাইন: ${topic.deepDive.comparison.architectAdvice || 'দীর্ঘমেয়াদী সফটওয়্যার মেইনটেন্যান্স ও পারফরম্যান্স।'}`
+        ],
+        codeSnippet: topic.deepDive.comparison.seniorCode,
+        trainerSpeechNotes: 'কোম্পানি এবং বড় প্রজেক্টে স্কেলেবিলিটি নিশ্চিত করতে সর্বদা এই সিনিয়র স্ট্যান্ডার্ড কোড অনুসরণ করা হয়।'
+      });
     }
-  ];
+  } else {
+    // Fallback if no lessonSections
+    slides = [
+      {
+        slideNumber: 1,
+        title: `${topic.title}: মূল কনসেপ্ট ও পরিচিতি`,
+        subtitle: `${topic.subtitleBn} [${topic.phpVersion}]`,
+        bulletPoints: [
+          `টপিক উদ্দেশ্য: ${topic.subtitleBn}`,
+          `ধাপ ১: ${steps[0]?.title || 'মূল ধারণা'} — ${steps[0]?.explanationBn || ''}`,
+          `ধাপ ২: ${steps[1]?.title || 'ব্যবহার'} — ${steps[1]?.explanationBn || ''}`,
+          `ধাপ ৩: ${steps[2]?.title || 'কার্যকারিতা'} — ${steps[2]?.explanationBn || ''}`
+        ],
+        explanationBn: topic.deepDive?.conceptBn,
+        trainerSpeechNotes: `${topic.title} এর মূল উদ্দেশ্য এবং মেমরিতে বা রানটাইমে এটি কীভাবে কাজ করে তা পরিষ্কারভাবে বোঝা অত্যন্ত জরুরি।`,
+        analogyOrHighlight: metaphorText
+      },
+      {
+        slideNumber: 2,
+        title: `${topic.title} — সিনট্যাক্স ও কোড এক্সিকিউশন`,
+        subtitle: 'কোড স্ট্রাকচার, কী-ওয়ার্ড ও লাইভ রানটাইম আউটপুট',
+        bulletPoints: [
+          `টপিক ক্যাটাগরি ও পরিবেশ: ${topic.category.toUpperCase()} • ${topic.phpVersion}`,
+          'স্টেটমেন্ট স্ট্রাকচার ও সঠিক টাইপ ডিক্লারেশন',
+          'নিচের কোডটি সরাসরি ব্রাউজারে রান করে তাৎক্ষণিক আউটপুট পর্যবেক্ষণ করুন'
+        ],
+        codeSnippet: topic.sampleCode,
+        trainerSpeechNotes: 'কোডের প্রতিটি স্টেটমেন্ট লক্ষ্য করুন। ভেরিয়েবল ও ফাংশন কল কীভাবে আউটপুট উৎপন্ন করছে তা এডিটরে লোড করে পরীক্ষা করুন।'
+      },
+      {
+        slideNumber: 3,
+        title: `${topic.title} — বেস্ট প্র্যাকটিস ও পরিহার্য ভুল`,
+        subtitle: 'প্রোডাকশন-গ্রেড কোডিং নিয়ম ও সাধারণ ভুলের সমাধান',
+        bulletPoints: [
+          `বেস্ট প্র্যাকটিস: ${secrets[0] || 'কোড রিডাবিলিটি ও স্ট্যান্ডার্ড সিনট্যাক্স মেনে চলুন।'}`,
+          `বেস্ট প্র্যাকটিস: ${secrets[1] || 'সঠিক টাইপ ডিক্লারেশন ও ভ্যালিডেশন নিশ্চিত করুন।'}`,
+          `সতর্কতা: ${gotchas[0] || 'সিনট্যাক্স ও আন-ইনিশিয়ালাইজড ভেরিয়েবলের ভুল পরিহার করুন।'}`,
+          `সতর্কতা: ${gotchas[1] || 'নিরাপত্তা ও এক্সেপশন হ্যান্ডলিং সঠিকভাবে করুন।'}`
+        ],
+        trainerSpeechNotes: 'বাস্তব প্রজেক্টে বাগ কমানো ও সিকিউরিটি নিশ্চিত করার জন্য এই বেস্ট প্র্যাকটিসগুলো অত্যন্ত গুরুত্বপূর্ণ।'
+      }
+    ];
+
+    if (topic.deepDive?.comparison) {
+      slides.push({
+        slideNumber: 4,
+        title: `${topic.title} — জুনিয়র বনাম সিনিয়র সলিউশন`,
+        subtitle: 'এন্টারপ্রাইজ ক্লিন কোড আর্কিটেকচার ও কোড রিভিউ',
+        bulletPoints: [
+          `জুনিয়র অ্যান্টি-প্যাটার্ন: ${topic.deepDive.comparison.juniorProblems[0] || 'তাৎক্ষণিক কাজ চালানোর জন্য অপরিকল্পিত কোড যা স্কেল করে না।'}`,
+          `সিনিয়র স্ট্যান্ডার্ড: ${topic.deepDive.comparison.seniorBenefits[0] || 'টাইপ-সেফ, টেস্টেবল, ক্লিন এবং সুরক্ষিত আর্কিটেকচারাল প্যাটার্ন।'}`,
+          `আর্কিটেকচারাল গাইডলাইন: ${topic.deepDive.comparison.architectAdvice || 'দীর্ঘমেয়াদী সফটওয়্যার মেইনটেন্যান্স ও পারফরম্যান্স।'}`
+        ],
+        codeSnippet: topic.deepDive.comparison.seniorCode,
+        trainerSpeechNotes: 'কোম্পানি এবং বড় প্রজেক্টে স্কেলেবিলিটি ও মেইনটেইনেবিলিটি নিশ্চিত করতে সর্বদা এই সিনিয়র স্ট্যান্ডার্ড কোড অনুসরণ করা হয়।'
+      });
+    }
+  }
 
   return {
     trainerMetaphorBn: metaphorText,

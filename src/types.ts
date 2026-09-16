@@ -4,6 +4,7 @@ export type TopicCategory =
   | 'advanced'
   | 'oop'
   | 'mysql'
+  | 'ajax'
   | 'architect';
 
 export interface CategoryMeta {
@@ -61,7 +62,11 @@ export interface PresentationSlide {
   title: string;
   subtitle: string;
   bulletPoints: string[];
+  explanationBn?: string;
   codeSnippet?: string;
+  codeLanguage?: string;
+  outputPreview?: string;
+  noteBn?: string;
   trainerSpeechNotes: string;
   analogyOrHighlight?: string;
 }

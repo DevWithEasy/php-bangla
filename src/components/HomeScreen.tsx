@@ -38,7 +38,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   visitedTopics,
   onResetProgress,
 }) => {
-  const categoriesList: TopicCategory[] = ['basic', 'forms', 'advanced', 'oop', 'mysql', 'architect'];
+  const categoriesList: TopicCategory[] = ['basic', 'forms', 'advanced', 'oop', 'mysql', 'ajax', 'architect'];
   const totalTopics = ALL_TOPICS.length;
   const completedCount = visitedTopics.length;
   const progressPercent = Math.min(100, Math.round((completedCount / totalTopics) * 100));
@@ -63,7 +63,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 hidden sm:block">
-                ২০+ বছরের সিনিয়র ট্রেইনারের প্র্যাকটিক্যাল লার্নিং প্ল্যাটফর্ম
+                আধুনিক পিএইচপি ৮.২ প্র্যাকটিক্যাল লার্নিং ও লাইভ কোডিং প্ল্যাটফর্ম
               </p>
             </div>
           </div>
@@ -77,7 +77,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               মূল বৈশিষ্ট্যসমূহ
             </a>
             <a href="#about" className="hover:text-emerald-700 transition">
-              ট্রেইনার ও মেথডোলজি
+              লার্নিং মেথডোলজি
             </a>
           </nav>
 
@@ -110,17 +110,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             {/* Top Eyebrow Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-4 shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>20+ YEARS ENTERPRISE PHP TRAINER MASTERCLASS</span>
+              <span>PHP 8.2 INTERACTIVE LEARNING PLATFORM</span>
             </div>
 
             {/* Headline */}
             <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
-              আধুনিক পিএইচপি ৮.২ এন্টারপ্রাইজ মাস্টারি ও লাইভ কোডিং স্যান্ডবক্স
+              আধুনিক পিএইচপি ৮.২ লার্নিং ও লাইভ কোডিং স্যান্ডবক্স
             </h1>
 
             {/* Bengali Subheading */}
             <p className="text-slate-600 text-sm sm:text-lg leading-relaxed mb-8">
-              কোনো প্রকার লোকাল সফটওয়্যার (XAMPP/WAMP) ছাড়া সরাসরি ব্রাউজারে রান করুন রিয়েল পিএইচপি ৮.২ কোড। 
+              কোনো প্রকার লোকাল সফটওয়্যার (XAMPP/WAMP) ছাড়াই সরাসরি ব্রাউজারে রান করুন রিয়েল পিএইচপি ৮.২ কোড। 
               বিগিনার সিনট্যাক্স থেকে শুরু করে জুনিয়র বনাম সিনিয়র কোড রিভিউ, PDO ডাটাবেস সিকিউরিটি ও এন্টারপ্রাইজ ক্লিন আর্কিটেকচার।
             </p>
 
@@ -168,8 +168,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <div className="text-lg font-black text-slate-800 font-mono">৬টি লেভেল</div>
               </div>
               <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
-                <div className="text-xs text-slate-500 font-medium">ট্রেইনার অভিজ্ঞতা</div>
-                <div className="text-lg font-black text-emerald-700 font-mono">২০+ বছর</div>
+                <div className="text-xs text-slate-500 font-medium">হ্যান্ডস-অন লার্নিং</div>
+                <div className="text-lg font-black text-emerald-700 font-mono">১০০% লাইভ</div>
               </div>
             </div>
           </div>
@@ -287,7 +287,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               সিকিউরিটি ও আর্কিটেক্ট টিপস
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              SQL Injection, XSS, CSRF অ্যাটাক ভেক্টর প্রতিরোধ এবং মেমরি সেভিংস নিয়ে ২০ বছরের রিয়েল ফিল্ড এক্সপেরিয়েন্স।
+              SQL Injection, XSS, CSRF অ্যাটাক প্রতিরোধ এবং মেমরি অপ্টিমাইজেশনের ইন্ডাস্ট্রিয়াল টেকনিক ও সিকিউরিটি প্র্যাকটিস।
             </p>
           </div>
 
@@ -313,7 +313,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               ক্লাসরুম প্রেজেন্টেশন মোড
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              প্রজেক্টরে লেকচার দেওয়ার জন্য পূর্ণাঙ্গ স্লাইড ডেক। ট্রেইনার স্পিচ নোটস ও কি-টেকঅ্যাওয়েসসহ সাজানো।
+              প্রজেক্টরে লেকচার দেওয়ার জন্য পূর্ণাঙ্গ স্লাইড ডেক। বিস্তারিত লেকচার নোটস ও কি-টেকঅ্যাওয়েসসহ সাজানো।
             </p>
           </div>
 
@@ -341,7 +341,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 COMPLETE SYLLABUS &amp; ROADMAP
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1">
-                ৬টি ধাপে আর্কিটেকচার লার্নিং পাথ
+                ৭টি ধাপে আর্কিটেকচার লার্নিং পাথ
               </h2>
               <p className="text-slate-600 text-xs sm:text-sm mt-1">
                 যেকোনো টপিকে ক্লিক করে সরাসরি ইন্টারঅ্যাক্টিভ কোডিং ওয়ার্কস্পেসে প্রবেশ করুন।
@@ -350,7 +350,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
               <span className="w-2.5 h-2.5 rounded-full bg-[#04AA6D]" />
-              <span>মোট ২৪টি প্র্যাকটিক্যাল টপিক</span>
+              <span>মোট {totalTopics}টি প্র্যাকটিক্যাল টপিক</span>
             </div>
           </div>
 
@@ -449,25 +449,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
       </section>
 
-      {/* 6. About Trainer & Pedagogy Section */}
+      {/* 6. About Methodology & Philosophy Section */}
       <section id="about" className="py-14 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-12 overflow-hidden relative shadow-xl">
           <div className="relative z-10 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950 border border-emerald-500/40 text-emerald-400 text-xs font-bold mb-4">
               <GraduationCap className="w-4 h-4 text-emerald-400" />
-              <span>TRAINER PROFILE &amp; PEDAGOGY PHILOSOPHY</span>
+              <span>LEARNING METHODOLOGY &amp; PHILOSOPHY</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight mb-4">
-              ২০ বছরের অভিজ্ঞতা থেকে তৈরি লার্নিং মেথডোলজি
+              কনসেপ্ট থেকে ক্লিন কোড: কার্যকর লার্নিং মেথডোলজি
             </h2>
 
             <div className="space-y-4 text-slate-300 text-xs sm:text-sm leading-relaxed">
               <p>
-                বিগত ২০ বছরে হাজারো ডেভেলপার ট্রেইনিং করানোর পর একটি সাধারণ সমস্যা লক্ষ্য করেছি—অধিকাংশ শিক্ষার্থী কোডের সিনট্যাক্স মুখস্থ করে কিন্তু কম্পিউটার মেমরিতে কী ঘটছে বা কেন কোডটি স্কেল করবে না তা বুঝতে পারে না।
+                PHP শেখার ক্ষেত্রে একটি বড় চ্যালেঞ্জ হলো—অনেকেই শুধুমাত্র সিনট্যাক্স মুখস্থ করে কিন্তু কম্পিউটার মেমরিতে কী ঘটছে বা কীভাবে একটি বাস্তব এন্টারপ্রাইজ প্রজেক্টে ক্লিন ও সিকিউর কোড লিখতে হয় তা পরিষ্কার থাকে না।
               </p>
               <p>
-                এই প্ল্যাটফর্মটিতে কোনো অগভীর টিউটোরিয়াল দেওয়া হয়নি। প্রতিটি টপিকে প্রথমে সহজ বাংলা উপমায় কনসেপ্ট পরিষ্কার করা হয়েছে, তারপর লাইভ কোড এডিটরে রান করার সুযোগ এবং সবার শেষে জুনিয়র বনাম সিনিয়র সলিউশন দিয়ে প্রফেশনাল মান নিশ্চিত করা হয়েছে।
+                এই প্ল্যাটফর্মটিতে কোনো অগভীর টিউটোরিয়াল নয়; প্রতিটি টপিকে সহজ বাংলা উপমায় কনসেপ্ট পরিষ্কার করা হয়েছে, সরাসরি ব্রাউজারে রান করার ইন্টারেক্টিভ স্যান্ডবক্স দেওয়া হয়েছে এবং জুনিয়র বনাম সিনিয়র কোড রিভিউয়ের মাধ্যমে প্রফেশনাল মান নিশ্চিত করা হয়েছে।
               </p>
             </div>
 

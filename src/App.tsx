@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { PanelRightOpen, PanelLeftOpen, Code2, GripVertical } from 'lucide-react';
+import { PanelRightOpen, Code2 } from 'lucide-react';
 import { Header } from './components/Header';
 import { TopicSidebar } from './components/TopicSidebar';
 import { TopicDetails } from './components/TopicDetails';
@@ -104,13 +104,54 @@ export default function App() {
     setEditorCode(currentTopic.sampleCode);
   }, [currentTopic.sampleCode]);
 
-  // Load code directly from Details or Slides to the right editor
+  // Load code directly from Details or Slides to the right editor and automatically run it
   const handleLoadCodeToEditor = useCallback((code: string) => {
-    setEditorCode(code);
+    let normalizedCode = code.trim();
+    // If code is pure PHP statements without <?php tag and without HTML markup, wrap it in <?php ... ?>
+    if (
+      !normalizedCode.startsWith('<?php') &&
+      !normalizedCode.startsWith('<html') &&
+      !normalizedCode.startsWith('<!DOCTYPE') &&
+      !normalizedCode.startsWith('<form') &&
+      !normalizedCode.startsWith('<div') &&
+      !normalizedCode.startsWith('<script') &&
+      (normalizedCode.includes('$') ||
+        normalizedCode.startsWith('echo ') ||
+        normalizedCode.startsWith('function ') ||
+        normalizedCode.startsWith('class ') ||
+        normalizedCode.startsWith('try ') ||
+        normalizedCode.startsWith('if ') ||
+        normalizedCode.startsWith('for ') ||
+        normalizedCode.startsWith('foreach '))
+    ) {
+      normalizedCode = `<?php\n${normalizedCode}\n?>`;
+    }
+
+    setEditorCode(normalizedCode);
     setIsEditorVisible(true);
     if (viewMode === 'doc') {
-      setViewMode('editor');
+      setViewMode('all');
     }
+
+    // Auto-run newly loaded snippet
+    setIsRunning(true);
+    runPhpCode(normalizedCode)
+      .then((res) => {
+        setExecutionResult(res);
+      })
+      .catch((err: any) => {
+        setExecutionResult({
+          stdout: '',
+          stderr: err?.message || 'Execution error',
+          exitCode: 1,
+          durationMs: 0,
+          renderedHtml: `<p style="color:red;">Error: ${err?.message}</p>`,
+          isError: true,
+        });
+      })
+      .finally(() => {
+        setIsRunning(false);
+      });
   }, [viewMode]);
 
   // Run PHP Code via WebAssembly Engine
@@ -279,20 +320,6 @@ export default function App() {
 
       {/* 2. Main Layout with Resizable Panels */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Floating Quick Tab to Reopen Topics Sidebar if Hidden */}
-        {!sidebarOpen && (
-          <button
-            onClick={() => setSidebarOpen(true)}
-            title="টপিক সূচিপত্র খুলুন (Open Topics Sidebar)"
-            className="hidden lg:flex fixed left-0 top-18 z-30 items-center gap-1 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border-y border-r border-slate-300 hover:border-emerald-300 px-2 py-2.5 rounded-r-lg shadow-md transition group cursor-pointer"
-          >
-            <PanelLeftOpen className="w-4 h-4 text-emerald-700 group-hover:scale-110 transition-transform" />
-            <span className="[writing-mode:vertical-lr] tracking-wider text-[11px] font-bold text-slate-800 py-1">
-              টপিক তালিকা
-            </span>
-          </button>
-        )}
-
         {/* COLUMN 1: LEFT SIDEBAR (Topics List & Accordions) */}
         <TopicSidebar
           topics={ALL_TOPICS}

@@ -6724,25 +6724,364 @@ foreach ($users as $u) {
     category: 'basic',
     tag: 'Control Flow',
     phpVersion: 'PHP 8.0+',
-    subtitleBn: 'কন্ডিশনাল ব্রাঞ্চিং, নেস্টেড কন্ডিশন এবং আর্লি রিটার্ন প্যাটার্ন।',
+    subtitleBn: 'if, else, elseif, লজিক্যাল শর্ত (&&, ||, !), শর্ট সিনট্যাক্স, রিয়েল-লাইফ ইনভেন্টরি, অর্ডার স্ট্যাটাস ও গার্ড ক্লজ।',
     sampleCode: `<?php
-$score = 85;
+// ১. ব্যবহারকারীর তথ্য ও অবস্থা
+$isLoggedIn = true;
+$userRole = "admin";
+$cartItemsCount = 3;
+$orderStatus = "paid";
 
-if ($score >= 80) {
-    echo "গ্রেড: A+ (চমৎকার!)";
-} elseif ($score >= 70) {
-    echo "গ্রেড: A";
-} elseif ($score >= 60) {
-    echo "গ্রেড: B";
+// ২. কন্ডিশনাল লজিক ও এক্সেস কন্ট্রোল
+echo "<div style='font-family:sans-serif; background:#f8fafc; border:1px solid #cbd5e1; padding:16px; border-radius:8px;'>";
+
+if (!$isLoggedIn) {
+    echo "<h3 style='color:#dc2626; margin:0;'>Please log in to continue</h3>";
+} elseif ($userRole === "admin" || $userRole === "manager") {
+    echo "<h3 style='color:#0f172a; margin:0 0 6px 0;'>Welcome to Staff Dashboard (" . ucfirst($userRole) . ")</h3>";
+    echo "<p style='margin:4px 0; color:#16a34a;'>✓ Full administrative permissions granted.</p>";
 } else {
-    echo "গ্রেড: পুনরায় চেষ্টা করুন";
+    echo "<h3 style='color:#0f172a; margin:0 0 6px 0;'>Welcome Customer</h3>";
 }
+
+// ৩. অর্ডার স্ট্যাটাস চেক
+echo "<hr style='border:0; border-top:1px solid #cbd5e1; margin:10px 0;'>";
+if ($orderStatus === "paid") {
+    echo "<p style='margin:4px 0; color:#16a34a;'><b>Order Status:</b> Payment verified, processing shipment for {$cartItemsCount} item(s).</p>";
+} elseif ($orderStatus === "pending") {
+    echo "<p style='margin:4px 0; color:#d97706;'><b>Order Status:</b> Waiting for payment gateway confirmation.</p>";
+} else {
+    echo "<p style='margin:4px 0; color:#dc2626;'><b>Order Status:</b> Order cannot be processed or has been cancelled.</p>";
+}
+
+echo "</div>";
 ?>`,
     deepDive: {
-      conceptBn: `কন্ডিশনাল লজিক প্রোগ্রাম ফ্লো নিয়ন্ত্রণ করে। বড় ফাংশনে নেস্টেড if/else এর বদলে আর্লি রিটার্ন বা গার্ড ক্লজ (Guard Clauses) ব্যবহার করা সিনিয়র স্ট্যান্ডার্ড।`,
+      conceptBn: `Conditional Statement দিয়ে কোনো শর্ত সত্য (true) বা মিথ্যা (false) হওয়ার ওপর ভিত্তি করে আলাদা আলাদা কোড ব্লক এক্সিকিউট করা হয়। ওয়েব অ্যাপ্লিকেশনে ইউজার লগইন চেক, পারমিশন রোল যাচাই, ই-কমার্স কার্ট ও স্টক পরীক্ষা এবং ইনভয়েস স্ট্যাটাস পরিবর্তনের মূল চালিকাশক্তি হলো if...else...elseif স্টেটমেন্ট। (নোট: এই টপিকটিতে switch এবং match কন্ডিশনাল স্টেটমেন্ট ইচ্ছাকৃতভাবে স্কিপ করা হয়েছে, যা পরবর্তীতে নির্দিষ্ট টপিকে কাভার করা হবে)।`,
+      lessonSections: [
+        {
+          title: '১. if স্টেটমেন্ট — একক শর্ত যাচাই',
+          explanationBn: `শর্ত যদি সত্য (true) হয়, তাহলেই কেবল if ব্লকের ভেতরের কোড এক্সিকিউট হবে। মিথ্যা হলে কিছুই ঘটবে না।
+রিয়েল-ওয়ার্ল্ড ব্যবহার: স্টক চেক, ইউজার পারমিশন, লগইন যাচাই।`,
+          code: `<?php
+
+$age = 20;
+
+if ($age >= 18) {
+    echo "Adult - Eligible for driving license.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Adult - Eligible for driving license.`
+        },
+        {
+          title: '২. if ... else স্টেটমেন্ট — দ্বিমুখী সিদ্ধান্ত',
+          explanationBn: `শর্ত সত্য হলে if ব্লক চলবে, আর শর্ত মিথ্যা (false) হলে অবধারিতভাবে else ব্লক এক্সিকিউট হবে।`,
+          code: `<?php
+
+$age = 16;
+
+if ($age >= 18) {
+    echo "Adult";
+} else {
+    echo "Minor (Age under 18)";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Minor (Age under 18)`
+        },
+        {
+          title: '৩. if ... elseif ... else স্টেটমেন্ট — বহুধাপ শর্ত',
+          explanationBn: `একাধিক শর্ত ক্রমানুসারে পরীক্ষা করতে elseif ব্যবহৃত হয়। যেকোনো একটি শর্ত সত্য হওয়ার সাথে সাথে সেই ব্লকটি এক্সিকিউট হয়ে কন্ট্রোল স্টেটমেন্টের বাইরে চলে আসে। কোনো শর্তই সত্য না হলে সর্বশেষ else ব্লকটি চলে।`,
+          code: `<?php
+
+$marks = 75;
+
+if ($marks >= 80) {
+    echo "Grade: A+";
+} elseif ($marks >= 70) {
+    echo "Grade: A";
+} elseif ($marks >= 60) {
+    echo "Grade: A-";
+} else {
+    echo "Grade: Needs Improvement / Fail";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Grade: A`
+        },
+        {
+          title: '৪. Multiple Conditions (AND / &&) — সবগুলো সত্য হওয়া বাধ্যতামূলক',
+          explanationBn: `&& অপারেটর দিয়ে একাধিক শর্ত যুক্ত করলে প্রত্যেকটি শর্ত সত্য হলেই কেবল কোড এক্সিকিউট হবে। একটিও মিথ্যা হলে পুরো কন্ডিশন মিথ্যা হয়ে যাবে।`,
+          code: `<?php
+
+$age = 25;
+$isVerified = true;
+
+if ($age >= 18 && $isVerified === true) {
+    echo "Access Granted: Fully verified adult account.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Access Granted: Fully verified adult account.`
+        },
+        {
+          title: '৫. OR Condition (||) — যেকোনো একটি সত্য হলেই কার্যকর',
+          explanationBn: `|| অপারেটর দিয়ে শর্ত যুক্ত করলে যেকোনো একটি শর্ত সত্য হলেই if ব্লক এক্সিকিউট হবে।`,
+          code: `<?php
+
+$role = "manager";
+
+if ($role === "admin" || $role === "manager") {
+    echo "Dashboard Access Granted: Management permission verified.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Dashboard Access Granted: Management permission verified.`
+        },
+        {
+          title: '৬. NOT Condition (!) — শর্তের বিপরীত ফলাফল যাচাই',
+          explanationBn: `! অপারেটর মানকে উল্টে দেয় (true থাকলে false এবং false থাকলে true)। বিশেষ করে লগইন স্ট্যাটাস বা কোনো রিসোর্স অনুপস্থিত কি না তা চেক করতে এটি বহুল ব্যবহৃত।`,
+          code: `<?php
+
+$isLoggedIn = false;
+
+if (!$isLoggedIn) {
+    echo "Please login to access your shopping cart.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Please login to access your shopping cart.`
+        },
+        {
+          title: '৭. Nested if (নেস্টেড শর্ত) ও অতিরিক্ত নেস্টিংয়ের সতর্কতা',
+          explanationBn: `একটি if ব্লকের ভেতর আরেকটি if ব্লক লেখাকে Nested if বলে।
+⚠️ সতর্কতা: খুব বেশি নেস্টেড if লিখলে কোড পড়া ও রক্ষণাবেক্ষণ করা অত্যন্ত জটিল হয়ে পড়ে (Arrow Anti-Pattern)। এই জটিলতা এড়াতে প্রফেশনালরা গার্ড ক্লজ (Guard Clauses) ব্যবহার করেন।`,
+          code: `<?php
+
+$isLoggedIn = true;
+$isAdmin = true;
+
+if ($isLoggedIn) {
+    if ($isAdmin) {
+        echo "Welcome to Admin Dashboard Control Panel";
+    }
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Welcome to Admin Dashboard Control Panel`
+        },
+        {
+          title: '৮. Short Syntax / Alternative Syntax (PHP + HTML টেমপ্লেটে)',
+          explanationBn: `HTML ফাইলের ভেতর কার্লি ব্র্যাকেট ({ }) দিয়ে if/else লিখলে টেমপ্লেট এলোমেলো হয়ে যায়। তাই ভিউ টেমপ্লেটে if(...): এবং endif; ব্যবহার করা পরিচ্ছন্ন ও পেশাদার মানদণ্ড।`,
+          code: `<?php $isLoggedIn = true; ?>
+
+<?php if ($isLoggedIn): ?>
+    <div style="color: green;"><b>Dashboard:</b> Welcome back to your profile!</div>
+<?php else: ?>
+    <div style="color: red;"><b>Notice:</b> Please Login first.</div>
+<?php endif; ?>`,
+          codeLanguage: 'PHP Template Syntax',
+          outputPreview: `Dashboard: Welcome back to your profile!`
+        },
+        {
+          title: '৯. Ternary Operator (? :) ও Null Coalescing (??) দিয়ে সংক্ষেপ',
+          explanationBn: `ছোটখাটো শর্তের জন্য টার্নারি অপারেটর এবং মান অনুপস্থিত বা null থাকলে ডিফল্ট মান দিতে ?? অপারেটর দারুণ কার্যকর।
+⚠️ সতর্কতা: বড় বা জটিল লজিক কখনো টার্নারি অপারেটরে লিখবেন না।`,
+          code: `<?php
+
+$isLoggedIn = true;
+$message = $isLoggedIn ? "Welcome Member" : "Please Login";
+
+$userName = $_GET['name'] ?? "Guest";
+
+echo "Message: {$message}<br>";
+echo "User: {$userName}";
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Message: Welcome Member\nUser: Guest`
+        },
+        {
+          title: '১০. রিয়েল-লাইফ ইউজার লগইন ও রোল ভ্যালিডেশন',
+          explanationBn: `লগইন অবস্থা ও ইউজার রোলের ওপর ভিত্তি করে ভিন্ন ভিন্ন ড্যাশবোর্ডে রিডাইরেক্ট বা মেসেজ প্রদর্শন।`,
+          code: `<?php
+
+$isLoggedIn = true;
+$isAdmin = false;
+
+if (!$isLoggedIn) {
+    echo "Redirecting to /login page...";
+} elseif ($isAdmin) {
+    echo "Redirecting to /admin/dashboard...";
+} else {
+    echo "Welcome to User Customer Portal.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Welcome to User Customer Portal.`
+        },
+        {
+          title: '১১. রিয়েল-লাইফ ই-কমার্স ইনভেন্টরি স্টক চেকিং',
+          explanationBn: `পণ্যের মজুদ (Stock) পরিমাণের ওপর ভিত্তি করে স্ট্যাটাস ও বাটন প্রদর্শন করার প্র্যাকটিক্যাল লজিক:`,
+          code: `<?php
+
+$stock = 5;
+
+if ($stock <= 0) {
+    echo "Status: Out of Stock (Notify Me button active)";
+} elseif ($stock <= 5) {
+    echo "Status: Low Inventory! Only {$stock} items left in stock.";
+} else {
+    echo "Status: In Stock (Add to Cart button active)";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Status: Low Inventory! Only 5 items left in stock.`
+        },
+        {
+          title: '১২. রিয়েল-লাইফ ই-কমার্স অর্ডার প্রসেসিং শর্ত',
+          explanationBn: `অর্ডারের পেমেন্ট স্ট্যাটাসের ওপর ভিত্তি করে গুদাম বা কাস্টমারকে সঠিক প্রতিক্রিয়া দেওয়া:`,
+          code: `<?php
+
+$status = "paid";
+
+if ($status === "paid") {
+    echo "Order Status: Processing packaging & delivery.";
+} elseif ($status === "pending") {
+    echo "Order Status: Waiting for payment confirmation.";
+} else {
+    echo "Order Status: Order cannot be processed or was cancelled.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Order Status: Processing packaging & delivery.`
+        },
+        {
+          title: '১৩. তুলনামূলক শর্তে Strict Check (=== এবং !==) এর বাধ্যবাধকতা',
+          explanationBn: `❌ Avoid Loose Equality:
+if ($status == 1) // বিপদজনক! কারণ "1_admin", true ইত্যাদিও সমান হয়ে যেতে পারে!
+✅ Production Best Practice:
+সর্বদা if ($status === 1) ব্যবহার করুন, যাতে মান এবং টাইপ উভয়ই সুরক্ষিত থাকে।`,
+          code: `<?php
+
+$status = "1";
+
+if ($status === 1) {
+    echo "Strict Match: Exact Integer 1";
+} else {
+    echo "Strict Match Failed: String '1' is not Integer 1!";
+}
+?>`,
+          codeLanguage: 'Production Standard',
+          outputPreview: `Strict Match Failed: String '1' is not Integer 1!`
+        },
+        {
+          title: '১৪. Early Return / Guard Clause (আর্কিটেকচারাল সিনিয়র প্যাটার্ন)',
+          explanationBn: `গভীর নেস্টেড if/else এর বিকল্প হিসেবে ফাংশনের শুরুতেই ত্রুটি বা অনুপস্থিত শর্ত চেক করে তাৎক্ষণিক return করে দেওয়াকে "Guard Clause" বা Early Return বলে। এতে কোডের জটিলতা ও ইন্ডেন্টেশন নাটকীয়ভাবে হ্রাস পায়।`,
+          code: `<?php
+
+function accessDashboard(?array $user): string
+{
+    // ১. গার্ড ক্লজ: লগইন নেই
+    if (!$user) {
+        return "Access Blocked: Please Login first.";
+    }
+
+    // ২. গার্ড ক্লজ: এডমিন পারমিশন নেই
+    if (empty($user['isAdmin']) || $user['isAdmin'] !== true) {
+        return "Access Denied: Administrative rights required.";
+    }
+
+    // ৩. মূল সাকসেস ফ্লো (কোনো নেস্টেড if ছাড়া পরিষ্কার)
+    return "Welcome Administrator " . htmlspecialchars($user['name']);
+}
+
+$activeUser = ['name' => 'Abbad', 'isAdmin' => true];
+echo accessDashboard($activeUser);
+?>`,
+          codeLanguage: 'Senior Architecture Pattern',
+          outputPreview: `Welcome Administrator Abbad`
+        },
+        {
+          title: '১৫. সারসংক্ষেপ ও প্রোডাকশন চেকলিস্ট',
+          explanationBn: `প্রোডাকশন চেকলিস্ট:
+✓ if: প্রাথমিক শর্ত যাচাই
+✓ elseif: বিকল্প শর্তের ক্রমান্বয়ে পরীক্ষা
+✓ else: কোনো শর্তই সত্য না হলে সর্বশেষ ফলব্যাক
+✓ শর্তে সর্বদা === ও !== ব্যবহার
+✓ অতিরিক্ত নেস্টেড if পরিহার করে গার্ড ক্লজ (Early Return) ব্যবহার
+✓ HTML টেমপ্লেটে if(...): ... endif; অল্টারনেটিভ সিনট্যাক্স ব্যবহার`,
+          code: `<?php
+echo "Core Insight: Keep conditions readable, strictly typed, and guard against errors early.";
+?>`,
+          codeLanguage: 'Summary'
+        }
+      ],
       keyPointsBn: [
-        'গার্ড ক্লজ ব্যবহারের ফলে ইন্ডেন্টেশন কমে এবং সাইক্লোমেটিক কমপ্লেক্সিটি হ্রাস পায়।',
-        'কঠোর সমতার জন্য সর্বদা === ব্যবহার করুন, কখনো শিথিল == ব্যবহার করবেন না।'
+        'if একক শর্তে, if...else দ্বিমুখী সিদ্ধান্তে এবং if...elseif...else বহুধাপ শর্ত যাচাইয়ে ব্যবহৃত হয়।',
+        'লজিক্যাল শর্তে && (সবগুলো সত্য) এবং || (যেকোনো একটি সত্য) এবং ! (বিপরীত মান) প্রধান চালিকাশক্তি।',
+        'তুলনায় টাইপ জাগলিং বাগ প্রতিহত করতে সর্বদা === এবং !== ব্যবহার করুন।',
+        'অতিরিক্ত নেস্টেড if এড়াতে ফাংশনে Guard Clause / Early Return প্যাটার্ন ব্যবহার কোডের পঠনযোগ্যতা বৃদ্ধি করে।',
+        'HTML টেমপ্লেটে কার্লি ব্র্যাকেটের চেয়ে if(...): endif; অল্টারনেটিভ সিনট্যাক্স বেশি পরিচ্ছন্ন।',
+        'সুইচ (switch) এবং ম্যাচ (match) এক্সপ্রেশন এই টপিকে উদ্দেশ্যমূলকভাবে স্কিপ করা হয়েছে।'
+      ],
+      practiceExamples: [
+        {
+          title: 'বাস্তব উদাহরণ ১: ইউজার অর্ডার প্রসেসিং ও আর্লি রিটার্ন পাইপলাইন',
+          descriptionBn: 'গার্ড ক্লজ ব্যবহার করে ইনভ্যালিড ইউজার, খালি কার্ট এবং পেমেন্ট ফেইলিউর আগে হ্যান্ডেল করা।',
+          code: `<?php
+function checkoutOrder(array $order): string
+{
+    if (empty($order['userId'])) {
+        return "Error: User must be authenticated.";
+    }
+
+    if (empty($order['items']) || count($order['items']) === 0) {
+        return "Error: Cart is empty.";
+    }
+
+    if ($order['paymentStatus'] !== 'success') {
+        return "Error: Payment not captured.";
+    }
+
+    return "Success: Order #" . $order['orderId'] . " has been placed!";
+}
+
+$sampleOrder = [
+    'userId' => 101,
+    'orderId' => 'ORD-8829',
+    'items' => ['Laptop Stand', 'Wireless Mouse'],
+    'paymentStatus' => 'success'
+];
+
+echo checkoutOrder($sampleOrder);
+?>`
+        },
+        {
+          title: 'বাস্তব উদাহরণ ২: ই-কমার্স ডিসকাউন্ট টিয়ার ক্যালকুলেটর',
+          descriptionBn: 'if...elseif...else দিয়ে অর্ডারের মোট পরিমাণের ওপর ভিত্তি করে ডিসকাউন্ট রেট নির্ধারণ।',
+          code: `<?php
+$totalSpent = 4800; // BDT
+$discountPercent = 0;
+
+if ($totalSpent >= 10000) {
+    $discountPercent = 20; // ২০% ছাড়
+} elseif ($totalSpent >= 5000) {
+    $discountPercent = 15; // ১৫% ছাড়
+} elseif ($totalSpent >= 2000) {
+    $discountPercent = 10; // ১০% ছাড়
+} else {
+    $discountPercent = 0;
+}
+
+$discountAmount = ($totalSpent * $discountPercent) / 100;
+$finalPayable = $totalSpent - $discountAmount;
+
+echo "Total Spent: " . number_format($totalSpent, 2) . " BDT<br>";
+echo "Discount Applied: {$discountPercent}% (-" . number_format($discountAmount, 2) . " BDT)<br>";
+echo "<b>Final Amount: " . number_format($finalPayable, 2) . " BDT</b>";
+?>`
+        }
       ]
     }
   },
@@ -6752,58 +7091,638 @@ if ($score >= 80) {
     category: 'basic',
     tag: 'Control Flow',
     phpVersion: 'PHP 8.0+',
-    subtitleBn: 'একাধিক শর্ত তুলনার জন্য switch স্টেটমেন্ট ও break এর ভূমিকা।',
+    subtitleBn: 'একটি ভেরিয়েবলের নির্দিষ্ট ফিক্সড ভ্যালু যাচাই (break, default, multiple cases, strict comparison সতর্কতা ও অল্টারনেটিভ সিনট্যাক্স)।',
     sampleCode: `<?php
-$favColor = "green";
+// ১. অর্ডার স্ট্যাটাস ভেরিয়েবল
+$orderStatus = "shipped";
 
-switch ($favColor) {
-    case "red":
-        echo "আপনার প্রিয় রঙ লাল!";
+echo "<div style='font-family:sans-serif; background:#f8fafc; border:1px solid #cbd5e1; padding:16px; border-radius:8px;'>";
+echo "<h3 style='margin:0 0 10px 0; color:#0f172a;'>E-Commerce Order Tracker</h3>";
+
+// ২. switch স্টেটমেন্ট দিয়ে ফিক্সড ভ্যালু মূল্যায়ন
+switch ($orderStatus) {
+    case "pending":
+        echo "<p style='color:#d97706; margin:4px 0;'>⏳ <b>Order Status:</b> Payment Pending - Awaiting gateway verification.</p>";
         break;
-    case "blue":
-        echo "আপনার প্রিয় রঙ নীল!";
+
+    case "paid":
+        echo "<p style='color:#2563eb; margin:4px 0;'>💳 <b>Order Status:</b> Payment Confirmed - Preparing parcel in warehouse.</p>";
         break;
-    case "green":
-        echo "আপনার প্রিয় রঙ সবুজ!";
+
+    case "shipped":
+        echo "<p style='color:#059669; margin:4px 0;'>🚚 <b>Order Status:</b> Order Shipped - On the way with courier.</p>";
         break;
+
+    case "delivered":
+        echo "<p style='color:#16a34a; margin:4px 0;'>✅ <b>Order Status:</b> Order Delivered - Thank you for shopping with us!</p>";
+        break;
+
+    case "cancelled":
+        echo "<p style='color:#dc2626; margin:4px 0;'>❌ <b>Order Status:</b> Order Cancelled.</p>";
+        break;
+
     default:
-        echo "আপনার প্রিয় রঙ আমাদের তালিকায় নেই!";
+        echo "<p style='color:#64748b; margin:4px 0;'>❓ <b>Order Status:</b> Unknown / Invalid Status Code.</p>";
 }
+
+echo "</div>";
 ?>`,
     deepDive: {
-      conceptBn: `Switch স্টেটমেন্ট শিথিল তুলনা (==) করে, যা টাইপ রূপান্তরের কারণে অনাকাঙ্ক্ষিত ফলাফল দিতে পারে। আধুনিক PHP 8+ এ switch এর বিকল্প হিসেবে match এক্সপ্রেশন অগ্রাধিকার পায়।`,
+      conceptBn: `switch স্টেটমেন্ট ব্যবহার করা হয় একটি নির্দিষ্ট ভেরিয়েবল বা এক্সপ্রেশনের মানের সাথে একাধিক ফিক্সড মান (Fixed Values) তুলনা করার জন্য। যখন একই ভেরিয়েবলের মান পরীক্ষা করার জন্য বারবার if / elseif লিখতে হয়, তখন switch কোডকে অনেক বেশি পরিচ্ছন্ন ও পঠনযোগ্য করে তোলে। তবে এটি রেঞ্জ বা জটিল লজিক্যাল শর্তের জন্য নয়, বরং ফিক্সড স্টেট (যেমন: অর্ডার স্ট্যাটাস, ইউজার রোল, HTTP কোড) নির্ধারণে সবচেয়ে কার্যকর।`,
+      lessonSections: [
+        {
+          title: '১. Basic Syntax (মৌলিক সিনট্যাক্স)',
+          explanationBn: `switch ($variable) এর পর কার্লি ব্র্যাকেটের মধ্যে প্রতিটি সম্ভাব্য মানের জন্য case "মান": ব্লক থাকে। কোনো কেস মিলে গেলে তার ভেতরের কোড রান হয় এবং break স্টেটমেন্ট দ্বারা সুইচ ব্লক থেকে বের হয়ে যায়।`,
+          code: `<?php
+
+$status = "paid";
+
+switch ($status) {
+    case "paid":
+        echo "Payment Complete";
+        break;
+
+    case "pending":
+        echo "Payment Pending";
+        break;
+
+    case "cancelled":
+        echo "Payment Cancelled";
+        break;
+
+    default:
+        echo "Unknown Status";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Payment Complete`
+        },
+        {
+          title: '২. break স্টেটমেন্ট কেন প্রয়োজন? (Fall-Through সতর্কতা)',
+          explanationBn: `⚠️ break স্টেটমেন্ট না দিলে পিএইচপি পরবর্তী কেসগুলোর শর্ত চেক না করেই স্বয়ংক্রিয়ভাবে এক্সিকিউট করে দেয় (যাকে Fall-through বলে)। অপ্রত্যাশিত বাগ এড়াতে প্রতিটি case ব্লকের শেষে break; দেওয়া বাধ্যতামূলক।`,
+          code: `<?php
+
+$status = "paid";
+
+echo "Without break (Accidental Fall-Through):<br>";
+switch ($status) {
+    case "paid":
+        echo "Paid - ";
+    case "pending":
+        echo "Pending - ";
+    default:
+        echo "Unknown Fallthrough!";
+}
+?>`,
+          codeLanguage: 'PHP Fall-Through Demo',
+          outputPreview: `Without break (Accidental Fall-Through):\nPaid - Pending - Unknown Fallthrough!`
+        },
+        {
+          title: '৩. default ব্লক — কোনো কেস না মিললে ফলব্যাক',
+          explanationBn: `যদি কোনো case-এর মান ভেরিয়েবলের সাথে না মেলে, তখন default ব্লকটি স্বয়ংক্রিয়ভাবে এক্সিকিউট হয়। এটি if/else-এর শেষ else ব্লকের মতোই কাজ করে।`,
+          code: `<?php
+
+$role = "editor";
+
+switch ($role) {
+    case "admin":
+        echo "Admin Access";
+        break;
+
+    case "user":
+        echo "User Access";
+        break;
+
+    default:
+        echo "Unknown Role: Default guest restrictions applied.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Unknown Role: Default guest restrictions applied.`
+        },
+        {
+          title: '৪. Multiple Case (একাধিক কেসের জন্য একই কোড)',
+          explanationBn: `একাধিক ভিন্ন ভিন্ন মানের জন্য যদি একই ফলাফল প্রত্যাশিত হয়, তবে পরপর case লিখে তাদের নিচে একটিমাত্র কোড ব্লক ও break ব্যবহার করা যায়।`,
+          code: `<?php
+
+$day = "Friday";
+
+switch ($day) {
+    case "Friday":
+    case "Saturday":
+        echo "Weekend (Office Closed)";
+        break;
+
+    default:
+        echo "Working Day (Office Open)";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Weekend (Office Closed)`
+        },
+        {
+          title: '৫. Integer / HTTP Status কোড উদাহরণ',
+          explanationBn: `সংখ্যাসূচক মান বা স্ট্যাটাস কোড (যেমন: API রেসপন্স কোড 200, 404, 500) নির্ধারণে switch স্টেটমেন্ট দারুণ কার্যকর।`,
+          code: `<?php
+
+$code = 404;
+
+switch ($code) {
+    case 200:
+        echo "HTTP 200: Success";
+        break;
+
+    case 404:
+        echo "HTTP 404: Not Found";
+        break;
+
+    case 500:
+        echo "HTTP 500: Server Error";
+        break;
+
+    default:
+        echo "HTTP Unknown Status";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `HTTP 404: Not Found`
+        },
+        {
+          title: '৬. switch বনাম if/elseif — কোনটি কখন ব্যবহার করবেন?',
+          explanationBn: `• একটিমাত্র ভেরিয়েবলের ফিক্সড ভ্যালু চেক করতে switch পরিষ্কার ও সংক্ষিপ্ত।
+• তবে রেঞ্জ (> 50, < 100) বা একাধিক ভেরিয়েবলের জটিল লজিক্যাল শর্ত (&&, ||) থাকলে if / elseif ব্যবহার করাই সঠিক ও রিডেবল।`,
+          code: `<?php
+
+// ফিক্সড ভ্যালুতে switch আদর্শ:
+$status = "paid";
+switch ($status) {
+    case "paid":
+        echo "Paid (Clean via Switch)<br>";
+        break;
+}
+
+// কিন্তু রেঞ্জ বা বড় গণনায় if/elseif আদর্শ:
+$price = 750;
+if ($price >= 1000) {
+    echo "Premium Tier";
+} elseif ($price >= 500) {
+    echo "Standard Tier (Requires if/elseif for range)";
+}
+?>`,
+          codeLanguage: 'Comparison Guide',
+          outputPreview: `Paid (Clean via Switch)\nStandard Tier (Requires if/elseif for range)`
+        },
+        {
+          title: '৭. Strict Comparison সতর্কতা (== বনাম ===)',
+          explanationBn: `⚠️ গুরুত্বপূর্ণ সতর্কবার্তা:
+ট্রেডিশনাল PHP switch স্টেটমেন্ট মূলত লুজ সমতা (==) ব্যবহার করে তুলনা করে, স্ট্রিক্ট (===) নয়! ফলে স্ট্রিং ও পূর্ণসংখ্যার মধ্যে স্বয়ংক্রিয় টাইপ রূপান্তরের কারণে অপ্রত্যাশিত ম্যাচিং ঘটতে পারে। টাইপ-সংবেদনশীল লজিকের ক্ষেত্রে স্ট্রিক্ট if অথবা আধুনিক PHP 8 match এক্সপ্রেশন ব্যবহার নিরাপদ।`,
+          code: `<?php
+
+$value = "10"; // String
+
+switch ($value) {
+    case 10: // Integer 10!
+        echo "Matched because switch does loose comparison (==) under the hood!";
+        break;
+    default:
+        echo "No match";
+}
+?>`,
+          codeLanguage: 'Type Juggling Warning',
+          outputPreview: `Matched because switch does loose comparison (==) under the hood!`
+        },
+        {
+          title: '৮. রিয়েল-লাইফ ই-কমার্স অর্ডার ট্র্যাকার',
+          explanationBn: `অর্ডারের প্রতিটি জীবনচক্রের (Lifecycle State) ওপর ভিত্তি করে ইউজারকে উপযুক্ত মেসেজ ও নির্দেশনা প্রদান।`,
+          code: `<?php
+
+$orderStatus = "shipped";
+
+switch ($orderStatus) {
+    case "pending":
+        echo "Order Pending: Please complete payment.";
+        break;
+
+    case "paid":
+        echo "Payment Confirmed: Preparing items.";
+        break;
+
+    case "shipped":
+        echo "Order Shipped: Parcel handed over to courier.";
+        break;
+
+    case "delivered":
+        echo "Order Delivered: Customer received goods.";
+        break;
+
+    case "cancelled":
+        echo "Order Cancelled: Refund initiated.";
+        break;
+
+    default:
+        echo "Invalid Status Code.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Order Shipped: Parcel handed over to courier.`
+        },
+        {
+          title: '৯. Alternative Syntax (HTML/PHP টেমপ্লেট ভিউতে)',
+          explanationBn: `ভিউ টেমপ্লেটে কার্লি ব্র্যাকেট ({ }) এর বদলে কোলন এবং endswitch; ব্যবহার করা বেশি রিডেবল।`,
+          code: `<?php $status = "paid"; ?>
+
+<?php switch ($status): ?>
+    <?php case "paid": ?>
+        <span style="color:green;"><b>Invoice:</b> Paid in full</span>
+        <?php break; ?>
+    <?php case "pending": ?>
+        <span style="color:orange;"><b>Invoice:</b> Payment pending</span>
+        <?php break; ?>
+    <?php default: ?>
+        <span style="color:gray;"><b>Invoice:</b> Unknown</span>
+<?php endswitch; ?>`,
+          codeLanguage: 'PHP Template Syntax',
+          outputPreview: `Invoice: Paid in full`
+        },
+        {
+          title: '১০. রিয়েল-ওয়ার্ল্ড কোথায় ব্যবহার করবেন ও কোথায় করবেন না',
+          explanationBn: `✓ যেখানে switch আদর্শ:
+1. Order status / Payment status
+2. User role (admin, manager, customer)
+3. HTTP status codes (200, 404, 500)
+4. Notification types (sms, email, push)
+5. Action identifier (create, update, delete)
+
+❌ যেখানে switch ব্যবহার করবেন না:
+1. রেঞ্জ বা তুলনা (>, <, >=, <=)
+2. জটিল লজিক্যাল শর্ত (&&, ||)
+3. একাধিক আলাদা আলাদা ভেরিয়েবলের কম্প্যারিজনে
+(এসব ক্ষেত্রে if...elseif ব্যবহার করুন)।`,
+          code: `<?php
+echo "Core Principle: Use switch for multiple fixed discrete values, and if/elseif for dynamic ranges.";
+?>`,
+          codeLanguage: 'Architecture Rule'
+        }
+      ],
       keyPointsBn: [
-        'break স্টেটমেন্ট না দিলে ফল-থ্রু (fall-through) ঘটে এবং পরবর্তী কেসগুলোও রান হয়ে যায়।',
-        'default ব্লক কোনো কেস না মিললে এক্সিকিউট হয়।'
+        'switch স্টেটমেন্ট একটি ভেরিয়েবলের একাধিক ফিক্সড মানের (Fixed Values) সাথে তুলনা করার জন্য সবচেয়ে উপযুক্ত।',
+        'প্রতিটি case এর শেষে অবশ্যই break; ব্যবহার করতে হবে; অন্যথায় অপ্রত্যাশিত fall-through ঘটবে।',
+        'কোনো case না মিললে default ব্লকটি এক্সিকিউট হয়, যা ফলব্যাক হ্যান্ডলিং নিশ্চিত করে।',
+        'একাধিক কেসের জন্য একই কোড রান করতে চাইলে পরপর case লিখে একটিমাত্র break দেওয়া যায়।',
+        'মনে রাখবেন, switch মূলত লুজ সমতা (==) করে; তাই স্ট্রিক্ট টাইপ ও সরাসরি রিটার্নের জন্য PHP 8+ এ match অগ্রাধিকার পায়।'
+      ],
+      practiceExamples: [
+        {
+          title: 'বাস্তব উদাহরণ ১: পেমেন্ট গেটওয়ে রাউটার',
+          descriptionBn: 'ব্যবহারকারীর নির্বাচিত পেমেন্ট মেথডের ওপর ভিত্তি করে সঠিক গেটওয়ে চার্জ ও প্রসেসর নির্ধারণ।',
+          code: `<?php
+$paymentMethod = "bkash";
+
+switch ($paymentMethod) {
+    case "bkash":
+    case "nagad":
+        $gatewayFee = 1.5; // ১.৫% চার্জ
+        $processor = "MFS Gateway API";
+        break;
+
+    case "credit_card":
+        $gatewayFee = 2.5; // ২.৫% চার্জ
+        $processor = "Mastercard / Visa 3D Secure";
+        break;
+
+    case "cod":
+        $gatewayFee = 0.0;
+        $processor = "Cash on Delivery Handling";
+        break;
+
+    default:
+        $gatewayFee = 0.0;
+        $processor = "Unsupported Payment Method";
+}
+
+echo "Selected Gateway: {$processor}<br>";
+echo "Processing Fee: {$gatewayFee}%";
+?>`
+        },
+        {
+          title: 'বাস্তব উদাহরণ ২: ইউজার রোল ভিত্তিক রিডাইরেক্ট রুলস',
+          descriptionBn: 'লগইন পরবর্তী সময়ে রোল অনুযায়ী সংশ্লিষ্ট মডিউল পাথ নির্ধারণ করা।',
+          code: `<?php
+$userRole = "super_admin";
+
+switch ($userRole) {
+    case "super_admin":
+    case "admin":
+        $redirectUrl = "/admin/dashboard";
+        break;
+
+    case "moderator":
+        $redirectUrl = "/moderation/queue";
+        break;
+
+    case "customer":
+        $redirectUrl = "/user/orders";
+        break;
+
+    default:
+        $redirectUrl = "/login";
+}
+
+echo "Redirect Destination: {$redirectUrl}";
+?>`
+        }
       ]
     }
   },
   {
     id: 'php-match',
-    title: 'PHP Match',
+    title: 'PHP Match Expression',
     category: 'basic',
-    tag: 'PHP 8 Feature',
+    tag: 'PHP 8 Modern Feature',
     phpVersion: 'PHP 8.0+',
-    subtitleBn: 'PHP 8-এর বিপ্লব: কড়া টাইপ ম্যাচিং (===) এবং সরাসরি ভ্যালু রিটার্ন এক্সপ্রেশন।',
+    subtitleBn: 'PHP 8-এর এক্সপ্রেশন: সরাসরি ভ্যালু রিটার্ন, strict comparison (===), break-মুক্ত সিনট্যাক্স ও সুইচ বনাম ম্যাচ পার্থক্য।',
     sampleCode: `<?php
-$statusCode = 404;
+// ১. অর্ডার স্ট্যাটাস ভ্যারিয়েবল
+$orderStatus = "shipped";
 
-// match সরাসরি মান রিটার্ন করে! break দরকার হয় না
-$message = match ($statusCode) {
-    200 => "সফলভাবে রিকোয়েস্ট সম্পন্ন হয়েছে (OK)",
-    400 => "ত্রুটিপূর্ণ রিকোয়েস্ট (Bad Request)",
-    404 => "পেজ খুঁজে পাওয়া যায়নি (Not Found)",
-    500 => "সার্ভার এরর (Internal Server Error)",
-    default => "অজ্ঞাত স্ট্যাটাস কোড",
+// ২. match সরাসরি ভ্যালু রিটার্ন করে ভ্যারিয়েবলে অ্যাসাইন হয়
+$statusBadge = match ($orderStatus) {
+    "pending"   => "<span style='color:#d97706; background:#fef3c7; padding:4px 8px; border-radius:4px;'>⏳ Awaiting Payment</span>",
+    "paid"      => "<span style='color:#2563eb; background:#dbeafe; padding:4px 8px; border-radius:4px;'>💳 Payment Confirmed</span>",
+    "shipped"   => "<span style='color:#059669; background:#d1fae5; padding:4px 8px; border-radius:4px;'>🚚 Order Shipped & En Route</span>",
+    "delivered" => "<span style='color:#16a34a; background:#dcfce7; padding:4px 8px; border-radius:4px;'>✅ Successfully Delivered</span>",
+    "cancelled" => "<span style='color:#dc2626; background:#fee2e2; padding:4px 8px; border-radius:4px;'>❌ Order Cancelled</span>",
+    default     => "<span style='color:#475569; background:#f1f5f9; padding:4px 8px; border-radius:4px;'>❓ Unknown Status</span>",
 };
 
-echo "স্ট্যাটাস $statusCode: $message";
+echo "<div style='font-family:sans-serif; background:#f8fafc; border:1px solid #cbd5e1; padding:16px; border-radius:8px;'>";
+echo "<h3 style='margin:0 0 10px 0; color:#0f172a;'>E-Commerce Modern Order Pipeline (PHP 8 Match)</h3>";
+echo "<p style='margin:6px 0;'>Current Lifecycle: " . $statusBadge . "</p>";
+echo "</div>";
 ?>`,
     deepDive: {
-      conceptBn: `PHP 8-এ যুক্ত হওয়া match একটি এক্সপ্রেশন, স্টেটমেন্ট নয়। এটি সরাসরি মান রিটার্ন করে এবং কঠোর সমতা (===) যাচাই করে। এর ফলে কোড নিরাপদ ও সংক্ষিপ্ত হয়।`,
+      conceptBn: `match হলো PHP 8.0+ এর একটি অত্যাধুনিক এক্সপ্রেশন (Expression), যা একটি মানের সাথে একাধিক সম্ভাব্য মান তুলনা করে এবং সরাসরি একটি মান রিটার্ন (Return) করে। এটি ঐতিহ্যবাহী switch স্টেটমেন্টের একটি অত্যন্ত ক্লিন, টাইপ-সেফ ও আধুনিক বিকল্প। switch যেখানে একটি স্টেটমেন্ট (Statement) যা কোড এক্সিকিউট করে, match সেখানে একটি এক্সপ্রেশন (Expression) যা সরাসরি মান ফেরত দেয়, break স্টেটমেন্ট লাগে না এবং কঠোর সমতা (===) দিয়ে তুলনা করে।`,
+      lessonSections: [
+        {
+          title: '১. Basic Syntax (মৌলিক সিনট্যাক্স)',
+          explanationBn: `match ($expression) { value => result, default => fallback };
+এখানে কোনো break লেখার প্রয়োজন নেই। প্রতিটি শাখার শেষে কমা (,) বসে এবং পুরো match ব্লকের শেষে সেমিকোলন (;) দিতে হয়।`,
+          code: `<?php
+
+$status = "paid";
+
+$message = match ($status) {
+    "paid"      => "Payment Complete",
+    "pending"   => "Payment Pending",
+    "cancelled" => "Payment Cancelled",
+    default     => "Unknown Status"
+};
+
+echo $message;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Payment Complete`
+        },
+        {
+          title: '২. match সরাসরি Result Return করে',
+          explanationBn: `switch-এ সাধারণত প্রতিটি case এর ভেতরে ভেরিয়েবল সেট বা echo করতে হয়। কিন্তু match সরাসরি একটি মান রিটার্ন করে, যা সরাসরি কোনো ভেরিয়েবলে জমা রাখা যায় অথবা ফাংশন থেকে return করা যায়।`,
+          code: `<?php
+
+$role = "admin";
+
+$dashboardTitle = match ($role) {
+    "admin"   => "Administrator Control Center",
+    "manager" => "Staff Management Portal",
+    "user"    => "User Dashboard",
+    default   => "Access Denied / Guest View"
+};
+
+echo "Active View: " . $dashboardTitle;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Active View: Administrator Control Center`
+        },
+        {
+          title: '৩. break লাগে না (ফল-থ্রু বাগ হওয়ার সুযোগ নেই)',
+          explanationBn: `switch-এ break ভুলে গেলে পরবর্তী কেসগুলো রান হয়ে যাওয়ার যে বিপদ (Fall-through bug) ছিল, match-এ তা সম্পূর্ণ দূর করা হয়েছে। ম্যাচ পাওয়ার সাথে সাথে শুধু সেই এক্সপ্রেশনটিই কার্যকর হয়।`,
+          code: `<?php
+
+$action = "edit";
+
+$logMessage = match ($action) {
+    "create" => "Creating new record...",
+    "edit"   => "Updating existing record...",
+    "delete" => "Permanently removing record...",
+    default  => "Viewing record..."
+};
+
+echo $logMessage;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Updating existing record...`
+        },
+        {
+          title: '৪. Strict Comparison (===) — সম্পূর্ণ টাইপ নিরাপদ',
+          explanationBn: `⚠️ switch যেখানে লুজ (==) সমতা করে, match সেখানে কঠোর (===) সমতা করে। অর্থাৎ মান ও ডেটা টাইপ দুটোই হুবহু এক হতে হবে।
+10 === 10 -> true
+10 === "10" -> false
+ফলে প্রোডাকশন সিস্টেমে কোনো টাইপ জাগলিং বাগ বা সিকিউরিটি ঝুঁকি তৈরি হয় না।`,
+          code: `<?php
+
+$value = 10; // Integer 10
+
+$result = match ($value) {
+    10      => "Matched Integer 10 (Strict Type Match)",
+    "10"    => "Matched String '10'",
+    default => "No Type Match"
+};
+
+echo $result;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Matched Integer 10 (Strict Type Match)`
+        },
+        {
+          title: '৫. Multiple Values → Same Result (একাধিক মান একই ফলাফল)',
+          explanationBn: `কমা (,) দিয়ে একাধিক মান পৃথক করে একটিমাত্র ফলাফলে ম্যাপ করা যায়।`,
+          code: `<?php
+
+$day = "Friday";
+
+$routine = match ($day) {
+    "Friday", "Saturday" => "Weekend (No Office Work)",
+    "Thursday"           => "Half Working Day",
+    default              => "Regular Full Working Day"
+};
+
+echo "Day Routine: " . $routine;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Day Routine: Weekend (No Office Work)`
+        },
+        {
+          title: '৬. Function Call ও match (true) দিয়ে রেঞ্জ/কন্ডিশন ম্যাচিং',
+          explanationBn: `match (true) ব্যবহার করে if/elseif এর মতো কন্ডিশনাল এক্সপ্রেশনও হ্যান্ডেল করা যায়।
+⚠️ তবে সাধারণ রেঞ্জ বা অতি জটিল লজিকে if/elseif ব্যবহার করা বেশি রিডেবল।`,
+          code: `<?php
+
+$price = 2500;
+
+$discountPercentage = match (true) {
+    $price >= 5000 => 20,
+    $price >= 2000 => 10,
+    $price >= 1000 => 5,
+    default        => 0
+};
+
+$savedMoney = ($price * $discountPercentage) / 100;
+echo "Purchased: {$price} BDT<br>";
+echo "Discount: {$discountPercentage}% (Saved: {$savedMoney} BDT)";
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Purchased: 2500 BDT\nDiscount: 10% (Saved: 250 BDT)`
+        },
+        {
+          title: '৭. রিয়েল-লাইফ অর্ডার ও ডেলিভারি স্ট্যাটাস ট্র্যাকার',
+          explanationBn: `ই-কমার্স প্রোডাকশন অ্যাপ্লিকেশনে অর্ডারের প্রতিটি স্ট্যাটাসের ওপর ভিত্তি করে ক্লিন মেসেজ তৈরি।`,
+          code: `<?php
+
+$status = "shipped";
+
+$orderMessage = match ($status) {
+    "pending"   => "Order Pending: Waiting for payment gateway callback.",
+    "paid"      => "Payment Confirmed: Items allocated in warehouse.",
+    "shipped"   => "Order Shipped: Dispatched via Express Courier.",
+    "delivered" => "Order Delivered: Reached customer hands safely.",
+    "cancelled" => "Order Cancelled: Payment refund scheduled.",
+    default     => "Invalid / Unrecognized Order Status Code."
+};
+
+echo $orderMessage;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Order Shipped: Dispatched via Express Courier.`
+        },
+        {
+          title: '৮. match-এর default এবং UnhandledMatchError সতর্কতা',
+          explanationBn: `⚠️ গুরুত্বপূর্ণ সতর্কবার্তা:
+যদি কোনো মান match না করে এবং default শাখা না থাকে, তবে পিএইচপি তাৎক্ষণিকভাবে UnhandledMatchError থ্রো করে অ্যাপ্লিকেশন ক্র্যাশ করাবে। তাই সর্বদা একটি সেফ default ব্রাঞ্চ রাখা বাধ্যতামূলক।`,
+          code: `<?php
+
+$status = "archived";
+
+$statusLabel = match ($status) {
+    "active"   => "User Account Active",
+    "banned"   => "Account Suspended",
+    default    => "Unknown Status Fallback" // এটি না থাকলে UnhandledMatchError হবে!
+};
+
+echo "Result: " . $statusLabel;
+?>`,
+          codeLanguage: 'Error Prevention Guide',
+          outputPreview: `Result: Unknown Status Fallback`
+        },
+        {
+          title: '৯. switch বনাম match — সরাসরি তুলনা',
+          explanationBn: `• switch: এটি একটি Statement; প্রতিটি case-এ আলাদা কোড ব্লক চলে; break দেওয়া বাধ্যতামূলক; লুজ সমতা (==) করে।
+• match: এটি একটি Expression; সরাসরি মান রিটার্ন করে; break লাগে না; কঠোর সমতা (===) করে এবং কোড অনেক বেশি কম্প্যাক্ট।`,
+          code: `<?php
+
+$role = "admin";
+
+// ১. ট্রেডিশনাল switch
+switch ($role) {
+    case "admin":
+        $switchRes = "Admin (via Switch)";
+        break;
+    default:
+        $switchRes = "Guest";
+}
+
+// ২. মডার্ন PHP 8 match
+$matchRes = match ($role) {
+    "admin" => "Admin (via Match)",
+    default => "Guest"
+};
+
+echo "Switch Output: {$switchRes}<br>";
+echo "Match Output: {$matchRes}";
+?>`,
+          codeLanguage: 'Side-by-Side Comparison',
+          outputPreview: `Switch Output: Admin (via Switch)\nMatch Output: Admin (via Match)`
+        },
+        {
+          title: '১০. কখন match ব্যবহার করবেন? (Fixed Value Mapping)',
+          explanationBn: `রিয়েল-ওয়ার্ল্ডে যেখানে ফিক্সড ভ্যালু থেকে অন্য কোনো মানে ম্যাপিং করতে হয়:
+✓ $status ➔ Response Message
+✓ $role ➔ Permission বা Redirect URL
+✓ $type ➔ CSS Alert Class (alert-success, alert-danger)
+✓ $method ➔ API Gateway Handler
+✓ HTTP Status Code ➔ Status Message`,
+          code: `<?php
+
+$alertType = "warning";
+
+$alertClass = match ($alertType) {
+    "success" => "alert alert-success",
+    "error"   => "alert alert-danger",
+    "warning" => "alert alert-warning",
+    default   => "alert alert-info"
+};
+
+echo "Generated HTML Class: " . $alertClass;
+?>`,
+          codeLanguage: 'Real World Mapping',
+          outputPreview: `Generated HTML Class: alert alert-warning`
+        }
+      ],
       keyPointsBn: [
-        'ব্রেক স্টেটমেন্টের প্রয়োজন নেই, ফল-থ্রু বাগ হওয়ার সম্ভাবনা শূন্য।',
-        'যদি কোনো কেস না মেলে এবং default না থাকে, তবে UnhandledMatchError থ্রো হয়।'
+        'match হলো PHP 8.0+ এর এক্সপ্রেশন যা সরাসরি ভ্যালু রিটার্ন করে এবং ভেরিয়েবলে স্টোর করা যায়।',
+        'এতে break স্টেটমেন্টের প্রয়োজন নেই; ফলে ফল-থ্রু বাগ হওয়ার কোনো সুযোগ নেই।',
+        'match কঠোর সমতা (===) যাচাই করে, ফলে টাইপ রূপান্তরজনিত অপ্রত্যাশিত ফলাফল ঘটে না।',
+        'যদি কোনো কেস ম্যাচ না করে এবং default শাখা না থাকে, তবে UnhandledMatchError ঘটে।',
+        'ফিক্সড ভ্যালুর সাথে স্ট্যাটাস, রোল, সিএসএস ক্লাস বা কনফিগারেশন ম্যাপিংয়ে match সেরা পছন্দ।'
+      ],
+      practiceExamples: [
+        {
+          title: 'বাস্তব উদাহরণ ১: HTTP Status Code থেকে ফ্রেন্ডলি মেসেজ ও স্ট্যাটাস টাইপ',
+          descriptionBn: 'API রেসপন্স কোডকে তাৎক্ষণিকভাবে ইউজার-ফ্রেন্ডলি মেসেজে রূপান্তর।',
+          code: `<?php
+function getHttpStatusInfo(int $code): string
+{
+    return match ($code) {
+        200, 201 => "Request Succeeded with HTTP {$code}",
+        400      => "Bad Request: Client provided malformed data.",
+        401, 403 => "Authentication / Permission Denied ({$code})",
+        404      => "Not Found: Resource does not exist.",
+        500, 502 => "Internal Server Error ({$code})",
+        default  => "Unhandled Status Code: {$code}"
+    };
+}
+
+echo getHttpStatusInfo(201) . "<br>";
+echo getHttpStatusInfo(404) . "<br>";
+echo getHttpStatusInfo(500);
+?>`
+        },
+        {
+          title: 'বাস্তব উদাহরণ ২: UI থিম কালার ও ব্যাজ কনফিগারেশন ম্যাপিং',
+          descriptionBn: 'পেমেন্ট গেটওয়ের ওপর ভিত্তি করে UI কালার কোড ও আইকন নির্ধারণ।',
+          code: `<?php
+$gateway = "bkash";
+
+$gatewayConfig = match ($gateway) {
+    "bkash"  => ['color' => '#e2136e', 'name' => 'bKash Wallet', 'charge' => 1.5],
+    "nagad"  => ['color' => '#f7941d', 'name' => 'Nagad Account', 'charge' => 1.2],
+    "card"   => ['color' => '#1a1f71', 'name' => 'Visa / Mastercard', 'charge' => 2.0],
+    default  => ['color' => '#64748b', 'name' => 'Manual Transfer', 'charge' => 0.0]
+};
+
+echo "Gateway: " . $gatewayConfig['name'] . "<br>";
+echo "Fee: " . $gatewayConfig['charge'] . "%<br>";
+echo "Branding Color: " . $gatewayConfig['color'];
+?>`
+        }
       ]
     }
   },
@@ -6811,27 +7730,368 @@ echo "স্ট্যাটাস $statusCode: $message";
     id: 'php-loops',
     title: 'PHP Loops',
     category: 'basic',
-    tag: 'Iteration',
+    tag: 'Control Flow & Iteration',
     phpVersion: 'PHP 8.0+',
-    subtitleBn: 'while, do...while, for এবং আধুনিক foreach লুপ ও রেফারেন্স ব্যবহার।',
+    subtitleBn: 'for, while, do...while, foreach (Indexed, Associative, Multidimensional), break, continue, reference ও প্রোডাকশন প্র্যাকটিস।',
     sampleCode: `<?php
-$students = ["রফিক" => 85, "করিম" => 92, "সালমা" => 78];
+// ১. অ্যাসোসিয়েটিভ অ্যারে দিয়ে প্রোডাক্ট তালিকা
+$inventory = [
+    ["name" => "Premium Oxford Shirt", "price" => 1250, "stock" => 14],
+    ["name" => "Chino Casual Pant",    "price" => 1800, "stock" => 0],  // স্টক শেষ
+    ["name" => "Leather Formal Belt",  "price" => 850,  "stock" => 5],
+    ["name" => "Sports Running Shoes", "price" => 3200, "stock" => 8]
+];
 
-echo "<h3>শিক্ষার্থীদের পরীক্ষার ফলাফল:</h3>";
-foreach ($students as $name => $score) {
-    echo "$name এর প্রাপ্ত নম্বর: <b>$score</b><br>";
+echo "<div style='font-family:sans-serif; background:#f8fafc; border:1px solid #cbd5e1; padding:16px; border-radius:8px;'>";
+echo "<h3 style='margin:0 0 10px 0; color:#0f172a;'>E-Commerce Live Catalog (foreach + break/continue)</h3>";
+
+$totalInStockValue = 0;
+
+// ২. foreach লুপ এবং কন্ডিশন
+foreach ($inventory as $index => $item) {
+    // আউট-অফ-স্টক প্রোডাক্ট ডিসপ্লে থেকে স্কিপ (continue)
+    if ($item["stock"] === 0) {
+        continue;
+    }
+
+    $itemTotal = $item["price"] * $item["stock"];
+    $totalInStockValue += $itemTotal;
+
+    echo "<div style='background:white; border:1px solid #e2e8f0; padding:10px; margin-bottom:8px; border-radius:6px;'>";
+    echo "<b>#" . ($index + 1) . " {$item['name']}</b> - Price: {$item['price']} BDT | Stock: {$item['stock']} pcs";
+    echo " <span style='color:#16a34a; font-size:12px;'>✓ Available</span>";
+    echo "</div>";
 }
 
-echo "<br><b>সাধারণ for লুপ:</b> ";
-for ($i = 1; $i <= 5; $i++) {
-    echo "$i ";
+echo "<hr style='border:0; border-top:1px solid #cbd5e1; margin:12px 0;'>";
+echo "<p style='margin:4px 0; color:#0f172a;'><b>Total Inventory Value (In Stock):</b> " . number_format($totalInStockValue, 2) . " BDT</p>";
+
+// ৩. Pagination তৈরিতে for লুপের বাস্তব প্রয়োগ
+echo "<div style='margin-top:12px; font-size:13px;'><b>Pages: </b>";
+$totalPages = 5;
+for ($page = 1; $page <= $totalPages; $page++) {
+    $activeStyle = ($page === 1) ? "background:#2563eb; color:white;" : "background:#e2e8f0; color:#334155;";
+    echo "<span style='display:inline-block; padding:3px 8px; margin-right:4px; border-radius:4px; {$activeStyle}'>{$page}</span>";
 }
+echo "</div>";
+
+echo "</div>";
 ?>`,
     deepDive: {
-      conceptBn: `অ্যারে বা কালেকশন পুনরাবৃত্তির জন্য foreach হলো সবচেয়ে নিরাপদ ও কার্যকর লুপ। রেফারেন্স (&) দিয়ে লুপ চালালে লুপের পরে unset() না করলে শেষ আইটেম ওভাররাইট হওয়ার বাগ দেখা দেয়।`,
+      conceptBn: `Loop দিয়ে একই ধরনের অপারেশন বারবার (Iteration) পরিচালনা করা হয়। পিএইচপিতে ৪ ধরনের প্রধান লুপ রয়েছে: for, while, do...while এবং foreach। ডেটাবেস রেজাল্ট ফেচ করা, এপিআই রেসপন্স প্রসেস করা, ই-কমার্স প্রোডাক্ট বা কার্ট আইটেম প্রদর্শন এবং পেজিনেশন তৈরিতে লুপ অপরিহার্য। অ্যারে ও অবজেক্ট পুনরাবৃত্তির ক্ষেত্রে foreach সবচেয়ে বেশি ব্যবহৃত ও নিরাপদ।`,
+      lessonSections: [
+        {
+          title: '১. for Loop — পুনরাবৃত্তির সংখ্যা নির্দিষ্ট থাকলে',
+          explanationBn: `যখন কোনো লুপ ঠিক কতবার চলবে তা আগে থেকেই জানা থাকে (যেমন: পেজিনেশন, ক্যালকুলেশন, ফিক্সড কাউন্টার), তখন for লুপ ব্যবহার করা হয়।
+সিনট্যাক্স: for (initialization; condition; increment/decrement)`,
+          code: `<?php
+
+for ($i = 1; $i <= 5; $i++) {
+    echo "Iteration: {$i}<br>";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Iteration: 1\nIteration: 2\nIteration: 3\nIteration: 4\nIteration: 5`
+        },
+        {
+          title: '২. while Loop — শর্ত সত্য থাকা পর্যন্ত',
+          explanationBn: `শর্ত যতক্ষণ true থাকবে, ততক্ষণ while লুপ চলতে থাকবে। কতবার লুপটি চলবে তা আগে থেকে জানা না থাকলে (যেমন: ডেটাবেস থেকে রো ফেচ করা) এটি আদর্শ।
+⚠️ সতর্কতা: লুপের ভেতরে কাউন্টার বৃদ্ধি ($i++) না করলে এটি Infinite Loop এ পরিণত হয়ে সার্ভার মেমোরি ক্র্যাশ করাবে।`,
+          code: `<?php
+
+$i = 1;
+
+while ($i <= 5) {
+    echo "Current value: {$i}<br>";
+    $i++; // অবশ্যই পরিবর্তন করতে হবে
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Current value: 1\nCurrent value: 2\nCurrent value: 3\nCurrent value: 4\nCurrent value: 5`
+        },
+        {
+          title: '৩. do...while Loop — অন্তত একবার চলবেই',
+          explanationBn: `do...while লুপের শর্তটি ব্লকের শেষে পরীক্ষা করা হয়। তাই শর্তটি শুরু থেকেই false হলেও ব্লকের ভেতরের কোড অন্তত একবার অবশ্যই এক্সিকিউট হবে।`,
+          code: `<?php
+
+$i = 10;
+
+do {
+    echo "Executed at least once: value is {$i}<br>";
+    $i++;
+} while ($i <= 5); // শর্ত মিথ্যা কিন্তু একবার রান হয়েছে
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Executed at least once: value is 10`
+        },
+        {
+          title: '৪. foreach Loop (⭐⭐⭐ সবচেয়ে বেশি ব্যবহৃত লুপ)',
+          explanationBn: `পিএইচপিতে অ্যারে ও ইটারেবল ডেটা স্ট্রাকচার নিয়ে কাজ করার জন্য foreach অবিসংবাদিত চ্যাম্পিয়ন। এতে কোনো ইনডেক্স ট্র্যাক বা সাইজ ক্যালকুলেট করতে হয় না; এটি স্বয়ংক্রিয়ভাবে অ্যারের প্রতিটি উপাদান প্রসেস করে।`,
+          code: `<?php
+
+$users = ["Abbad", "Rahim", "Karim"];
+
+foreach ($users as $user) {
+    echo "User: {$user}<br>";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `User: Abbad\nUser: Rahim\nUser: Karim`
+        },
+        {
+          title: '৫. Associative Array এবং Key-Value পেয়ার Iteration',
+          explanationBn: `foreach ($array as $key => $value) সিনট্যাক্স ব্যবহার করে অ্যাসোসিয়েটিভ অ্যারের কী (Key) এবং মান (Value) উভয়ই খুব সহজে রিড করা যায়।`,
+          code: `<?php
+
+$user = [
+    "name"  => "Abbad",
+    "email" => "abbad@example.com",
+    "age"   => 25
+];
+
+foreach ($user as $key => $value) {
+    echo ucfirst($key) . ": " . $value . "<br>";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Name: Abbad\nEmail: abbad@example.com\nAge: 25`
+        },
+        {
+          title: '৬. Multidimensional Array (বহুমাত্রিক অ্যারে ও প্রোডাক্ট লিস্ট)',
+          explanationBn: `ডেটাবেস বা REST API থেকে সাধারণত বহুমাত্রিক অ্যারে (অ্যারের ভেতর অ্যারে) রিটার্ন হয়। foreach দিয়ে খুব সহজে প্রতিটি আইটেমের অভ্যন্তরীণ ফিল্ড এক্সেস করা যায়।`,
+          code: `<?php
+
+$products = [
+    ["name" => "Shirt", "price" => 500],
+    ["name" => "Pant",  "price" => 800]
+];
+
+foreach ($products as $product) {
+    echo "Product: {$product['name']} - Price: {$product['price']} BDT<br>";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Product: Shirt - Price: 500 BDT\nProduct: Pant - Price: 800 BDT`
+        },
+        {
+          title: '৭. Nested Loop (নেস্টেড লুপ) ও পারফরম্যান্স সতর্কতা',
+          explanationBn: `একটি লুপের ভেতর আরেকটি লুপ চালানোকে নেস্টেড লুপ বলে।
+⚠️ সতর্কতা: বেশি গভীর নেস্টেড লুপ (O(n²) বা O(n³)) কোডকে ধীরগতি ও জটিল করে তোলে। লার্জ ডেটাসেটে নেস্টেড লুপ পরিহার করে কী-ইনডেক্সিং বা ম্যাপ ব্যবহার করা ভালো।`,
+          code: `<?php
+
+$categories = [
+    "Men"   => ["Formal Shirt", "Denim Pant"],
+    "Women" => ["Silk Saree", "Cotton Dress"]
+];
+
+foreach ($categories as $category => $items) {
+    echo "<b>Category: {$category}</b><br>";
+    foreach ($items as $item) {
+        echo "-- {$item}<br>";
+    }
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `<b>Category: Men</b><br>-- Formal Shirt<br>-- Denim Pant<br><b>Category: Women</b><br>-- Silk Saree<br>-- Cotton Dress`
+        },
+        {
+          title: '৮. break স্টেটমেন্ট — লুপের তাৎক্ষণিক সমাপ্তি',
+          explanationBn: `নির্দিষ্ট কোনো শর্ত পূরণ হলে লুপটি আর সামনে না বাড়িয়ে সম্পূর্ণ বন্ধ করে দিতে break ব্যবহার করা হয় (যেমন: নির্দিষ্ট কোনো রেকর্ড খুঁজে পেলে সার্চ লুপ থামিয়ে দেওয়া)।`,
+          code: `<?php
+
+for ($i = 1; $i <= 10; $i++) {
+    if ($i === 5) {
+        echo "Found target 5! Stopping loop.<br>";
+        break;
+    }
+    echo "Processing {$i}<br>";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Processing 1\nProcessing 2\nProcessing 3\nProcessing 4\nFound target 5! Stopping loop.`
+        },
+        {
+          title: '৯. continue স্টেটমেন্ট — বর্তমান ধাপ স্কিপ করে পরবর্তী ধাপে যাওয়া',
+          explanationBn: `লুপটি সম্পূর্ণ বন্ধ না করে শুধুমাত্র বর্তমান পুনরাবৃত্তিটি (Current Iteration) স্কিপ করে পরবর্তী ধাপে চলে যেতে continue ব্যবহার করা হয়।`,
+          code: `<?php
+
+for ($i = 1; $i <= 5; $i++) {
+    if ($i === 3) {
+        continue; // ৩ স্কিপ হবে
+    }
+    echo "Number: {$i}<br>";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Number: 1\nNumber: 2\nNumber: 4\nNumber: 5`
+        },
+        {
+          title: '১০. Loop + Condition (ইনভেন্টরি ফিল্টারিং)',
+          explanationBn: `লুপের ভেতরে কন্ডিশন দিয়ে স্টক শেষ হয়ে যাওয়া আইটেম হাইড করা বা স্পেশাল ব্যাজ যুক্ত করার বাস্তব উদাহরণ।`,
+          code: `<?php
+
+$products = [
+    ["name" => "Shirt", "stock" => 10],
+    ["name" => "Pant",  "stock" => 0],
+    ["name" => "Shoe",  "stock" => 5]
+];
+
+foreach ($products as $product) {
+    if ($product["stock"] > 0) {
+        echo "✓ {$product['name']} is Available ({$product['stock']} in stock)<br>";
+    }
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `✓ Shirt is Available (10 in stock)\n✓ Shoe is Available (5 in stock)`
+        },
+        {
+          title: '১১. Database Result Iteration (while ও foreach)',
+          explanationBn: `PDO বা MySQLi দিয়ে ডেটাবেস থেকে রেকর্ড নিয়ে আসার সময় সাধারণত fetch() করে while লুপে অথবা fetchAll() করে foreach লুপে চালানো হয়।`,
+          code: `<?php
+
+// সিমুলেটেড পিডিও কুয়েরি ও ফেচিং লজিক
+$mockDbRows = [
+    ['id' => 1, 'name' => 'Abbad Khan', 'role' => 'admin'],
+    ['id' => 2, 'name' => 'Rahim Ahmed', 'role' => 'editor']
+];
+
+foreach ($mockDbRows as $row) {
+    echo "DB User #{$row['id']}: {$row['name']} ({$row['role']})<br>";
+}
+?>`,
+          codeLanguage: 'Database Simulation',
+          outputPreview: `DB User #1: Abbad Khan (admin)\nDB User #2: Rahim Ahmed (editor)`
+        },
+        {
+          title: '১২. Infinite Loop থেকে বাঁচার উপায়',
+          explanationBn: `❌ Bad Code:
+$i = 1;
+while ($i <= 10) { echo $i; } // $i বাড়ছে না, ইনফিনিট লুপ!
+
+✅ Clean Code:
+কাউন্টার বৃদ্ধি ($i++) নিশ্চিত করুন অথবা ব্রেক কন্ডিশন রাখুন।`,
+          code: `<?php
+
+$safeCounter = 1;
+while ($safeCounter <= 3) {
+    echo "Safe Step: {$safeCounter}<br>";
+    $safeCounter++; // নিশ্চিত ইনক্রিমেন্ট
+}
+?>`,
+          codeLanguage: 'Safe Coding Pattern',
+          outputPreview: `Safe Step: 1\nSafe Step: 2\nSafe Step: 3`
+        },
+        {
+          title: '১৩. Reference দিয়ে foreach এবং unset() সতর্কবার্তা',
+          explanationBn: `অ্যারের উপাদান সরাসরি পরিবর্তন করতে &$value রেফারেন্স ব্যবহার করা যায়।
+⚠️ সতর্কতা: রেফারেন্স লুপ শেষ হওয়ার সাথে সাথে unset($value) করা বাধ্যতামূলক; অন্যথায় পরবর্তীতে একই নামের ভেরিয়েবল ব্যবহার করলে অ্যারের শেষ আইটেমটি ওভাররাইট হয়ে বাগ সৃষ্টি হতে পারে।`,
+          code: `<?php
+
+$data = [10, 20, 30];
+
+// প্রতিটি মান দ্বিগুণ করো
+foreach ($data as &$value) {
+    $value *= 2;
+}
+unset($value); // রেফারেন্স মেমোরি মুক্ত করা আবশ্যক!
+
+print_r($data);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Array\n(\n    [0] => 20\n    [1] => 40\n    [2] => 60\n)`
+        },
+        {
+          title: '১৪. for বনাম foreach — কোনটি কখন বেছে নেবেন?',
+          explanationBn: `• for লুপ: যখন গাণিতিক গণনা, স্পেসিফিক ইনডেক্সিং বা ধাপ (step: $i += 2) নিয়ন্ত্রণ করতে হয়।
+• foreach লুপ: যখন যেকোনো অ্যারে, ডিকশনারি বা কালেকশন অবজেক্ট থেকে ডেটা পড়তে বা প্রদর্শন করতে হয়।
+⭐ মডার্ন পিএইচপিতে অ্যারের জন্য সবসময় foreach অগ্রাধিকার পায়।`,
+          code: `<?php
+
+$items = ["Alpha", "Beta", "Gamma"];
+
+// for লুপে সাইজ চেক ও ম্যানুয়াল ইনডেক্সিং লাগে
+echo "With foreach: ";
+foreach ($items as $item) {
+    echo "{$item} ";
+}
+?>`,
+          codeLanguage: 'Comparison',
+          outputPreview: `With foreach: Alpha Beta Gamma `
+        },
+        {
+          title: '১৫. প্রোডাকশন রুলস ও পারফরম্যান্স চেকলিস্ট',
+          explanationBn: `১. অ্যারে বা ডেটা কালেকশন প্রসেস করতে সর্বদা foreach ব্যবহার করুন।
+২. লুপের ভেতরে কখনো হেভি ডেটাবেস কুয়েরি চালাবেন না (N+1 Query Problem)। আগে কুয়েরি করে ডেটা এনে তারপর লুপ চালান।
+৩. বড় ডেটাসেট প্রসেস করতে একবারে মেমোরিতে না এনে পেজিনেশন বা জেনারেটর (yield) ব্যবহার করুন।
+৪. break ও continue দিয়ে অপ্রয়োজনীয় এক্সিকিউশন বাঁচান।`,
+          code: `<?php
+echo "Core Principle: Never run database queries inside loops (Avoid N+1). Use foreach for clean array traversal.";
+?>`,
+          codeLanguage: 'Architecture Rule'
+        }
+      ],
       keyPointsBn: [
-        'foreach ($arr as &$val) ব্যবহারের পর সর্বদা unset($val) করা বাঞ্ছনীয়।',
-        'বড় ডেটাসেটের জন্য জেনারেটর (yield) লুপ মেমোরি সংরক্ষণ করে।'
+        'for লুপ কতবার চলবে জানা থাকলে, while শর্ত পূরণ হওয়া পর্যন্ত এবং do...while অন্তত একবার চলবেই।',
+        'অ্যারে ও কালেকশন নিয়ে কাজের ক্ষেত্রে foreach সবচেয়ে নিরাপদ, পরিচ্ছন্ন ও জনপ্রিয় লুপ।',
+        'break স্টেটমেন্ট পুরো লুপ সাথে সাথে বন্ধ করে দেয় এবং continue বর্তমান ধাপ স্কিপ করে পরের ধাপে চলে যায়।',
+        'রেফারেন্স (&$val) দিয়ে foreach চালালে লুপের পরপরই unset($val) করা বাধ্যতামূলক।',
+        'লুপের ভেতরে হেভি ডেটাবেস কুয়েরি বা অতিরিক্ত নেস্টিং এড়িয়ে চলা ভালো।'
+      ],
+      practiceExamples: [
+        {
+          title: 'বাস্তব উদাহরণ ১: ই-কমার্স কার্টের মোট ভ্যাট ও ডিসকাউন্ট ক্যালকুলেশন',
+          descriptionBn: 'foreach লুপ ব্যবহার করে একাধিক কার্ট আইটেমের সাবটোটাল ও ট্যাক্স হিসাব।',
+          code: `<?php
+$cart = [
+    ['title' => 'Wireless Keyboard', 'price' => 1500, 'qty' => 1],
+    ['title' => 'Optical Mouse',    'price' => 450,  'qty' => 2],
+    ['title' => 'USB-C Cable',      'price' => 250,  'qty' => 3]
+];
+
+$grandTotal = 0;
+
+foreach ($cart as $item) {
+    $lineTotal = $item['price'] * $item['qty'];
+    $grandTotal += $lineTotal;
+    echo "{$item['title']} ({$item['qty']}x @ {$item['price']}) = {$lineTotal} BDT<br>";
+}
+
+$vat = $grandTotal * 0.05; // ৫% ভ্যাট
+$finalPayable = $grandTotal + $vat;
+
+echo "<hr>";
+echo "Subtotal: {$grandTotal} BDT<br>";
+echo "VAT (5%): {$vat} BDT<br>";
+echo "<b>Total Payable: {$finalPayable} BDT</b>";
+?>`
+        },
+        {
+          title: 'বাস্তব উদাহরণ ২: রোল ভিত্তিক ইউজার ফিল্টারিং ও ব্রেক কন্ডিশন',
+          descriptionBn: 'সিস্টেমে কোনো সুপার-এডমিন ইউজার আছে কিনা সার্চ করে প্রথম ম্যাচেই লুপ বন্ধ করা।',
+          code: `<?php
+$users = [
+    ['id' => 1, 'name' => 'Karim', 'role' => 'subscriber'],
+    ['id' => 2, 'name' => 'Abbad', 'role' => 'super_admin'],
+    ['id' => 3, 'name' => 'Rahim', 'role' => 'editor']
+];
+
+$superAdminFound = null;
+
+foreach ($users as $user) {
+    if ($user['role'] === 'super_admin') {
+        $superAdminFound = $user;
+        break; // সুপার এডমিন পাওয়ার সাথে সাথে লুপ বন্ধ!
+    }
+}
+
+if ($superAdminFound) {
+    echo "Super Admin Verified: {$superAdminFound['name']} (User ID: #{$superAdminFound['id']})";
+} else {
+    echo "No Super Admin found in this batch.";
+}
+?>`
+        }
       ]
     }
   },
@@ -6839,27 +8099,491 @@ for ($i = 1; $i <= 5; $i++) {
     id: 'php-functions',
     title: 'PHP Functions',
     category: 'basic',
-    tag: 'Modularity',
+    tag: 'Modularity & Clean Architecture',
     phpVersion: 'PHP 8.0+',
-    subtitleBn: 'টাইপ হিন্টিং, ডিফল্ট আর্গুমেন্ট, Named Arguments ও অ্যারো ফাংশন।',
+    subtitleBn: 'Parameters, return, strict_types, Anonymous, Arrow, Callback, Variadic (...), Scope ও Single Responsibility।',
     sampleCode: `<?php
 declare(strict_types=1);
 
-// PHP 8+ টাইপ হিন্টিং ও Named Arguments
-function calculateTotal(float $price, float $vatRate = 0.15, float $discount = 0.0): float {
-    $tax = $price * $vatRate;
-    return ($price + $tax) - $discount;
+// ১. টাইপ ডিক্লেয়ারেশন ও ডিফল্ট প্যারামিটারসহ রিইউজেবল বিজনেস ফাংশন
+function calculateInvoiceTotal(
+    float $unitPrice,
+    int $quantity,
+    float $vatRate = 0.05,
+    float $discount = 0.0
+): float {
+    $subtotal = $unitPrice * $quantity;
+    $vatAmount = $subtotal * $vatRate;
+    return ($subtotal + $vatAmount) - $discount;
 }
 
-// Named Arguments ব্যবহার (প্যারামিটারের ক্রম মনে রাখতে হয় না)
-$total = calculateTotal(price: 1000.0, discount: 50.0);
-echo "মোট প্রদেয় মূল্য: ৳" . $total;
+// ২. অ্যারো ফাংশন ও কলব্যাক দিয়ে কার্ট ফিল্টারিং
+$cartItems = [
+    ['item' => 'SSD Drive',    'price' => 4500.0, 'qty' => 1],
+    ['item' => 'HDMI Cable',   'price' => 350.0,  'qty' => 2],
+    ['item' => 'Gaming Mouse', 'price' => 1800.0, 'qty' => 1]
+];
+
+// ৩. Variadic ফাংশন দিয়ে ডাইনামিক ডিসকাউন্ট ক্যালকুলেশন
+function computeSpecialCoupons(float ...$coupons): float {
+    return array_sum($coupons);
+}
+
+$appliedCoupons = computeSpecialCoupons(150.0, 50.0);
+$grandTotal = calculateInvoiceTotal(
+    unitPrice: 4500.0,
+    quantity: 1,
+    vatRate: 0.05,
+    discount: $appliedCoupons
+);
+
+echo "<div style='font-family:sans-serif; background:#f8fafc; border:1px solid #cbd5e1; padding:16px; border-radius:8px;'>";
+echo "<h3 style='margin:0 0 10px 0; color:#0f172a;'>Order Checkout Invoice (Strict Typed Functions)</h3>";
+echo "<p style='margin:4px 0;'><b>SSD Drive:</b> 1x @ 4,500.00 BDT</p>";
+echo "<p style='margin:4px 0; color:#d97706;'><b>Coupons Applied (...Variadic):</b> -{$appliedCoupons} BDT</p>";
+echo "<p style='margin:4px 0; color:#16a34a; font-size:18px;'><b>Final Payable (with 5% VAT): " . number_format($grandTotal, 2) . " BDT</b></p>";
+echo "</div>";
 ?>`,
     deepDive: {
-      conceptBn: `ফাংশন কোড রিইউজেবিলিটির মূল চাবিকাঠি। PHP 8 এর Named Arguments এর মাধ্যমে যেকোনো প্যারামিটার নাম ধরে কল করা যায়, যার ফলে কোড অত্যন্ত সেলফ-ডকুমেন্টিং হয়।`,
+      conceptBn: `Function হলো একটি পুনরায় ব্যবহারযোগ্য (Reusable) কোড ব্লক। একবার ফাংশন লিখে প্রয়োজন অনুযায়ী প্রোগ্রামের যেকোনো জায়গা থেকে যতবার ইচ্ছা কল করা যায়। আধুনিক মডার্ন পিএইচপিতে (PHP 8+) ফাংশন শুধুমাত্র কোড সংক্ষেপের জন্যই নয়, বরং টাইপ ডিক্লেয়ারেশন (Type Declaration), strict_types, রিটার্ন টাইপ, নেমড আর্গুমেন্টস, অ্যারো ফাংশন এবং সিঙ্গেল রেসপনসিবিলিটি প্রিন্সিপাল (Single Responsibility) বজায় রেখে টেস্টেবল ও মেইনটেইনেবল সফটওয়্যার আর্কিটেকচার গড়ে তোলার ভিত্তিপ্রস্তর।`,
+      lessonSections: [
+        {
+          title: '১. Basic Function (মৌলিক ফাংশন তৈরি ও কল করা)',
+          explanationBn: `function কীওয়ার্ড দিয়ে ফাংশন ডিফাইন করতে হয় এবং ফাংশনের নাম ধরে প্যারেন্থেসিস () দিয়ে কল করা হয়।`,
+          code: `<?php
+
+function sayHello()
+{
+    echo "Hello World";
+}
+
+sayHello();
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Hello World`
+        },
+        {
+          title: '২. Function Parameter (প্যারামিটার ও আর্গুমেন্ট পাসিং)',
+          explanationBn: `ফাংশনের ভেতর বাইরে থেকে ডায়নামিক ডেটা পাঠানোর জন্য প্যারামিটার ব্যবহার করা হয়।`,
+          code: `<?php
+
+function greet($name)
+{
+    echo "Hello " . htmlspecialchars($name);
+}
+
+greet("Abbad");
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Hello Abbad`
+        },
+        {
+          title: '৩. Multiple Parameters (একাধিক প্যারামিটার গ্রহণ)',
+          explanationBn: `কমা (,) দিয়ে পৃথক করে একাধিক প্যারামিটার গ্রহণ করা যায়।`,
+          code: `<?php
+
+function add($a, $b)
+{
+    echo $a + $b;
+}
+
+add(10, 20);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `30`
+        },
+        {
+          title: '৪. return স্টেটমেন্ট (⭐⭐⭐ সবচেয়ে গুরুত্বপূর্ণ)',
+          explanationBn: `return ফাংশন থেকে প্রসেসকৃত ফলাফল ফেরত দেয়। ফাংশনের ফলাফল পরবর্তীতে অন্য কোনো ভেরিয়েবলে জমা রাখতে বা আরও গণনা করতে return বাধ্যতামূলক।`,
+          code: `<?php
+
+function addWithReturn($a, $b)
+{
+    return $a + $b;
+}
+
+$result = addWithReturn(10, 20);
+echo "Result: " . $result;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Result: 30`
+        },
+        {
+          title: '৫. return বনাম echo — কখন কোনটি?',
+          explanationBn: `• echo: ফাংশনের ভেতরে সরাসরি স্ক্রিনে আউটপুট দেখিয়ে দেয়, কিন্তু মানটি পরবর্তীতে পুনঃব্যবহার করা যায় না।
+• return: মানটি ফেরত পাঠায়, ফলে $result * 2 বা ডেটাবেসে সংরক্ষণ করার মতো পরবর্তী অপারেশন পরিচালনা করা যায়।
+⭐ রিইউজেবল বিজনেস লজিক ফাংশনে সর্বদা return ব্যবহার করা স্ট্যান্ডার্ড।`,
+          code: `<?php
+
+function calculate($a, $b)
+{
+    return $a + $b;
+}
+
+$sum = calculate(10, 20);
+$multiplied = $sum * 2; // পরবর্তী ক্যালকুলেশন সম্ভব হয়েছে return এর জন্য
+
+echo "Original Sum: {$sum}<br>";
+echo "Multiplied by 2: {$multiplied}";
+?>`,
+          codeLanguage: 'Comparison',
+          outputPreview: `Original Sum: 30\nMultiplied by 2: 60`
+        },
+        {
+          title: '৬. Default Parameter (ডিফল্ট মান নির্ধারণ)',
+          explanationBn: `ফাংশন কলের সময় কোনো আর্গুমেন্ট না পাঠালে যাতে এরর না ঘটে, সেজন্য প্যারামিটারে ডিফল্ট মান ($name = "Guest") নির্ধারণ করা যায়।`,
+          code: `<?php
+
+function greetUser($name = "Guest")
+{
+    return "Hello " . $name;
+}
+
+echo greetUser() . "<br>";
+echo greetUser("Abbad");
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Hello Guest\nHello Abbad`
+        },
+        {
+          title: '৭. Type Declaration (টাইপ ডিক্লেয়ারেশন ⭐⭐⭐)',
+          explanationBn: `মডার্ন পিএইচপিতে প্যারামিটার কোন ধরনের ডেটা গ্রহণ করবে তা নির্ধারণ করে দেওয়া যায়:
+Common Types: int, float, string, bool, array, object, mixed, iterable, callable`,
+          code: `<?php
+
+function sumValues(int $a, int $b)
+{
+    return $a + $b;
+}
+
+echo "Sum: " . sumValues(15, 25);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Sum: 40`
+        },
+        {
+          title: '৮. Return Type (রিটার্ন টাইপ ডিক্লেয়ারেশন)',
+          explanationBn: `ফাংশন থেকে ঠিক কী ডেটাটাইপ রিটার্ন হবে তা কোলনের পর নির্ধারণ করে দেওয়া যায় (যেমন: : int, : string, : bool, : array, : void)।`,
+          code: `<?php
+
+function addNumbers(int $a, int $b): int
+{
+    return $a + $b;
+}
+
+function getUserName(): string
+{
+    return "Abbad Khan";
+}
+
+function isSessionActive(): bool
+{
+    return true;
+}
+
+echo getUserName() . " - Status: " . (isSessionActive() ? "Active" : "Offline");
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Abbad Khan - Status: Active`
+        },
+        {
+          title: '৯. strict_types (কঠোর টাইপ চেকিং ⭐⭐⭐)',
+          explanationBn: `ফাইলের একদম শুরুতে declare(strict_types=1); লিখলে পিএইচপি কোনো স্বয়ংক্রিয় টাইপ রূপান্তর বা টাইপ জাগলিং করবে না। ভুল টাইপ পাস করলে তাৎক্ষণিক TypeError দেবে। এতে কোড অত্যন্ত নির্ভরযোগ্য হয়।`,
+          code: `<?php
+declare(strict_types=1);
+
+function multiply(int $a, int $b): int
+{
+    return $a * $b;
+}
+
+echo "Strict Result: " . multiply(6, 7);
+?>`,
+          codeLanguage: 'Strict Type Mode',
+          outputPreview: `Strict Result: 42`
+        },
+        {
+          title: '১০. Pass by Value (মান কপি হওয়া)',
+          explanationBn: `ডিফল্টভাবে পিএইচপি ফাংশনে ভেরিয়েবলের মানের একটি কপি পাঠায়। ফাংশনের ভেতরের পরিবর্তন বাইরের মূল ভেরিয়েবলে প্রভাব ফেলে না।`,
+          code: `<?php
+
+function increaseVal($number)
+{
+    $number++;
+}
+
+$x = 10;
+increaseVal($x);
+echo "Original x remains: " . $x;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Original x remains: 10`
+        },
+        {
+          title: '১১. Pass by Reference (মূল ভেরিয়েবল পরিবর্তন — &)',
+          explanationBn: `প্যারামিটারের আগে অ্যান্ড চিহ্ন (&) দিলে মূল ভেরিয়েবলের মেমোরি রেফারেন্স পাস হয়। ফাংশনের ভেতরের পরিবর্তন মূল ভেরিয়েবলকেও বদলে দেয়।
+⚠️ সতর্কতা: প্রয়োজন ছাড়া রেফারেন্স পাস না করাই ভালো, কারণ এটি সাইড-ইফেক্ট তৈরি করে।`,
+          code: `<?php
+
+function increaseRef(&$number)
+{
+    $number++;
+}
+
+$x = 10;
+increaseRef($x);
+echo "Original x is modified to: " . $x;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Original x is modified to: 11`
+        },
+        {
+          title: '১২. Variadic Function (... আর্গুমেন্ট আনপ্যাকিং)',
+          explanationBn: `তিনটি ডট (...) দিয়ে ভ্যারিয়াডিক ফাংশন তৈরি করলে অনির্দিষ্ট সংখ্যক আর্গুমেন্ট একটি অ্যারে হিসেবে স্বয়ংক্রিয়ভাবে গৃহীত হয়।`,
+          code: `<?php
+
+function sumAll(...$numbers)
+{
+    return array_sum($numbers);
+}
+
+echo "Sum of 4 items: " . sumAll(10, 20, 30, 40) . "<br>";
+echo "Sum of 2 items: " . sumAll(5, 15);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Sum of 4 items: 100\nSum of 2 items: 20`
+        },
+        {
+          title: '১৩. Anonymous Function (নামহীন ফাংশন / Closure)',
+          explanationBn: `নাম ছাড়া তৈরি করা ফাংশন যা সরাসরি ভেরিয়েবলে স্টোর করা যায় বা অন্য ফাংশনে পাস করা যায়।`,
+          code: `<?php
+
+$greet = function ($name) {
+    return "Hello " . $name;
+};
+
+echo $greet("Abbad");
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Hello Abbad`
+        },
+        {
+          title: '১৪. Arrow Function (PHP 7.4+ অ্যারো ফাংশন ⭐)',
+          explanationBn: `fn(params) => expression সিনট্যাক্স। এটি অটোমেটিক রিটার্ন করে এবং বাইরের স্কোপের ভেরিয়েবল স্বয়ংক্রিয়ভাবে ব্যবহার করতে পারে (কোনো use কীওয়ার্ড লাগে না)।`,
+          code: `<?php
+
+$multiplier = 3;
+$multiply = fn($number) => $number * $multiplier;
+
+echo "Arrow fn(5): " . $multiply(5) . "<br>";
+
+$numbers = [1, 2, 3];
+$doubled = array_map(fn($n) => $n * 2, $numbers);
+echo "Array map: " . implode(", ", $doubled);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Arrow fn(5): 15\nArray map: 2, 4, 6`
+        },
+        {
+          title: '১৫. Callback Function (কলব্যাক ফাংশন)',
+          explanationBn: `একটি ফাংশনকে অন্য একটি ফাংশনের আর্গুমেন্ট হিসেবে পাঠানোকে কলব্যাক বলে। array_map(), array_filter() ইত্যাদি ফাংশনে কলব্যাক বহুল ব্যবহৃত।`,
+          code: `<?php
+
+function processData($number, callable $callback)
+{
+    return $callback($number);
+}
+
+$result = processData(10, fn($x) => $x * 5);
+echo "Callback Result: " . $result;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Callback Result: 50`
+        },
+        {
+          title: '১৬. Recursive Function (পুনরাবৃত্তিমূলক ফাংশন)',
+          explanationBn: `যে ফাংশন নিজেই নিজেকে কল করে তাকে রিকার্সিভ ফাংশন বলে।
+⚠️ সাধারণ সিআরইউডি অ্যাপে এর প্রয়োজন কম হলেও ক্যাটাগরি ট্রি (Nested Categories) বা ফাইল ডিরেক্টরি ট্রাভার্স করতে এটি ব্যবহৃত হয়। রিকার্শনে অবশ্যই একটি বেস কন্ডিশন (Base Condition) থাকতে হবে যাতে ইনফিনিট লুপ না ঘটে।`,
+          code: `<?php
+
+function countdown($number)
+{
+    if ($number <= 0) {
+        echo "Blast off!";
+        return;
+    }
+    echo $number . "... ";
+    countdown($number - 1);
+}
+
+countdown(3);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `3... 2... 1... Blast off!`
+        },
+        {
+          title: '১৭. Scope (লোকাল স্কোপ)',
+          explanationBn: `ফাংশনের ভেতরে ঘোষিত ভেরিয়েবল লোকাল (Local)। ফাংশনের বাইরে থেকে তাকে সরাসরি এক্সেস করা যায় না।`,
+          code: `<?php
+
+function testScope()
+{
+    $secret = "Local Token";
+    return $secret;
+}
+
+echo "Inside returned: " . testScope();
+// echo $secret; // আনডিফাইন্ড ভেরিয়েবল এরর দেবে!
+?>`,
+          codeLanguage: 'Scope Demonstration',
+          outputPreview: `Inside returned: Local Token`
+        },
+        {
+          title: '১৮. Global Variable ও গ্লোবাল স্কোপের সতর্কতা',
+          explanationBn: `বাইরের ভেরিয়েবল ফাংশনে পেতে global $var অথবা $GLOBALS['var'] ব্যবহার করা যায়।
+⚠️ সতর্কতা: বড় প্রজেক্টে global কীওয়ার্ড পরিহার করুন; কারণ এটি কোড কাপলিং তৈরি করে। পরিবর্তে প্যারামিটার আকারে ভ্যালু পাঠানো সর্বোত্তম অভ্যাস।`,
+          code: `<?php
+
+$siteName = "PHP Academy";
+
+function renderBranding($site)
+{
+    return "Powered by " . $site; // প্যারামিটার দিয়ে পাস করা নিরাপদ
+}
+
+echo renderBranding($siteName);
+?>`,
+          codeLanguage: 'Safe Parameter Passing',
+          outputPreview: `Powered by PHP Academy`
+        },
+        {
+          title: '১৯. Built-in Function (পিএইচপির শক্তিশালী বিল্ট-ইন ফাংশনসমূহ)',
+          explanationBn: `পিএইচপির সমৃদ্ধ লাইব্রেরি হাজার হাজার তৈরি ফাংশন প্রদান করে:
+• স্ট্রিং: strlen(), trim(), explode(), implode()
+• অ্যারে: count(), array_map(), array_filter()
+• ডেটা/নিরাপত্তা: json_encode(), json_decode(), password_hash(), password_verify()`,
+          code: `<?php
+
+$rawInput = "  secure_password123  ";
+$clean = trim($rawInput);
+$hash = password_hash($clean, PASSWORD_DEFAULT);
+
+echo "Length: " . strlen($clean) . "<br>";
+echo "Hash generated: " . substr($hash, 0, 20) . "...<br>";
+echo "Verification: " . (password_verify("secure_password123", $hash) ? "Valid Password" : "Invalid");
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Length: 18\nHash generated: $2y$10$...\nVerification: Valid Password`
+        },
+        {
+          title: '২০. Real-World Business Logic Function',
+          explanationBn: `ই-কমার্স শপিং কার্টের আইটেমের মোট মূল্য হিসাবের জন্য একটি টাইপ-সেফ বিজনেস ফাংশন:`,
+          code: `<?php
+
+function calculateSubtotal(float $price, int $quantity): float
+{
+    return $price * $quantity;
+}
+
+$total = calculateSubtotal(500.0, 3);
+echo "Computed Subtotal: " . number_format($total, 2) . " BDT";
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Computed Subtotal: 1,500.00 BDT`
+        },
+        {
+          title: '২১. Function Naming Conventions (নামকরণের নিয়ম)',
+          explanationBn: `ফাংশনের নাম দেখে যেন বোঝা যায় এটি কী কাজ করছে:
+✓ camelCase স্ট্যান্ডার্ড: calculateTotal(), getUserById(), validateEmail(), sendOrderConfirmation()
+❌ অর্থহীন নাম পরিহার করুন: doIt(), test(), data()`,
+          code: `<?php
+
+function validateEmailAddress(string $email): bool
+{
+    return (bool) filter_var($email, FILTER_VALIDATE_EMAIL);
+}
+
+echo "Is valid: ";
+var_dump(validateEmailAddress("user@example.com"));
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Is valid: bool(true)`
+        },
+        {
+          title: '২২. Function Responsibility (Single Responsibility Principle)',
+          explanationBn: `একটি ফাংশন আইডিয়ালি একটিমাত্র নির্দিষ্ট দায়িত্ব (Single Responsibility) পালন করবে।
+❌ খারাপ অভ্যাস: processUserAndSendEmailAndCreateOrder() — এক ফাংশনে অনেক কাজ
+✅ ক্লিন কোড: validateUser(), createOrder(), sendOrderEmail() আলাদা ফাংশনে ভাগ করা।`,
+          code: `<?php
+
+function calculateDiscount(float $price, float $discountPercentage): float
+{
+    return ($price * $discountPercentage) / 100;
+}
+
+$saved = calculateDiscount(1200.0, 10.0);
+echo "Calculated Discount: {$saved} BDT";
+?>`,
+          codeLanguage: 'Clean Architecture Pattern',
+          outputPreview: `Calculated Discount: 120 BDT`
+        }
+      ],
       keyPointsBn: [
-        'strict_types=1 ঘোষণা প্যারামিটার ও রিটার্ন টাইপকে কঠোরভাবে সুরক্ষিত করে।',
-        'fn($x) => $x * 2 সংক্ষিপ্ত অ্যারো ফাংশন প্যারেন্ট স্কোপের ভেরিয়েবল স্বয়ংক্রিয়ভাবে ক্যাপচার করে।'
+        'ফাংশন কোড পুনঃব্যবহারযোগ্য (Reusable) ও মডুলার করে তোলে।',
+        'রিইউজেবল বিজনেস লজিক ফাংশনে echo না করে সর্বদা মান return করুন।',
+        'মডার্ন পিএইচপিতে টাইপ ডিক্লেয়ারেশন এবং ফাইলের শীর্ষে declare(strict_types=1); টাইপ নিরাপত্তা বহুগুণ বাড়িয়ে দেয়।',
+        'অ্যারো ফাংশন fn() => expr এক লাইনের এক্সপ্রেশন ও অ্যারে ফিল্টারিংয়ে অত্যন্ত পরিচ্ছন্ন।',
+        'ফাংশনে সিঙ্গেল রেসপনসিবিলিটি (একটি নির্দিষ্ট কাজ) বজায় রাখুন এবং ক্যামেলকেস (camelCase) অনুসরণ করুন।'
+      ],
+      practiceExamples: [
+        {
+          title: 'বাস্তব উদাহরণ ১: ই-কমার্স কার্ট ফিল্টার ও সামারি ক্যালকুলেটর',
+          descriptionBn: 'টাইপ-সেফ ফাংশন, অ্যারো ফাংশন ও array_filter ব্যবহার করে স্টক থাকা আইটেমের মোট হিসাব তৈরি।',
+          code: `<?php
+declare(strict_types=1);
+
+$products = [
+    ['name' => 'Mechanical Keyboard', 'price' => 2500.0, 'inStock' => true],
+    ['name' => 'Desk Mat',             'price' => 600.0,  'inStock' => false],
+    ['name' => 'USB Hub',              'price' => 1200.0, 'inStock' => true]
+];
+
+// ১. অ্যারো ফাংশন ও কলব্যাক দিয়ে ইন-স্টক প্রোডাক্ট ফিল্টার
+$availableProducts = array_filter($products, fn(array $item): bool => $item['inStock'] === true);
+
+// ২. ক্যালকুলেশন ফাংশন
+function computeGrandTotal(array $items): float
+{
+    $total = 0.0;
+    foreach ($items as $item) {
+        $total += $item['price'];
+    }
+    return $total;
+}
+
+$grandTotal = computeGrandTotal($availableProducts);
+echo "In-Stock Items Count: " . count($availableProducts) . "<br>";
+echo "<b>Available Stock Value: " . number_format($grandTotal, 2) . " BDT</b>";
+?>`
+        },
+        {
+          title: 'বাস্তব উদাহরণ ২: Variadic ফাংশন দিয়ে ডাইনামিক ট্যাক্স ক্যালকুলেটর',
+          descriptionBn: 'ভ্যারিয়াডিক অপারেটর (...) দিয়ে যেকোনো সংখ্যক ট্যাক্স বা সারচার্জ যোগ করে মোট খরচ নির্ধারণ।',
+          code: `<?php
+declare(strict_types=1);
+
+function calculateOrderWithSurcharges(float $basePrice, float ...$extraCharges): float
+{
+    $totalExtras = array_sum($extraCharges);
+    return $basePrice + $totalExtras;
+}
+
+// ডেলিভারি চার্জ (১০০), গেটওয়ে চার্জ (২৫.৫), গিফট র‍্যাপ (৫০)
+$finalAmount = calculateOrderWithSurcharges(1500.0, 100.0, 25.5, 50.0);
+echo "Base Price: 1,500.00 BDT<br>";
+echo "<b>Final Amount with Variadic Charges: " . number_format($finalAmount, 2) . " BDT</b>";
+?>`
+        }
       ]
     }
   },
@@ -6867,29 +8591,507 @@ echo "মোট প্রদেয় মূল্য: ৳" . $total;
     id: 'php-arrays',
     title: 'PHP Arrays',
     category: 'basic',
-    tag: 'Data Structures',
+    tag: 'Data Structures & Collections',
     phpVersion: 'PHP 8.0+',
-    subtitleBn: 'ইনডেক্সড, অ্যাসোসিয়েটিভ, মাল্টি-ডাইমেনশনাল অ্যারে ও অ্যারে স্প্রেড (...)।',
+    subtitleBn: 'Indexed, Associative, Multidimensional, array_map, filter, reduce, column, sort/asort, implode/explode ও Spread অপারেটর।',
     sampleCode: `<?php
-$frontend = ["HTML", "CSS", "JS"];
-$backend = ["PHP", "MySQL"];
+// ১. বহুমাত্রিক প্রোডাক্ট তালিকা (ই-কমার্স ক্যাটালগ)
+$products = [
+    ["id" => 101, "name" => "Casual Denim Shirt", "price" => 1200, "stock" => 15],
+    ["id" => 102, "name" => "Chino Cotton Pant",   "price" => 1600, "stock" => 0],  // স্টক শেষ
+    ["id" => 103, "name" => "Leather Oxford Shoe", "price" => 3500, "stock" => 8],
+    ["id" => 104, "name" => "Classic Polo T-Shirt", "price" => 850,  "stock" => 22]
+];
 
-// PHP 7.4+ Array Spread Operator (...)
-$fullStack = [...$frontend, ...$backend, "Docker"];
+echo "<div style='font-family:sans-serif; background:#f8fafc; border:1px solid #cbd5e1; padding:16px; border-radius:8px;'>";
+echo "<h3 style='margin:0 0 10px 0; color:#0f172a;'>E-Commerce Modern Array Processing Pipeline</h3>";
 
-echo "ফুলস্ট্যাক স্কিলস:<br>";
-print_r($fullStack);
+// ২. array_filter: শুধুমাত্র স্টক থাকা প্রোডাক্ট ফিল্টার
+$inStockItems = array_filter(
+    $products,
+    fn(array $item): bool => $item["stock"] > 0
+);
 
-// অ্যারে ফিল্টারিং
-$numbers = [1, 2, 3, 4, 5, 6, 7, 8];
-$evens = array_filter($numbers, fn($n) => $n % 2 === 0);
-echo "<br><br>জোড় সংখ্যাসমূহ: " . implode(", ", $evens);
+// ৩. array_column: ফিল্টারকৃত আইটেম থেকে কেবল নামের তালিকা বের করা
+$productNames = array_column($inStockItems, "name");
+
+// ৪. implode: কমা দিয়ে যুক্ত করে স্ট্রিং প্রদর্শন
+echo "<p style='margin:4px 0;'><b>Available Products:</b> " . implode(", ", $productNames) . "</p>";
+
+// ৫. array_reduce: স্টক থাকা মোট প্রোডাক্টের ইনভেন্টরি ভ্যালু হিসাব
+$totalInventoryValue = array_reduce(
+    $inStockItems,
+    fn(float $carry, array $item): float => $carry + ($item["price"] * $item["stock"]),
+    0.0
+);
+
+echo "<p style='margin:4px 0; color:#16a34a;'><b>Total In-Stock Valuation:</b> " . number_format($totalInventoryValue, 2) . " BDT</p>";
+
+// ৬. PHP 7.4+ Spread Operator (...) দিয়ে নতুন ক্যাটাগরি সংযুক্ত করা
+$newArrivals = [
+    ["id" => 105, "name" => "Waterproof Sports Watch", "price" => 2800, "stock" => 10]
+];
+$updatedInventory = [...$products, ...$newArrivals];
+echo "<p style='margin:4px 0; color:#64748b; font-size:13px;'>Total Catalog Size after Spread: " . count($updatedInventory) . " items</p>";
+
+echo "</div>";
 ?>`,
     deepDive: {
-      conceptBn: `পিএইচপির অ্যারে প্রকৃতপক্ষে একটি অর্ডারড হ্যাশম্যাপ (Ordered HashTable)। এটি একই সাথে লিস্ট, স্ট্যাক, কিউ এবং ডিকশনারি হিসেবে কাজ করে।`,
+      conceptBn: `Array হলো একটি একক কাঠামোর মধ্যে একাধিক মান সংরক্ষণ ও পরিচালনা করার মেকানিজম। পিএইচপি-তে ইউজার ডেটা, প্রোডাক্ট ক্যাটালগ, শপিং কার্ট, এপিআই রেসপন্স (JSON) এবং ডেটাবেস রেজাল্ট হ্যান্ডলিংয়ের ৯০% কাজই অ্যারে দিয়ে সম্পন্ন হয়। পিএইচপির অ্যারে আসলে একটি হাইব্রিড ‘অর্ডারড হ্যাশম্যাপ’ (Ordered HashTable), যা একই সাথে ইনডেক্সড লিস্ট, অ্যাসোসিয়েটিভ ডিকশনারি, স্ট্যাক এবং কিউ হিসেবে আচরণ করতে পারে।`,
+      lessonSections: [
+        {
+          title: '১. Indexed Array (ইনডেক্সড অ্যারে)',
+          explanationBn: `সংখ্যাসূচক ইনডেক্স (Numeric Index) দিয়ে তৈরি অ্যারে। পিএইচপিতে ইনডেক্স সাধারণত ০ (শূন্য) থেকে শুরু হয়।`,
+          code: `<?php
+
+$products = ["Shirt", "Pant", "Shoes"];
+
+echo "First item: " . $products[0] . "<br>";
+echo "Second item: " . $products[1];
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `First item: Shirt\nSecond item: Pant`
+        },
+        {
+          title: '২. Associative Array (অ্যাসোসিয়েটিভ অ্যারে ⭐⭐⭐)',
+          explanationBn: `যে অ্যারেতে সংখ্যাসূচক ইনডেক্সের বদলে নির্দিষ্ট নামযুক্ত কী (Named Key) ব্যবহার করা হয়। রিয়েল-লাইফ পিএইচপি ও লারাভেল প্রজেক্টে ডেটাবেস রেকর্ড বা ইউজার প্রোফাইল সংরক্ষণে এটি সর্বাধিক ব্যবহৃত।`,
+          code: `<?php
+
+$user = [
+    "name"  => "Abbad",
+    "email" => "abbad@example.com",
+    "age"   => 25
+];
+
+echo "User Name: " . $user["name"] . "<br>";
+echo "Email: " . $user["email"];
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `User Name: Abbad\nEmail: abbad@example.com`
+        },
+        {
+          title: '৩. Multidimensional Array (বহুমাত্রিক অ্যারে)',
+          explanationBn: `অ্যারের ভেতরে আরেক বা একাধিক অ্যারে রাখাকে বহুমাত্রিক অ্যারে বলে। ডেটাবেস টেবিলের একাধিক রো অথবা REST API-এর JSON ডেটা এই ফরম্যাটে পাওয়া যায়।`,
+          code: `<?php
+
+$products = [
+    ["name" => "Shirt", "price" => 500],
+    ["name" => "Shoes", "price" => 1200]
+];
+
+echo "Product 1: " . $products[0]["name"] . " - " . $products[0]["price"] . " BDT<br>";
+echo "Product 2: " . $products[1]["name"] . " - " . $products[1]["price"] . " BDT";
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Product 1: Shirt - 500 BDT\nProduct 2: Shoes - 1200 BDT`
+        },
+        {
+          title: '৪. count() — মোট উপাদান সংখ্যা গণনা',
+          explanationBn: `অ্যারের মধ্যে মোট কতটি এলিমেন্ট বা আইটেম রয়েছে তা নির্ণয় করতে count() ব্যবহৃত হয়।`,
+          code: `<?php
+
+$products = ["Shirt", "Pant", "Shoes", "Watch"];
+
+echo "Total items: " . count($products);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Total items: 4`
+        },
+        {
+          title: '৫. in_array() — অ্যারেতে কোনো মান আছে কিনা যাচাই',
+          explanationBn: `কোনো নির্দিষ্ট মান অ্যারেতে উপস্থিত কি না তা চেক করতে in_array() ব্যবহার করা হয়।
+⭐ তৃতীয় প্যারামিটারে true দিলে এটি টাইপ-স্ট্রিক্ট (===) তুলনা করে, যা টাইপ জাগলিং বাগ প্রতিহত করে।`,
+          code: `<?php
+
+$roles = ["admin", "editor", "user"];
+
+if (in_array("admin", $roles, true)) {
+    echo "Access Verified: User has admin privileges.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Access Verified: User has admin privileges.`
+        },
+        {
+          title: '৬. array_key_exists() — নির্দিষ্ট কী (Key) উপস্থিতি যাচাই',
+          explanationBn: `অ্যাসোসিয়েটিভ অ্যারেতে কোনো নির্দিষ্ট কী আছে কি না তা নিশ্চিত করে।
+⚠️ সতর্কতা: ভ্যালু null হলেও কী উপস্থিত থাকলে এটি true রিটার্ন করবে; অথচ isset() সেক্ষেত্রে false রিটার্ন করে!`,
+          code: `<?php
+
+$account = [
+    "username" => "abbad99",
+    "avatar"   => null // ভ্যালু null
+];
+
+echo "key_exists (username): " . (array_key_exists("username", $account) ? "Yes" : "No") . "<br>";
+echo "key_exists (avatar): " . (array_key_exists("avatar", $account) ? "Yes" : "No");
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `key_exists (username): Yes\nkey_exists (avatar): Yes`
+        },
+        {
+          title: '৭. array_keys() ও array_values()',
+          explanationBn: `• array_keys(): অ্যারের সব কী (Keys) নিয়ে একটি নতুন ইনডেক্সড অ্যারে তৈরি করে।
+• array_values(): অ্যারের সব মান (Values) নিয়ে একটি নতুন ইনডেক্সড অ্যারে তৈরি করে (ইনডেক্স রিসেট হয়ে যায়)।`,
+          code: `<?php
+
+$user = ["name" => "Abbad", "role" => "developer", "city" => "Dhaka"];
+
+echo "Keys: " . implode(", ", array_keys($user)) . "<br>";
+echo "Values: " . implode(", ", array_values($user));
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Keys: name, role, city\nValues: Abbad, developer, Dhaka`
+        },
+        {
+          title: '৮. array_push() ও সংক্ষেপ $array[] = $value',
+          explanationBn: `অ্যারের শেষ প্রান্তে নতুন উপাদান যুক্ত করা। একক আইটেম যোগ করার জন্য $items[] = "Pant" লেখা অনেক বেশি দ্রুত ও পরিচ্ছন্ন।`,
+          code: `<?php
+
+$items = ["Shirt"];
+
+// পদ্ধতি ১: array_push
+array_push($items, "Pant");
+
+// পদ্ধতি ২ (প্রস্তাবিত): শর্ট সিনট্যাক্স
+$items[] = "Shoes";
+
+print_r($items);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Array\n(\n    [0] => Shirt\n    [1] => Pant\n    [2] => Shoes\n)`
+        },
+        {
+          title: '৯. array_pop() ও array_shift() — উপাদান অপসারণ',
+          explanationBn: `• array_pop(): অ্যারের শেষ উপাদানটি অপসারণ করে এবং সেটি রিটার্ন করে।
+• array_shift(): অ্যারের প্রথম উপাদানটি অপসারণ করে এবং বাকি সূচকগুলো রি-ইনডেক্স করে।`,
+          code: `<?php
+
+$stack = ["First", "Middle", "Last"];
+
+$removedLast = array_pop($stack);
+echo "Popped Last: {$removedLast}<br>";
+
+$removedFirst = array_shift($stack);
+echo "Shifted First: {$removedFirst}<br>";
+
+echo "Remaining: " . implode(", ", $stack);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Popped Last: Last\nShifted First: First\nRemaining: Middle`
+        },
+        {
+          title: '১০. array_unshift() — শুরুতে উপাদান যুক্ত করা',
+          explanationBn: `অ্যারের একদম শুরুর ইনডেক্সে এক বা একাধিক নতুন উপাদান ইনসার্ট করে।`,
+          code: `<?php
+
+$items = ["Shirt", "Pant"];
+array_unshift($items, "Cap", "Tie");
+
+print_r($items);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Array\n(\n    [0] => Cap\n    [1] => Tie\n    [2] => Shirt\n    [3] => Pant\n)`
+        },
+        {
+          title: '১১. array_merge() — একাধিক অ্যারে জোড়া দেওয়া',
+          explanationBn: `দুই বা ততোধিক অ্যারে একত্রিত করতে array_merge() ব্যবহৃত হয়।`,
+          code: `<?php
+
+$fruits = ["Apple", "Mango"];
+$citrus = ["Orange", "Lemon"];
+
+$merged = array_merge($fruits, $citrus);
+echo implode(", ", $merged);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Apple, Mango, Orange, Lemon`
+        },
+        {
+          title: '১২. array_unique() — ডুপ্লিকেট মান দূর করা',
+          explanationBn: `অ্যারের মধ্য থেকে ডুপ্লিকেট বা পুনরাবৃত্ত মান অপসারণ করে কেবল অনন্য (Unique) মানগুলো রাখে।`,
+          code: `<?php
+
+$tags = ["PHP", "Laravel", "PHP", "MySQL", "Laravel"];
+$uniqueTags = array_unique($tags);
+
+echo implode(", ", $uniqueTags);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `PHP, Laravel, MySQL`
+        },
+        {
+          title: '১৩. sort(), rsort(), asort(), ksort() — সর্টিং মেথডস',
+          explanationBn: `• sort(): মান অনুযায়ী ছোট থেকে বড় (Ascending), কিন্তু ইনডেক্স রিসেট হয়।
+• rsort(): মান অনুযায়ী বড় থেকে ছোট (Descending), ইনডেক্স রিসেট হয়।
+• asort(): মান অনুযায়ী ছোট থেকে বড়, কিন্তু অ্যাসোসিয়েটিভ কী সংরক্ষিত থাকে।
+• ksort(): কী (Key) অনুযায়ী অ্যালফাবেটিক্যালি ছোট থেকে বড় সাজানো।`,
+          code: `<?php
+
+$numbers = [30, 10, 20];
+sort($numbers);
+echo "Sorted Numbers: " . implode(", ", $numbers) . "<br>";
+
+$prices = ["shirt" => 500, "shoe" => 1200, "pant" => 800];
+asort($prices); // মান অনুযায়ী সাজানো কিন্তু কি (shirt, pant, shoe) ঠিক থাকবে
+echo "Asort Prices (Preserves Keys): ";
+foreach ($prices as $k => $v) { echo "{$k}:{$v} "; }
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Sorted Numbers: 10, 20, 30\nAsort Prices (Preserves Keys): shirt:500 pant:800 shoe:1200 `
+        },
+        {
+          title: '১৪. sort() বনাম asort() — গুরুত্বপূর্ণ পার্থক্য',
+          explanationBn: `⚠️ sort() ফাংশন অ্যাসোসিয়েটিভ অ্যারের কী (Key) মুছে দিয়ে 0, 1, 2... ইনডেক্স বসিয়ে দেয়! তাই ডিকশনারি বা অ্যাসোসিয়েটিভ অ্যারেতে মানের ভিত্তিতে সাজাতে অবশ্যই asort() বা arsort() ব্যবহার করবেন।`,
+          code: `<?php
+
+$data = ["b" => 20, "a" => 10];
+asort($data); // কি অক্ষুণ্ণ থাকবে
+print_r($data);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Array\n(\n    [a] => 10\n    [b] => 20\n)`
+        },
+        {
+          title: '১৫. array_map() — প্রতিটি আইটেমে রূপান্তর প্রয়োগ (⭐⭐⭐)',
+          explanationBn: `অ্যারের প্রতিটি উপাদানের ওপর কলব্যাক ফাংশন চালিয়ে পরিবর্তিত মান দিয়ে নতুন একটি অ্যারে রিটার্ন করে। মূল অ্যারে অপরিবর্তিত থাকে।`,
+          code: `<?php
+
+$prices = [100, 200, 300];
+
+// প্রতিটি মূল্যে ১০% ভ্যাট যুক্ত করো
+$withVat = array_map(fn($price) => $price * 1.10, $prices);
+
+print_r($withVat);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Array\n(\n    [0] => 110\n    [1] => 220\n    [2] => 330\n)`
+        },
+        {
+          title: '১৬. array_filter() — শর্তানুযায়ী আইটেম ফিল্টারিং (⭐⭐⭐)',
+          explanationBn: `কলব্যাক ফাংশনের শর্ত সত্য (true) হলে উপাদানটি থাকবে, মিথ্যা হলে বাদ যাবে। স্টক চেকিং, একটিভ ইউজার ফিল্টারিংয়ে এটি অপরিহার্য।`,
+          code: `<?php
+
+$prices = [100, 500, 1200, 300, 2500];
+
+$premiumPrices = array_filter($prices, fn($p) => $p >= 500);
+
+echo "Items >= 500: " . implode(", ", $premiumPrices);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Items >= 500: 500, 1200, 2500`
+        },
+        {
+          title: '১৭. array_reduce() — অ্যারের উপাদান থেকে একক ফলাফল তৈরি',
+          explanationBn: `অ্যারের সমস্ত উপাদানকে প্রসেস করে একটি একক মান (Single Aggregated Value) যেমন: মোট যোগফল, গড় ইত্যাদি তৈরি করে।`,
+          code: `<?php
+
+$numbers = [10, 20, 30, 40];
+
+$total = array_reduce($numbers, fn($carry, $num) => $carry + $num, 0);
+
+echo "Aggregated Total: " . $total;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Aggregated Total: 100`
+        },
+        {
+          title: '১৮. array_column() — বহুমাত্রিক অ্যারে থেকে কলাম নিষ্কাশন (⭐⭐⭐)',
+          explanationBn: `বহুমাত্রিক অ্যারে থেকে কোনো একটি নির্দিষ্ট ফিল্ডের সমস্ত মান সংগ্রহ করে একটি এক-মাত্রিক অ্যারে তৈরি করে। ডেটাবেস রেজাল্ট প্রসেসিংয়ে অত্যন্ত শক্তিশালী।`,
+          code: `<?php
+
+$users = [
+    ["id" => 1, "name" => "Abbad", "email" => "abbad@example.com"],
+    ["id" => 2, "name" => "Rahim", "email" => "rahim@example.com"],
+    ["id" => 3, "name" => "Karim", "email" => "karim@example.com"]
+];
+
+$names = array_column($users, "name");
+echo "Extracted Names: " . implode(", ", $names);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Extracted Names: Abbad, Rahim, Karim`
+        },
+        {
+          title: '১৯. array_slice() ও array_splice()',
+          explanationBn: `• array_slice(): মূল অ্যারে অপরিবর্তিত রেখে নির্দিষ্ট অংশ কেটে বের করে নেয়।
+• array_splice(): মূল অ্যারের অংশ মুছে ফেলে এবং প্রয়োজনবোধে সেখানে নতুন উপাদান প্রতিস্থাপন করে।`,
+          code: `<?php
+
+$letters = ["A", "B", "C", "D", "E"];
+
+// ইন্ডেক্স ১ থেকে ২টি আইটেম সংগ্রহ (মূল অ্যারে অক্ষত থাকে)
+$slice = array_slice($letters, 1, 2);
+echo "Slice: " . implode(", ", $slice) . "<br>";
+
+// ইন্ডেক্স ১ থেকে ২টি উপাদান মূল অ্যারে থেকে মুছে ফেলা
+array_splice($letters, 1, 2);
+echo "Remaining after splice: " . implode(", ", $letters);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Slice: B, C\nRemaining after splice: A, D, E`
+        },
+        {
+          title: '২০. array_search() — কী বা ইনডেক্স সন্ধান এবং !== false সতর্কবার্তা',
+          explanationBn: `কোনো মানের সংশ্লিষ্ট Key বা Index বের করে।
+⚠️ সতর্কবার্তা: প্রথম উপাদানের ইনডেক্স ০ (যা লুজ কন্ডিশনে false)। তাই if ($key) লেখা চরম ভুল! সর্বদা if ($key !== false) ব্যবহার করবেন।`,
+          code: `<?php
+
+$roles = ["admin", "editor", "subscriber"];
+
+$key = array_search("admin", $roles, true);
+
+if ($key !== false) {
+    echo "Found at index: {$key}";
+} else {
+    echo "Not found";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Found at index: 0`
+        },
+        {
+          title: '২১. array_key_first() ও array_key_last() (PHP 7.3+)',
+          explanationBn: `অ্যারের প্রথম ও শেষ Key সরাসরি বের করার আধুনিক ও দ্রুততম মেথড। পয়েন্টার রিসেট করার প্রয়োজন হয় না।`,
+          code: `<?php
+
+$config = ["host" => "localhost", "port" => 3306, "db" => "shop_db"];
+
+echo "First key: " . array_key_first($config) . "<br>";
+echo "Last key: " . array_key_last($config);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `First key: host\nLast key: db`
+        },
+        {
+          title: '২২. implode() ও explode() — অ্যারে ও স্ট্রিং রূপান্তর (⭐⭐⭐)',
+          explanationBn: `• implode(delimiter, array): অ্যারেকে ডেলিমিটার দিয়ে জোড়া লাগিয়ে স্ট্রিং বানায় (Array ➔ String)।
+• explode(delimiter, string): স্ট্রিংকে ডেলিমিটার অনুযায়ী ভেঙে অ্যারে বানায় (String ➔ Array)।`,
+          code: `<?php
+
+// ১. implode (Array -> String)
+$tags = ["PHP", "Laravel", "MySQL"];
+$tagString = implode(", ", $tags);
+echo "Imploded: {$tagString}<br>";
+
+// ২. explode (String -> Array)
+$csv = "apple,banana,orange";
+$fruitList = explode(",", $csv);
+echo "Exploded count: " . count($fruitList) . " items";
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Imploded: PHP, Laravel, MySQL\nExploded count: 3 items`
+        },
+        {
+          title: '২৩. Array Destructuring (অ্যারে ডিস্ট্রাকচারিং)',
+          explanationBn: `অ্যারের ভেতরের উপাদানগুলোকে সরাসরি আলাদা আলাদা ভেরিয়েবলে ভেঙে নেওয়া। ইনডেক্সড ও অ্যাসোসিয়েটিভ উভয় অ্যারেতেই এটি প্রযোজ্য।`,
+          code: `<?php
+
+// ইনডেক্সড অ্যারে ডিস্ট্রাকচারিং
+$coords = [23.8103, 90.4125];
+[$latitude, $longitude] = $coords;
+echo "Lat: {$latitude}, Long: {$longitude}<br>";
+
+// অ্যাসোসিয়েটিভ অ্যারে ডিস্ট্রাকচারিং (PHP 7.1+)
+$user = ["name" => "Abbad", "age" => 25];
+["name" => $userName, "age" => $userAge] = $user;
+echo "User: {$userName}, Age: {$userAge}";
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Lat: 23.8103, Long: 90.4125\nUser: Abbad, Age: 25`
+        },
+        {
+          title: '২৪. Spread Operator (...) — মডার্ন অ্যারে আনপ্যাকিং',
+          explanationBn: `PHP 7.4+ এ যুক্ত হওয়া স্প্রেড অপারেটর (...) দিয়ে এক বা একাধিক অ্যারেকে চোখের পলকে মার্জ করা যায়। এটি array_merge এর চেয়ে দ্রুত এবং ক্লিন।`,
+          code: `<?php
+
+$backend = ["PHP", "NodeJS"];
+$database = ["PostgreSQL", "Redis"];
+
+$stack = [...$backend, ...$database, "Docker"];
+echo "Full Stack: " . implode(", ", $stack);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Full Stack: PHP, NodeJS, PostgreSQL, Redis, Docker`
+        },
+        {
+          title: '২৫. রিয়েল-লাইফ ডেটা প্রসেসিং পাইপলাইন (Filter ➔ Column ➔ Implode)',
+          explanationBn: `প্রোডাকশন গ্রেড ডেটা ট্রান্সফরমেশনের একটি আদর্শ প্যাটার্ন:
+ডেটা কালেকশন ➔ স্টক ফিল্টারিং (array_filter) ➔ নাম নিষ্কাশন (array_column) ➔ স্ট্রিং আউটপুট (implode)।`,
+          code: `<?php
+
+$products = [
+    ["name" => "Shirt", "price" => 500, "stock" => 10],
+    ["name" => "Pant",  "price" => 800, "stock" => 0],
+    ["name" => "Shoes", "price" => 1200, "stock" => 5]
+];
+
+// ১. স্টক থাকা প্রোডাক্ট ফিল্টার
+$available = array_filter($products, fn($item) => $item["stock"] > 0);
+
+// ২. কেবল নামের কলামটি বের করো
+$names = array_column($available, "name");
+
+// ৩. প্রদর্শন
+echo "Available for purchase: " . implode(" | ", $names);
+?>`,
+          codeLanguage: 'Production Pipeline Pattern',
+          outputPreview: `Available for purchase: Shirt | Shoes`
+        }
+      ],
       keyPointsBn: [
-        'array_map(), array_filter(), array_reduce() ফাংশনাল প্রোগ্রামিং মেথডোলজি প্রদান করে।',
-        'স্প্রেড অপারেটর (...) অ্যারে মার্জিংয়ের ক্ষেত্রে array_merge এর চেয়ে দ্রুততর ও সংক্ষিপ্ত।'
+        'অ্যারে পিএইচপির মূল চালিকাশক্তি; ইনডেক্সড, অ্যাসোসিয়েটিভ ও বহুমাত্রিক ডেটা গঠনে এটি পারদর্শী।',
+        'in_array() এবং array_search()-এ সর্বদা ৩য় প্যারামিটারে true দিয়ে স্ট্রিক্ট সমতা রক্ষা করুন।',
+        'অ্যাসোসিয়েটিভ অ্যারেতে কী অক্ষুণ্ণ রেখে সর্ট করতে sort() নয়, asort() বা ksort() ব্যবহার করুন।',
+        'array_map(), array_filter() এবং array_reduce() দিয়ে ইমিউটেবল ও আধুনিক ফাংশনাল কোড লেখা যায়।',
+        'array_column() বহুমাত্রিক অ্যারে থেকে নির্দিষ্ট ফিল্ড আলাদা করতে এবং implode/explode স্ট্রিং কনভার্সনে সর্বাধিক জনপ্রিয়।'
+      ],
+      practiceExamples: [
+        {
+          title: 'বাস্তব উদাহরণ ১: ই-কমার্স কার্ট সামারি ও ভ্যাট ক্যালকুলেটর (Reduce + Column)',
+          descriptionBn: 'মাল্টিডাইমেনশনাল কার্ট ডেটা থেকে array_column এবং array_reduce ব্যবহার করে মোট ভ্যাট ও গ্র্যান্ড টোটাল নির্ণয়।',
+          code: `<?php
+$cart = [
+    ['id' => 1, 'name' => 'Mechanical Keyboard', 'price' => 2500, 'qty' => 1],
+    ['id' => 2, 'name' => 'Ergonomic Mouse',     'price' => 950,  'qty' => 2],
+    ['id' => 3, 'name' => 'Type-C Hub',          'price' => 1200, 'qty' => 1]
+];
+
+// মোট সাবটোটাল হিসাব
+$subtotal = array_reduce(
+    $cart,
+    fn(int $carry, array $item): int => $carry + ($item['price'] * $item['qty']),
+    0
+);
+
+// প্রোডাক্ট নামগুলোর তালিকা তৈরি
+$itemNames = array_column($cart, 'name');
+
+$vat = $subtotal * 0.05; // ৫% ভ্যাট
+$grandTotal = $subtotal + $vat;
+
+echo "Items: " . implode(" + ", $itemNames) . "<br>";
+echo "Subtotal: " . number_format($subtotal, 2) . " BDT<br>";
+echo "VAT (5%): " . number_format($vat, 2) . " BDT<br>";
+echo "<b>Grand Total: " . number_format($grandTotal, 2) . " BDT</b>";
+?>`
+        },
+        {
+          title: 'বাস্তব উদাহরণ ২: রোল ভ্যালিডেশন ও সিকিউর এক্সেস চেকার',
+          descriptionBn: 'in_array স্ট্রিক্ট মোড এবং array_unique ব্যবহার করে ইউজার পারমিশন তালিকা প্রসেস করা।',
+          code: `<?php
+$userPermissions = ["view_post", "create_post", "view_post", "edit_post"];
+
+// ডুপ্লিকেট পারমিশন পরিষ্কার করা
+$cleanPermissions = array_values(array_unique($userPermissions));
+
+// স্ট্রিক্ট সমতায় ডিলিট পারমিশন চেক
+$canDelete = in_array("delete_post", $cleanPermissions, true);
+
+echo "Active Permissions: " . implode(", ", $cleanPermissions) . "<br>";
+echo "Can Delete Post? " . ($canDelete ? "YES (Authorized)" : "NO (Access Denied)");
+?>`
+        }
       ]
     }
   },
@@ -6899,18 +9101,363 @@ echo "<br><br>জোড় সংখ্যাসমূহ: " . implode(", ", $ev
     category: 'basic',
     tag: 'HTTP & Global Scope',
     phpVersion: 'PHP 8.0+',
-    subtitleBn: '$_SERVER, $_GET, $_POST, $_FILES, $_COOKIE, $_SESSION, $_ENV।',
+    subtitleBn: '$_GET, $_POST, $_SERVER, $_SESSION, $_COOKIE, $_FILES, $_ENV, Input Validation ও XSS প্রতিরোধ।',
     sampleCode: `<?php
-echo "<b>সার্ভার সফটওয়্যার:</b> " . ($_SERVER['SERVER_SOFTWARE'] ?? 'N/A') . "<br>";
-echo "<b>রিকোয়েস্ট মেথড:</b> " . ($_SERVER['REQUEST_METHOD'] ?? 'GET') . "<br>";
-echo "<b>সার্ভার প্রোটোকল:</b> " . ($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1') . "<br>";
-echo "<b>স্ক্রিপ্ট নেম:</b> " . ($_SERVER['SCRIPT_NAME'] ?? 'index.php');
+// ১. সেশন শুরু (সবার আগে কল করতে হয়)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// ২. ডেমো ইনপুট প্যারামিটার হ্যান্ডলিং (GET/POST সিমুলেশন)
+$_GET['action'] = $_GET['action'] ?? 'view_order';
+$_GET['order_id'] = $_GET['order_id'] ?? '1042';
+
+// ৩. filter_input বা ভ্যালিডেশন দিয়ে সুরক্ষিত ইনপুট রিড
+$rawId = $_GET['order_id'];
+$orderId = filter_var($rawId, FILTER_VALIDATE_INT);
+
+// ৪. সেশন স্টেট সেট করা
+$_SESSION['auth_user'] = 'abbad_dev';
+$_SESSION['role'] = 'admin';
+
+echo "<div style='font-family:sans-serif; background:#f8fafc; border:1px solid #cbd5e1; padding:16px; border-radius:8px;'>";
+echo "<h3 style='margin:0 0 10px 0; color:#0f172a;'>PHP Superglobals & Request Pipeline</h3>";
+
+// ৫. $_SERVER থেকে রিকোয়েস্ট মেটাডেটা সংগ্রহ
+echo "<p style='margin:4px 0;'><b>Method:</b> " . htmlspecialchars($_SERVER['REQUEST_METHOD'] ?? 'GET') . "</p>";
+echo "<p style='margin:4px 0;'><b>Host:</b> " . htmlspecialchars($_SERVER['HTTP_HOST'] ?? 'localhost:3000') . "</p>";
+
+// ৬. ভ্যালিডেটেড $_GET আউটপুট
+if ($orderId !== false) {
+    echo "<p style='margin:4px 0; color:#059669;'><b>Verified Order ID:</b> #" . $orderId . "</p>";
+} else {
+    echo "<p style='margin:4px 0; color:#dc2626;'><b>Error:</b> Invalid Order ID format.</p>";
+}
+
+// ৭. $_SESSION স্টেট রিড
+echo "<p style='margin:4px 0; color:#2563eb;'><b>Active Session:</b> " . htmlspecialchars($_SESSION['auth_user']) . " (" . $_SESSION['role'] . ")</p>";
+echo "</div>";
 ?>`,
     deepDive: {
-      conceptBn: `সুপারগ্লোবালগুলো স্ক্রিপ্টের যেকোনো ফাংশন বা ক্লাসের ভেতর থেকে গ্লোবাল কীওয়ার্ড ছাড়াই সরাসরি অ্যাক্সেস করা যায়। এরা HTTP রিকোয়েস্টের সমুদয় তথ্য বহন করে।`,
+      conceptBn: `Superglobals হলো পিএইচপির বিশেষ বিল্ট-ইন ভেরিয়েবল, যা স্ক্রিপ্টের যেকোনো ফাংশন, মেথড বা ক্লাসের ভেতর থেকে কোনো global কীওয়ার্ড ছাড়াই সর্বত্র সরাসরি অ্যাক্সেস করা যায়। এরা HTTP রিকোয়েস্টের যাবতীয় ক্লায়েন্ট ও সার্ভার ডেটা বহন করে। তবে সুপারগ্লোবালের ডেটা সরাসরি ক্লায়েন্ট থেকে আসে, তাই এগুলোকে কখনো বিশ্বাস করা যাবে না (Never trust user input) — সর্বদা Validate, Sanitize ও Escape করা আবশ্যক।`,
+      lessonSections: [
+        {
+          title: '১. $_GET — URL কোয়েরি প্যারামিটার রিড করা (⭐⭐⭐)',
+          explanationBn: `ব্রাউজারের URL থেকে কোয়েরি স্ট্রিং ডেটা (যেমন: example.com/products?id=10&cat=tech) গ্রহণ করতে $_GET ব্যবহৃত হয়।
+রিয়েল-ওয়ার্ল্ড ব্যবহার: সার্চ, ফিল্টারিং, নির্দিষ্ট আইটেম আইডি ভিউ এবং পেজিনেশন।
+⚠️ সতর্কতা: এটি ইউজারের পাঠানো ডেটা, তাই সরাসরি কুয়েরিতে না চালিয়ে অবশ্যই ভ্যালিডেট করতে হবে।`,
+          code: `<?php
+
+// সিমুলেটেড URL: ?id=10&category=electronics
+$_GET['id'] = "10";
+$_GET['category'] = "electronics";
+
+$id = $_GET['id'] ?? null;
+$category = $_GET['category'] ?? 'all';
+
+echo "Requested Product ID: " . htmlspecialchars($id) . "<br>";
+echo "Category: " . htmlspecialchars($category);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Requested Product ID: 10\nCategory: electronics`
+        },
+        {
+          title: '২. $_POST — সিকিউর ফর্ম ও রিকোয়েস্ট বডি (⭐⭐⭐)',
+          explanationBn: `HTTP POST মেথড দিয়ে পাঠানো রিকোয়েস্ট বডি (Request Body) থেকে ডেটা গ্রহণ করতে $_POST ব্যবহৃত হয়।
+রিয়েল-ওয়ার্ল্ড ব্যবহার: ইউজার লগইন, রেজিস্ট্রেশন, পাসওয়ার্ড পাঠানো, নতুন পোস্ট তৈরি বা আপডেট। এটি URL-এ কোনো ডেটা প্রদর্শন করে না।`,
+          code: `<?php
+
+// ফর্ম সাবমিশন সিমুলেশন
+$_POST['email'] = "abbad@example.com";
+$_POST['password'] = "SecretPass123";
+
+$email = $_POST['email'] ?? '';
+
+echo "Submitted Email: " . htmlspecialchars($email);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Submitted Email: abbad@example.com`
+        },
+        {
+          title: '৩. $_REQUEST — হাইব্রিড ইনপুট ও প্রোডাকশন সতর্কতা',
+          explanationBn: `$_REQUEST একই সাথে $_GET, $_POST এবং $_COOKIE এর ডেটা বহন করতে পারে।
+⚠️ প্রোডাকশন সতর্কতা: এটি পরিহার করে স্পষ্টভাবে $_GET অথবা $_POST ব্যবহার করা সর্বোত্তম; অন্যথায় ডেটা কোথা থেকে ইনজেক্ট হয়েছে তা স্পষ্ট থাকে না এবং সিকিউরিটি অডিট কঠিন হয়ে পড়ে।`,
+          code: `<?php
+
+$_GET['action'] = "view";
+$action = $_REQUEST['action'] ?? 'default';
+
+echo "Resolved Action: " . htmlspecialchars($action);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Resolved Action: view`
+        },
+        {
+          title: '৪. $_SERVER — সার্ভার ও রিকোয়েস্ট মেটাডেটা (⭐⭐⭐)',
+          explanationBn: `রিকোয়েস্ট মেথড, ক্লায়েন্ট আইপি, সার্ভার হোস্ট, স্ক্রিপ্ট পাথ ইত্যাদি সংক্রান্ত অতি গুরুত্বপূর্ণ তথ্য সরবরাহ করে:
+• REQUEST_METHOD: GET / POST / PUT / DELETE ইত্যাদি
+• REQUEST_URI: সম্পূর্ণ পাথ ও কোয়েরি স্ট্রিং
+• HTTP_HOST: বর্তমান ডোমেন বা হোস্ট
+• REMOTE_ADDR: ক্লায়েন্টের আইপি অ্যাড্রেস
+• HTTP_USER_AGENT: ব্রাউজার ও ডিভাইস ইনফো`,
+          code: `<?php
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$uri = $_SERVER['REQUEST_URI'] ?? '/index.php';
+
+echo "HTTP Method: {$method}<br>";
+echo "Requested URI: {$uri}<br>";
+
+if ($method === 'POST') {
+    echo "Processing Form Submission...";
+} else {
+    echo "Rendering Standard View (GET)";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `HTTP Method: GET\nRequested URI: /index.php\nRendering Standard View (GET)`
+        },
+        {
+          title: '৫. $_SESSION — সার্ভার-সাইড ইউজার সেশন (⭐⭐⭐)',
+          explanationBn: `নির্দিষ্ট কোনো ইউজারের স্টেট (যেমন: লগইন আইডি, শপিং কার্ট, ফ্ল্যাশ মেসেজ) পেজ রিলোড বা নেভিগেশন সত্ত্বেও সার্ভার মেমোরিতে ধরে রাখতে সেশন ব্যবহৃত হয়।
+⚠️ নিয়ম: সেশন ভেরিয়েবল রিড বা রাইট করার আগে ফাইলের শুরুতে session_start() কল করা বাধ্যতামূলক।`,
+          code: `<?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$_SESSION['user_id'] = 101;
+$_SESSION['user_role'] = 'super_admin';
+
+echo "Session User ID: " . $_SESSION['user_id'] . "<br>";
+echo "Role: " . $_SESSION['user_role'];
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Session User ID: 101\nRole: super_admin`
+        },
+        {
+          title: '৬. $_COOKIE — ব্রাউজার-সাইড প্রেফারেন্স স্টোরেজ (⭐⭐⭐)',
+          explanationBn: `ইউজারের ব্রাউজারে ছোট আকারের টেক্সট ডেটা সংরক্ষণের জন্য ব্যবহৃত হয়।
+• সেট করা: setcookie(name, value, expire, path, domain, secure, httponly)
+• রিড করা: $_COOKIE['name']
+⚠️ সতর্কতা: পাসওয়ার্ড বা সেনসিটিভ টোকেন প্লেইন কুকিতে রাখবেন না; সর্বদা HttpOnly ও Secure ফ্ল্যাগ ব্যবহার করুন।`,
+          code: `<?php
+
+// সিমুলেটেড কুকি
+$_COOKIE['theme'] = "dark";
+$_COOKIE['lang'] = "bn";
+
+$theme = $_COOKIE['theme'] ?? 'light';
+$lang = $_COOKIE['lang'] ?? 'en';
+
+echo "Active Theme: " . htmlspecialchars($theme) . "<br>";
+echo "Interface Language: " . htmlspecialchars($lang);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Active Theme: dark\nInterface Language: bn`
+        },
+        {
+          title: '৭. $_FILES — ফাইল আপলোড ম্যানেজমেন্ট (⭐⭐⭐)',
+          explanationBn: `ফর্মের মাধ্যমে ফাইল আপলোড করা হলে তার যাবতীয় বিবরণ ধারণ করে:
+• name: ফাইলের মূল নাম
+• type: ব্রাউজার প্রদত্ত MIME টাইপ
+• size: বাইটে ফাইলের আকার
+• tmp_name: সার্ভারে অস্থায়ী ফাইলের পাথ
+• error: আপলোড এরর কোড (0 = SUCCESS)
+⚠️ সিকিউরিটি চেকলিস্ট: এক্সটেনশন যাচাই, সাইজ লিমিট, getimagesize()/finfo_file() দিয়ে সত্যিকারের MIME টাইপ যাচাই এবং নতুন র‍্যান্ডম নাম দিয়ে স্টোর করা।`,
+          code: `<?php
+
+// ফাইল স্ট্রাকচার সিমুলেশন
+$mockFile = [
+    'name'     => 'avatar.png',
+    'type'     => 'image/png',
+    'size'     => 1024 * 250, // ২৫০ কিলোবাইট
+    'tmp_name' => '/tmp/phpYzd23a',
+    'error'    => 0 // UPLOAD_ERR_OK
+];
+
+echo "Original Filename: " . htmlspecialchars($mockFile['name']) . "<br>";
+echo "File Size: " . round($mockFile['size'] / 1024, 2) . " KB<br>";
+echo "Upload Status: " . ($mockFile['error'] === 0 ? "Ready for move_uploaded_file()" : "Upload Failed");
+?>`,
+          codeLanguage: 'Upload Flow Guide',
+          outputPreview: `Original Filename: avatar.png\nFile Size: 250 KB\nUpload Status: Ready for move_uploaded_file()`
+        },
+        {
+          title: '৮. $_ENV — এনভায়রনমেন্ট ভেরিয়েবল ও ক্লাউড কনফিগ',
+          explanationBn: `ডাটাবেস পাসওয়ার্ড, এপিআই কি, ক্লাউড সেটিংস ও .env ফাইলের সিক্রেট কনফিগারেশন এক্সেস করতে এটি ব্যবহৃত হয়। সোর্স কোডে কখনো সিক্রেট কি হার্ডকোড করবেন না।`,
+          code: `<?php
+
+$_ENV['APP_ENV'] = 'production';
+$_ENV['DB_HOST'] = '127.0.0.1';
+
+$environment = $_ENV['APP_ENV'] ?? 'local';
+echo "App Environment: " . htmlspecialchars($environment);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `App Environment: production`
+        },
+        {
+          title: '৯. $GLOBALS ও এর আর্কিটেকচারাল বিকল্প',
+          explanationBn: `গ্লোবাল স্কোপের যেকোনো ভেরিয়েবলকে $GLOBALS['varName'] দিয়ে পাওয়া যায়।
+⚠️ সতর্কতা: বড় প্রোডাকশন অ্যাপ্লিকেশনে $GLOBALS পরিহার করা উচিত, কারণ এটি কোড কাপলিং তৈরি করে। তার পরিবর্তে প্যারামিটার পাসিং বা ডিপেন্ডেন্সি ইনজেকশন ব্যবহার করুন।`,
+          code: `<?php
+
+$systemTitle = "Cloud Inventory";
+
+function renderHeader($title)
+{
+    // প্যারামিটার দিয়ে পাস করা আদর্শ
+    return "Header: " . htmlspecialchars($title);
+}
+
+echo renderHeader($systemTitle);
+?>`,
+          codeLanguage: 'Clean Practice',
+          outputPreview: `Header: Cloud Inventory`
+        },
+        {
+          title: '১০. $_GET বনাম $_POST — স্পষ্ট তুলনা',
+          explanationBn: `• $_GET: ডেটা সরাসরি URL এ উন্মুক্ত থাকে (?key=val); বুকমার্ক করা যায়; ডেটা সাইজ লিমিটেড; সংবেদনশীল তথ্যের জন্য অনুপযুক্ত; সাধারণত ডেটা খোঁজার কাজে ব্যবহৃত হয়।
+• $_POST: ডেটা রিকোয়েস্ট বডিতে এনকোড হয়ে যায়; URL এ দেখা যায় না; বড় আকারের ডেটা ও ফাইল পাঠানো যায়; ডেটাবেসে কোনো পরিবর্তন বা লগইনের ক্ষেত্রে বাধ্যতামূলক।`,
+          code: `<?php
+
+echo "GET for Search & Read | POST for Login & Mutation (Never put passwords in GET!)";
+?>`,
+          codeLanguage: 'Architecture Rule',
+          outputPreview: `GET for Search & Read | POST for Login & Mutation (Never put passwords in GET!)`
+        },
+        {
+          title: '১১. filter_input() দিয়ে শক্তিশালী ইনপুট ভ্যালিডেশন',
+          explanationBn: `❌ খারাপ অভ্যাস: $id = $_GET['id']; echo $id; (SQL Injection বা টাইপ বাগের শিকার)
+✅ নিরাপদ অভ্যাস: filter_input() দিয়ে ডেটার টাইপ ও ফরম্যাট যাচাই করা।`,
+          code: `<?php
+
+// সিমুলেটেড ইনপুট
+$_GET['page'] = "5";
+
+$page = filter_var($_GET['page'], FILTER_VALIDATE_INT);
+
+if ($page === false || $page === null) {
+    echo "Invalid pagination parameter!";
+} else {
+    echo "Navigating safely to Page: " . $page;
+}
+?>`,
+          codeLanguage: 'Input Validation Pattern',
+          outputPreview: `Navigating safely to Page: 5`
+        },
+        {
+          title: '১২. XSS প্রতিরোধ — htmlspecialchars() দিয়ে আউটপুট এসকেপিং',
+          explanationBn: `ইউজারের পাঠানো ডেটা যখনই ব্রাউজারে রেন্ডার করবেন, ক্রস-সাইট স্ক্রিপ্টিং (XSS) প্রতিরোধ করতে htmlspecialchars($str, ENT_QUOTES, 'UTF-8') ব্যবহার করতে হবে।`,
+          code: `<?php
+
+$maliciousInput = "<script>alert('Hacked!');</script>John";
+
+// আউটপুট এসকেপিং
+$safeOutput = htmlspecialchars($maliciousInput, ENT_QUOTES, 'UTF-8');
+
+echo "Escaped Safe String: " . $safeOutput;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Escaped Safe String: &lt;script&gt;alert('Hacked!');&lt;/script&gt;John`
+        },
+        {
+          title: '১৩. বাস্তবসম্মত সেশন লগইন ও অথেনটিকেশন ফ্লো',
+          explanationBn: `লগইন ফর্ম থেকে ক্রেডেনশিয়াল ভ্যালিডেট করে সেশনে আইডি সেট করা এবং অন্য পেজে সেশন চেক করে অ্যাক্সেস নিশ্চিত করার ফুল ফ্লো:`,
+          code: `<?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// লগইন সম্পন্ন হলে
+$_SESSION['user_id'] = 42;
+$_SESSION['logged_in_at'] = time();
+
+// অথেনটিকেশন গার্ড (অন্য পেজে ব্যবহারের নিয়ম)
+if (!isset($_SESSION['user_id'])) {
+    echo "Access Denied: Please login first.";
+} else {
+    echo "Welcome back, User #" . $_SESSION['user_id'] . " (Authenticated)";
+}
+?>`,
+          codeLanguage: 'Auth Flow Pattern',
+          outputPreview: `Welcome back, User #42 (Authenticated)`
+        },
+        {
+          title: '১৪. প্রোডাকশন সিকিউরিটি পাইপলাইন (Golden Rule)',
+          explanationBn: `সুপারগ্লোবালের কোনো ডেটাকেই কখনো ট্রাস্ট করবেন না:
+১. User Input গ্রহণ
+২. Validate (টাইপ, ফরম্যাট, লেন্থ চেক)
+৩. Sanitize / Normalize (অপ্রয়োজনীয় স্পেস ট্রিম)
+৪. Process (বিজনেস লজিক / ডেটাবেস প্রিপেয়ার্ড স্টেটমেন্ট)
+৫. Escape Output (htmlspecialchars)
+৬. Client Response`,
+          code: `<?php
+echo "Core Mandate: User Input -> Validate -> Sanitize -> Process -> Escape Output";
+?>`,
+          codeLanguage: 'Security Pipeline'
+        }
+      ],
       keyPointsBn: [
-        '$_GET এবং $_POST কখনো আনস্যানিটাইজড অবস্থায় ব্যবহার করবেন না।',
-        '$_ENV ক্লাউড ও কন্টেইনার আর্কিটেকচারে সিক্রেট কনফিগারেশন রিসিভ করতে ব্যবহৃত হয়।'
+        'Superglobals হলো পিএইচপির প্রি-ডিফাইন্ড গ্লোবাল ভেরিয়েবল যা যেকোনো স্কোপ থেকে এক্সেসিবল।',
+        'সার্চ ও পেজিনেশনের জন্য $_GET এবং ফর্ম সাবমিশন ও পরিবর্তনের জন্য $_POST আদর্শ।',
+        'সেশন ব্যবহারের পূর্বে অবশ্যই session_start() কল করতে হবে; এটি সার্ভার-সাইড স্টেট সংরক্ষণ করে।',
+        'ইউজারের ইনপুট ভ্যালিডেশনে filter_input() এবং XSS সুরক্ষায় htmlspecialchars() বাধ্যতামূলক।',
+        '$_GET, $_POST এবং $_FILES হলো ক্লায়েন্ট-নিয়ন্ত্রিত ইনপুট; এগুলোকে কখনো সরাসরি ট্রাস্ট করা যাবে না।'
+      ],
+      practiceExamples: [
+        {
+          title: 'বাস্তব উদাহরণ ১: সিকিউর সার্চ ও পেজিনেশন ফিল্টার হ্যান্ডলার',
+          descriptionBn: 'URL কুয়েরি প্যারামিটার থেকে সার্চ টার্ম ও পেজ নম্বর ভ্যালিডেট করে ফিল্টার কোড তৈরি।',
+          code: `<?php
+// সিমুলেটেড GET ডেটা
+$_GET['query'] = "  mechanical keyboard  ";
+$_GET['page'] = "2";
+
+// ১. ইনপুট স্যানিটাইজ ও ভ্যালিডেট
+$searchTerm = trim((string) ($_GET['query'] ?? ''));
+$pageNumber = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
+
+if ($pageNumber === false || $pageNumber < 1) {
+    $pageNumber = 1; // ফলব্যাক
+}
+
+$safeSearch = htmlspecialchars($searchTerm, ENT_QUOTES, 'UTF-8');
+
+echo "<b>Executing Search:</b> '{$safeSearch}'<br>";
+echo "<b>Target Page:</b> {$pageNumber}<br>";
+echo "<i>Prepared SQL condition: WHERE name LIKE '%{$safeSearch}%' LIMIT 10 OFFSET " . (($pageNumber - 1) * 10) . "</i>";
+?>`
+        },
+        {
+          title: 'বাস্তব উদাহরণ ২: ফাইল আপলোড ভ্যালিডেশন ইঞ্জিন',
+          descriptionBn: '$_FILES থেকে এক্সটেনশন, সাইজ লিমিট (সর্বোচ্চ ২ এমবি) ও এরর কোড যাচাই।',
+          code: `<?php
+$uploadedFile = [
+    'name' => 'invoice_august.pdf',
+    'size' => 1024 * 1024 * 1.5, // ১.৫ এমবি
+    'error' => 0
+];
+
+$allowedExtensions = ['pdf', 'png', 'jpg'];
+$maxSize = 2 * 1024 * 1024; // ২ মেগাবাইট
+
+$extension = strtolower(pathinfo($uploadedFile['name'], PATHINFO_EXTENSION));
+
+if ($uploadedFile['error'] !== 0) {
+    echo "Upload failed with error code: " . $uploadedFile['error'];
+} elseif ($uploadedFile['size'] > $maxSize) {
+    echo "File is too large! Maximum limit is 2MB.";
+} elseif (!in_array($extension, $allowedExtensions, true)) {
+    echo "Invalid format! Only PDF, PNG, and JPG allowed.";
+} else {
+    echo "<b>File validation passed:</b> {$uploadedFile['name']} (" . round($uploadedFile['size'] / (1024*1024), 2) . " MB)";
+}
+?>`
+        }
       ]
     }
   },
@@ -6918,24 +9465,366 @@ echo "<b>স্ক্রিপ্ট নেম:</b> " . ($_SERVER['SCRIPT_NAME']
     id: 'php-regex',
     title: 'PHP RegEx',
     category: 'basic',
-    tag: 'Pattern Matching',
+    tag: 'Pattern Matching & PCRE2',
     phpVersion: 'PHP 8.0+',
-    subtitleBn: 'রেগুলার এক্সপ্রেশন সিনট্যাক্স, ডিলিমিটার, মডিফায়ার (i, m, s, u)।',
+    subtitleBn: 'preg_match, preg_replace, preg_split, মেটাক্যারেক্টার, কোয়ান্টিফায়ার, ক্যাপচার গ্রুপ ও বিল্ট-ইন ভ্যালিডেশন।',
     sampleCode: `<?php
-$email = "developer@example.com";
-$pattern = "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/";
+// ১. বাংলাদেশি মোবাইল নম্বর ফরম্যাট ভ্যালিডেশন
+$phone = "01712345678";
+$phonePattern = '/^01[3-9]\\d{8}$/';
 
-if (preg_match($pattern, $email)) {
-    echo "ইমেইল অ্যাড্রেসটি বৈধ! ($email)";
+echo "<div style='font-family:sans-serif; background:#f8fafc; border:1px solid #cbd5e1; padding:16px; border-radius:8px;'>";
+echo "<h3 style='margin:0 0 10px 0; color:#0f172a;'>PHP PCRE2 RegEx Engine Live Demo</h3>";
+
+if (preg_match($phonePattern, $phone)) {
+    echo "<p style='margin:4px 0; color:#059669;'>✓ <b>Phone Number:</b> {$phone} (Valid BD Mobile Format)</p>";
 } else {
-    echo "অবৈধ ইমেইল!";
+    echo "<p style='margin:4px 0; color:#dc2626;'>✗ <b>Phone Number:</b> Invalid format</p>";
 }
+
+// ২. Named Capture Group দিয়ে ইউজার ও ডোমেন সেপারেশন
+$email = "developer.abbad@gmail.com";
+$emailPattern = '/^(?<account>[^@]+)@(?<domain>.+)$/';
+
+if (preg_match($emailPattern, $email, $matches)) {
+    echo "<p style='margin:4px 0;'><b>Account:</b> " . htmlspecialchars($matches['account']) . "</p>";
+    echo "<p style='margin:4px 0;'><b>Domain:</b> " . htmlspecialchars($matches['domain']) . "</p>";
+}
+
+// ৩. preg_replace দিয়ে অতিরিক্ত হোয়াইটস্পেস ক্লিনআপ
+$dirtyText = "PHP     8.3    with     Clean     Architecture";
+$cleanText = preg_replace('/\\s+/', ' ', $dirtyText);
+echo "<p style='margin:4px 0; color:#2563eb;'><b>Cleaned Text:</b> {$cleanText}</p>";
+
+// ৪. গুরুত্বপূর্ণ রুল: বিল্ট-ইন filter_var বনাম RegEx
+$rawMail = "admin@system.io";
+$isFilterValid = filter_var($rawMail, FILTER_VALIDATE_EMAIL) !== false;
+echo "<p style='margin:4px 0; color:#64748b; font-size:13px;'>Built-in filter_var Email Verification: " . ($isFilterValid ? "Passed" : "Failed") . "</p>";
+
+echo "</div>";
 ?>`,
     deepDive: {
-      conceptBn: `PHP পার্ল-কম্প্যাটিবল রেগুলার এক্সপ্রেশন (PCRE2) ব্যবহার করে। এটি যেকোনো জটিল টেক্সট সার্চিং, ভ্যালিডেশন এবং ফরম্যাটিং করতে অত্যন্ত শক্তিশালী।`,
+      conceptBn: `Regex (Regular Expression) হলো টেক্সটের মধ্যে নির্দিষ্ট প্যাটার্ন খোঁজা, ভ্যালিডেট করা, রিপ্লেস করা বা এক্সট্রাক্ট করার সবচেয়ে শক্তিশালী ইঞ্জিন। পিএইচপি পার্ল-কম্প্যাটিবল রেগুলার এক্সপ্রেশন (PCRE2) লাইব্রেরি ব্যবহার করে। এটি ইউজারনেম ফরম্যাট, ফোন নম্বর, কাস্টম ইনভয়েস কোড, টেক্সট ক্লিনিং ও ডেটা পার্সিংয়ের ক্ষেত্রে অপরিহার্য। তবে ইমেইল বা ইউআরএল ভ্যালিডেশনের মতো ক্ষেত্রে পিএইচপির বিল্ট-ইন filter_var() ব্যবহার করা রেজেক্সের চেয়ে বেশি নিরাপদ ও দ্রুত।`,
+      lessonSections: [
+        {
+          title: '১. preg_match() — প্যাটার্ন যাচাই (⭐⭐⭐)',
+          explanationBn: `কোনো টেক্সটে নির্দিষ্ট প্যাটার্ন মিলেছে কি না তা যাচাই করে:
+• রিটার্ন 1: প্যাটার্ন ম্যাচ হয়েছে
+• রিটার্ন 0: কোনো ম্যাচ পাওয়া যায়নি
+• রিটার্ন false: রেজেক্স প্যাটার্নে সিনট্যাক্স এরর রয়েছে`,
+          code: `<?php
+
+$email = "user@gmail.com";
+
+if (preg_match('/@/', $email)) {
+    echo "Match found: The string contains '@' symbol.";
+} else {
+    echo "No match found.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Match found: The string contains '@' symbol.`
+        },
+        {
+          title: '২. মৌলিক সিম্বল ও মেটাক্যারেক্টার (Basic Regex Symbols)',
+          explanationBn: `• . (ডট): নিউলাইন ব্যতীত যেকোনো একটি ক্যারেক্টার (/a.c/ ➔ abc, a5c, axc)
+• ^ (ক্যারট): স্ট্রিংয়ের শুরু নির্দেশ করে (/^Hello/ ➔ Hello World ✓, Hi Hello ✗)
+• $ (ডলার): স্ট্রিংয়ের শেষ নির্দেশ করে (/World$/ ➔ Hello World ✓)
+• * (অ্যাস্টেরিস্ক): শূন্য (০) বা ততোধিক বার পুনরাবৃত্তি (/ab*/ ➔ a, ab, abbb)
+• + (প্লাস): কমপক্ষে ১ বা ততোধিক বার পুনরাবৃত্তি (/ab+/ ➔ ab, abb, কিন্তু a নয়)
+• ? (প্রশ্নবোধক): ঐচ্ছিক — ০ অথবা ১ বার (/colou?r/ ➔ color এবং colour উভয়ই সত্য)`,
+          code: `<?php
+
+$text1 = "Hello World";
+$text2 = "colour";
+
+echo "Starts with Hello: " . (preg_match('/^Hello/', $text1) ? "Yes" : "No") . "<br>";
+echo "Optional 'u' in colour: " . (preg_match('/colou?r/', $text2) ? "Yes" : "No");
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Starts with Hello: Yes\nOptional 'u' in colour: Yes`
+        },
+        {
+          title: '৩. ক্যারেক্টার ক্লাসেস (Character Classes)',
+          explanationBn: `ব্র্যাকেটের মধ্যে যেকোনো একটি ক্যারেক্টার ম্যাচ করানোর নিয়ম:
+• [abc]: a, b অথবা c এর যেকোনো একটি
+• [aeiou]: যেকোনো স্বরবর্ণ (Vowel)
+• [0-9]: যেকোনো সংখ্যা (Digit)
+• [a-z]: ছোট হাতের যেকোনো ইংরেজি বর্ণ
+• [A-Z]: বড় হাতের যেকোনো ইংরেজি বর্ণ
+• [^0-9]: সংখ্যা ছাড়া অন্য যেকোনো কিছু (নেগেশন)`,
+          code: `<?php
+
+$letter = "e";
+if (preg_match('/[aeiou]/', $letter)) {
+    echo "'{$letter}' is a vowel.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `'e' is a vowel.`
+        },
+        {
+          title: '৪. কমন শর্টকাটস (Shorthand Character Classes ⭐⭐⭐)',
+          explanationBn: `রেজেক্স দ্রুত লেখার জনপ্রিয় শর্টকাট:
+• \\d: যেকোনো সংখ্যা [0-9] | \\D: সংখ্যা নয় এমন কিছু
+• \\w: বর্ণ, সংখ্যা ও আন্ডারস্কোর [A-Za-z0-9_] | \\W: নন-ওয়ার্ড ক্যারেক্টার
+• \\s: যেকোনো হোয়াইটস্পেস (স্পেস, ট্যাব, নিউলাইন) | \\S: নন-স্পেস ক্যারেক্টার`,
+          code: `<?php
+
+$code = "SKU-9402";
+
+if (preg_match('/^SKU-\\d+$/', $code)) {
+    echo "Valid SKU Product Code: {$code}";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Valid SKU Product Code: SKU-9402`
+        },
+        {
+          title: '৫. কোয়ান্টিফায়ার (Quantifiers)',
+          explanationBn: `কতবার মিলতে হবে তা নির্দিষ্ট করার উপায়:
+• {3}: হুবহু ৩ বার (যেমন: /\\d{3}/ ➔ 123)
+• {3,5}: ৩ থেকে ৫ বার পর্যন্ত (যেমন: /\\d{3,5}/ ➔ 123, 12345)
+• {3,}: কমপক্ষে ৩ বা ততোধিক বার`,
+          code: `<?php
+
+$pin = "4821";
+
+if (preg_match('/^\\d{4}$/', $pin)) {
+    echo "Valid 4-digit ATM PIN.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Valid 4-digit ATM PIN.`
+        },
+        {
+          title: '৬. গ্রুপিং () ও অলটারনেশন (|)',
+          explanationBn: `• (): সাবপ্যাটার্ন গ্রুপ তৈরি ও ক্যাপচারিংয়ের জন্য (/ (ab)+ / ➔ ab, abab)
+• |: লজিক্যাল OR বা অথবা (/cat|dog/ ➔ cat অথবা dog ম্যাচ করবে)`,
+          code: `<?php
+
+$animal = "dog";
+if (preg_match('/cat|dog/', $animal)) {
+    echo "Domestic animal found: {$animal}";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Domestic animal found: dog`
+        },
+        {
+          title: '৭. বাংলাদেশি মোবাইল নম্বর ভ্যালিডেশন (Real Example)',
+          explanationBn: `প্যাটার্ন বিশ্লেষণ /^01[3-9]\\d{8}$/:
+• ^ ➔ স্ট্রিং শুরু
+• 01 ➔ অবশ্যই 01 দিয়ে শুরু হবে
+• [3-9] ➔ তৃতীয় ডিজিট ৩ থেকে ৯ এর মধ্যে (GP, BL, Robi, Teletalk ইত্যাদি)
+• \\d{8} ➔ পরবর্তী বাকি ঠিক ৮টি ডিজিট
+• $ ➔ স্ট্রিং সমাপ্ত (মোট ১১ ডিজিট)
+⚠️ নোট: এটি কেবল ফরম্যাট ভ্যালিডেশন; নম্বরটি সক্রিয় কি না তা টেলকো এপিআই ছাড়া জানা সম্ভব নয়।`,
+          code: `<?php
+
+$phone = "01712345678";
+
+if (preg_match('/^01[3-9]\\d{8}$/', $phone)) {
+    echo "Valid Bangladesh Mobile Number: {$phone}";
+} else {
+    echo "Invalid Phone Number!";
+}
+?>`,
+          codeLanguage: 'Production RegEx Pattern',
+          outputPreview: `Valid Bangladesh Mobile Number: 01712345678`
+        },
+        {
+          title: '৮. ইমেইল ভ্যালিডেশন ও filter_var() এর শ্রেষ্ঠত্ব',
+          explanationBn: `ইমেইলের বেসিক রেজেক্স: /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/
+⭐ কিন্তু ইমেইল ভ্যালিডেশনের ক্ষেত্রে পিএইচপির বিল্ট-ইন filter_var($email, FILTER_VALIDATE_EMAIL) রেজেক্সের চেয়ে অনেক বেশি নির্ভুল, নিরাপদ ও দ্রুততর। অপ্রয়োজনে জটিল রেজেক্স পরিহার করুন।`,
+          code: `<?php
+
+$email = "developer@example.com";
+
+// রেকমেন্ডেড পদ্ধতি
+if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo "Standard Compliant Email Address.";
+}
+?>`,
+          codeLanguage: 'Clean Best Practice',
+          outputPreview: `Standard Compliant Email Address.`
+        },
+        {
+          title: '৯. preg_match_all() — ডকুমেন্টের সমস্ত ম্যাচ বের করা',
+          explanationBn: `টেক্সটের ভেতর যেখানে যেখানে প্যাটার্ন মিলবে তার সবগুলো উপাদান টু-ডাইমেনশনাল অ্যারেতে নিয়ে আসে।`,
+          code: `<?php
+
+$text = "PHP 8.1, PHP 8.2 and PHP 8.3 released.";
+
+preg_match_all('/PHP\\s+(\\d+\\.\\d+)/', $text, $matches);
+
+echo "Found Versions: " . implode(", ", $matches[1]);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Found Versions: 8.1, 8.2, 8.3`
+        },
+        {
+          title: '১০. preg_replace() — টেক্সট প্যাটার্ন প্রতিস্থাপন (⭐⭐⭐)',
+          explanationBn: `প্যাটার্ন অনুযায়ী টেক্সট খুঁজে তা নতুন কিছু দিয়ে রিপ্লেস করে। যেমন: অতিরিক্ত বা এলোমেলো একাধিক স্পেস দূর করে একক স্পেস বসানো।`,
+          code: `<?php
+
+$rawString = "Clean     Architecture     with   PHP";
+$clean = preg_replace('/\\s+/', ' ', $rawString);
+
+echo "Normalized: " . $clean;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Normalized: Clean Architecture with PHP`
+        },
+        {
+          title: '১১. HTML ট্যাগ স্ট্রিপিং ও সতর্কতা',
+          explanationBn: `HTML ট্যাগ দূর করার সহজ প্যাটার্ন: /<[^>]*>/
+⚠️ আর্কিটেকচারাল সতর্কতা: জটিল HTML পেজ বা স্ক্রিপ্ট হ্যান্ডলিংয়ের জন্য রেজেক্স নিরাপদ নয়; সেক্ষেত্রে strip_tags() অথবা DOMDocument/HTML Parser ব্যবহার করা আবশ্যক।`,
+          code: `<?php
+
+$html = "<p>Welcome <b>Abbad</b>!</p>";
+$stripped = preg_replace('/<[^>]*>/', '', $html);
+
+echo "Stripped Text: " . $stripped;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Stripped Text: Welcome Abbad!`
+        },
+        {
+          title: '১২. preg_split() — রেজেক্স অনুযায়ী স্ট্রিং ভেঙে অ্যারে তৈরি',
+          explanationBn: `কমা, সেমিকোলন এবং সংলগ্ন স্পেস একাধিক ডেলিমিটার হিসেবে কাজ করলে preg_split() চমৎকার কাজ করে।`,
+          code: `<?php
+
+$tags = "PHP, Laravel; MySQL,  Docker;Redis";
+$list = preg_split('/[,;]\\s*/', $tags);
+
+echo "Extracted: " . implode(" | ", $list);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Extracted: PHP | Laravel | MySQL | Docker | Redis`
+        },
+        {
+          title: '১৩. ডিলিমিটার (Delimiters) ও মডিফায়ার (Modifiers)',
+          explanationBn: `• ডিলিমিটার: সাধারণত / ব্যবহার করা হয় (/pattern/)। তবে প্যাটার্নে স্লাশ থাকলে বিকল্প হিসেবে # (#http://#) বা ~ ব্যবহার করলে এসকেপ স্লাশের ঝামেলা থাকে না।
+• মডিফায়ার i: Case-insensitive (বড়-ছোট হাত উপেক্ষা করা)
+• মডিফায়ার m: Multiline মোড (^ এবং $ প্রতিটি লাইনের শুরু-শেষ ধরে)
+• মডিফায়ার s: Single-line মোড (. ডট নিউলাইনকেও ম্যাচ করায়)`,
+          code: `<?php
+
+$text = "PHP is Awesome";
+
+if (preg_match('/php/i', $text)) {
+    echo "Found with 'i' modifier (case-insensitive).";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Found with 'i' modifier (case-insensitive).`
+        },
+        {
+          title: '১৪. Named Capture Group (নামযুক্ত ক্যাপচার গ্রুপ)',
+          explanationBn: `ক্যাপচার গ্রুপে ইনডেক্সের (0, 1, 2) বদলে নির্দিষ্ট নাম (?<name>pattern) দিলে কোডের রিডাবিলিটি বহুগুণ বৃদ্ধি পায়।`,
+          code: `<?php
+
+$log = "2026-09-15 10:30:00";
+$pattern = '/^(?<date>\\d{4}-\\d{2}-\\d{2})\\s+(?<time>\\d{2}:\\d{2}:\\d{2})$/';
+
+if (preg_match($pattern, $log, $parts)) {
+    echo "Date: " . $parts['date'] . "<br>";
+    echo "Time: " . $parts['time'];
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Date: 2026-09-15\nTime: 10:30:00`
+        },
+        {
+          title: '১৫. ইউজারনেম ভ্যালিডেশন প্যাটার্ন (Real-World)',
+          explanationBn: `নিয়ম: ৩ থেকে ২০ অক্ষরের মধ্যে হতে হবে, বর্ণ, সংখ্যা ও আন্ডারস্কোর অনুমোদিত।
+প্যাটার্ন: /^[A-Za-z0-9_]{3,20}$/`,
+          code: `<?php
+
+$username = "abbad_dev99";
+
+if (preg_match('/^[A-Za-z0-9_]{3,20}$/', $username)) {
+    echo "Valid Username: {$username}";
+} else {
+    echo "Invalid username format.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Valid Username: abbad_dev99`
+        },
+        {
+          title: '১৬. পাসওয়ার্ড জটিলতা লুকঅ্যাহেড প্যাটার্ন (Lookahead Assertions)',
+          explanationBn: `কমপক্ষে ৮ ক্যারেক্টার, ১টি বড় হাতের অক্ষর, ১টি ছোট হাতের অক্ষর, ১টি সংখ্যা এবং ১টি স্পেশাল সিম্বল বাধ্যতামূলক করার জন্য পজিটিভ লুকঅ্যাহেড (?=.*[A-Z]):`,
+          code: `<?php
+
+$password = "Secret@2026";
+$pattern = '/^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$/';
+
+if (preg_match($pattern, $password)) {
+    echo "Strong Password Format Verified.";
+} else {
+    echo "Weak Password! Must include Upper, Lower, Number & Special Character.";
+}
+?>`,
+          codeLanguage: 'Lookahead Pattern',
+          outputPreview: `Strong Password Format Verified.`
+        },
+        {
+          title: '১৭. রেজেক্স বনাম বিল্ট-ইন ফাংশনাল তুলনা ও গোল্ডেন রুল',
+          explanationBn: `• Email ➔ filter_var($email, FILTER_VALIDATE_EMAIL)
+• URL ➔ filter_var($url, FILTER_VALIDATE_URL)
+• Integer ➔ filter_var($id, FILTER_VALIDATE_INT)
+⭐ গোল্ডেন রুল: যেখানে পিএইচপির বিল্ট-ইন ভ্যালিডেশন বিদ্যমান, সেখানে রেজেক্স দিয়ে কোড অপ্রয়োজনীয় জটিল করবেন না। কাস্টম ফরম্যাট (যেমন: ফোন, ইউজারনেম, ইনভয়েস আইডি) ও টেক্সট ট্রান্সফরমেশনেই কেবল রেজেক্স ব্যবহার করুন।`,
+          code: `<?php
+echo "Mandate: Prefer built-in filter_var() for emails/URLs; use RegEx for custom patterns.";
+?>`,
+          codeLanguage: 'Best Practice Architecture Rule'
+        }
+      ],
       keyPointsBn: [
-        'preg_match() প্রথম মিল খুঁজে পায় এবং 1 বা 0 রিটার্ন করে।',
-        'ইমেইল ভ্যালিডেশনের জন্য অনেক সময় জটিল রেজেক্সের বদলে filter_var($email, FILTER_VALIDATE_EMAIL) বেশি নির্ভরযোগ্য ও দ্রুত।'
+        'preg_match() একক ম্যাচ ও ভ্যালিডেশনে এবং preg_match_all() পুরো ডকুমেন্টের সব ম্যাচ বের করতে ব্যবহৃত হয়।',
+        'preg_replace() টেক্সট ক্লিনিং, হোয়াইটস্পেস নরম্যালাইজেশন ও মাস্কিংয়ে সর্বাধিক ব্যবহৃত।',
+        '\\d, \\w, \\s শর্টকাট কোডকে সংক্ষিপ্ত ও পরিষ্কার রাখে।',
+        'ডিলিমিটারে / ছাড়াও # বা ~ ব্যবহার করা যায়; মডিফায়ার i কেস-ইনসেনসিটিভ সার্চ প্রদান করে।',
+        'যেখানে filter_var() দিয়ে সমাধান সম্ভব সেখানে জটিল রেজেক্স না লেখাই প্রোডাকশন কোডের বেস্ট প্র্যাকটিস।'
+      ],
+      practiceExamples: [
+        {
+          title: 'বাস্তব উদাহরণ ১: ইনভয়েস রেফারেন্স কোড পার্সার ও ভ্যালিডেটর',
+          descriptionBn: 'ইনভয়েস কোড ফরম্যাট (যেমন: INV-2026-9812) ভ্যালিডেট করে বছর ও সিরিয়াল আলাদা করা।',
+          code: `<?php
+$invoice = "INV-2026-9812";
+$pattern = '/^INV-(?<year>\\d{4})-(?<serial>\\d{4,6})$/';
+
+if (preg_match($pattern, $invoice, $match)) {
+    echo "<b>Invoice Validated!</b><br>";
+    echo "Fiscal Year: " . $match['year'] . "<br>";
+    echo "Serial Number: #" . $match['serial'];
+} else {
+    echo "Invalid Invoice Code Format.";
+}
+?>`
+        },
+        {
+          title: 'বাস্তব উদাহরণ ২: কনটেন্ট স্যানিটাইজার ও স্ল্যাগ জেনারেটর (preg_replace)',
+          descriptionBn: 'আর্টিকেল টাইটেল থেকে বিশেষ চিহ্ন মুছে হাইফেন দিয়ে এসইও-বান্ধব URL স্ল্যাগ তৈরি।',
+          code: `<?php
+$title = "Mastering PHP 8.3 & Clean Architecture in 2026!";
+
+// ১. ছোট হাতের অক্ষরে রূপান্তর
+$slug = strtolower($title);
+
+// ২. অক্ষর ও সংখ্যা ছাড়া বাকি সব চিহ্নকে হাইফেনে রূপান্তর
+$slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+
+// ৩. শুরু ও শেষের বাড়তি হাইফেন ট্রিম
+$slug = trim($slug, '-');
+
+echo "Original: {$title}<br>";
+echo "<b>Generated URL Slug:</b> {$slug}";
+?>`
+        }
       ]
     }
   },
@@ -6945,25 +9834,282 @@ if (preg_match($pattern, $email)) {
     category: 'basic',
     tag: 'PCRE2 Functions',
     phpVersion: 'PHP 8.0+',
-    subtitleBn: 'preg_match, preg_match_all, preg_replace, preg_split এর ব্যবহার।',
+    subtitleBn: 'preg_match, preg_match_all, preg_replace, preg_replace_callback, preg_split, preg_grep ও preg_quote।',
     sampleCode: `<?php
-$str = "আজকের তাপমাত্রা 32 ডিগ্রি, কালকে হবে 35 ডিগ্রি এবং পরশু 30 ডিগ্রি।";
-$pattern = "/(\\d+)/";
+// ১. স্যাম্পল ইনপুট ডেটা (ই-কমার্স ও ইউজার ফিডব্যাক)
+$feedback = "Great product! Order #1002 was fast. Also loved Order #1003. Total cost was $45.50 (USD).";
 
-// সব সংখ্যা একসাথে বের করা
-preg_match_all($pattern, $str, $matches);
-echo "খুঁজে পাওয়া তাপমাত্রাসমূহ: " . implode(", ", $matches[0]) . "<br>";
+echo "<div style='font-family:sans-serif; background:#f8fafc; border:1px solid #cbd5e1; padding:16px; border-radius:8px;'>";
+echo "<h3 style='margin:0 0 10px 0; color:#0f172a;'>PCRE2 RegEx Engine Function Pipeline</h3>";
 
-// শব্দ মাস্কিং বা প্রতিস্থাপন
-$cleanStr = preg_replace("/\\d+/", "**", $str);
-echo "মাস্কড টেক্সট: $cleanStr";
+// ২. preg_match_all: সমস্ত অর্ডার নম্বর এক্সট্র্যাক্ট করা
+preg_match_all('/#(\\d+)/', $feedback, $orderMatches);
+echo "<p style='margin:4px 0;'><b>Extracted Order IDs:</b> #" . implode(", #", $orderMatches[1]) . "</p>";
+
+// ৩. preg_replace_callback: ডলার প্রাইসকে টাকায় রূপান্তর (ডায়নামিক ট্রান্সফরমেশন)
+$converted = preg_replace_callback('/\\$(\\d+(\\.\\d{2})?)/', function($m) {
+    $usd = (float) $m[1];
+    $bdt = $usd * 120.0; // ধরি ১ USD = ১২০ টাকা
+    return number_format($bdt, 2) . " BDT";
+}, $feedback);
+
+echo "<p style='margin:4px 0; color:#16a34a;'><b>Currency Converted:</b> {$converted}</p>";
+
+// ৪. preg_grep: অ্যারে ফিল্টারিং
+$frameworks = ["PHP 8.3", "NodeJS", "PHP 8.4", "Python", "PHP Laravel"];
+$phpOnly = preg_grep('/^php/i', $frameworks);
+echo "<p style='margin:4px 0; color:#2563eb;'><b>Filtered PHP Stacks:</b> " . implode(", ", $phpOnly) . "</p>";
+
+// ৫. preg_quote: ইউজার সার্চের মেটাক্যারেক্টার এসকেপ করা
+$userQuery = "$45.50 (USD)";
+$safeRegex = preg_quote($userQuery, '/');
+echo "<p style='margin:4px 0; color:#64748b; font-size:13px;'>Safe RegEx Pattern from User: {$safeRegex}</p>";
+
+echo "</div>";
 ?>`,
     deepDive: {
-      conceptBn: `preg_replace_callback() এর সাহায্যে প্যাটার্ন ম্যাচ হওয়া আইটেমগুলোর উপর কাস্টম লজিক রান করে ডায়নামিক টেক্সট পরিবর্তন করা যায়।`,
+      conceptBn: `PHP-তে রেগুলার এক্সপ্রেশনের জন্য PCRE (Perl Compatible Regular Expressions) ইঞ্জিন ব্যবহৃত হয়। টেক্সট প্যাটার্ন ম্যাচিং, ডেটা এক্সট্রাকশন, ডেটা ক্লিনিং ও ডায়নামিক প্রতিস্থাপনের জন্য পিএইচপির ৭টি প্রধান বিল্ট-ইন ফাংশন রয়েছে: preg_match, preg_match_all, preg_replace, preg_replace_callback, preg_split, preg_grep এবং preg_quote।`,
+      lessonSections: [
+        {
+          title: '১. preg_match() — প্যাটার্ন উপস্থিতি যাচাই (⭐⭐⭐)',
+          explanationBn: `স্ট্রিংয়ের মধ্যে নির্দিষ্ট প্যাটার্ন মিলে কি না তা চেক করে।
+• রিটার্ন 1: ম্যাচ পাওয়া গেছে (True)
+• রিটার্ন 0: ম্যাচ পাওয়া যায়নি (False)
+• রিটার্ন false: রেজেক্স সিনট্যাক্স এরর
+রিয়েল-ওয়ার্ল্ড ব্যবহার: ইনপুট ফরম্যাট ভ্যালিডেশন, কাস্টম কোড ও প্যাটার্ন চেকিং।`,
+          code: `<?php
+
+$text = "I love PHP and modern backend architecture";
+
+if (preg_match('/PHP/', $text)) {
+    echo "Pattern Found: 'PHP' exists in the text.";
+} else {
+    echo "Pattern not found.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Pattern Found: 'PHP' exists in the text.`
+        },
+        {
+          title: '২. preg_match_all() — টেক্সটের সব ম্যাচিং অংশ বের করা (⭐⭐⭐)',
+          explanationBn: `একটি স্ট্রিং থেকে প্যাটার্নের সাথে মেলা সমস্ত অংশ খুঁজে বের করে একটি বহুমাত্রিক অ্যারেতে জমা করে।
+রিয়েল-ওয়ার্ল্ড ব্যবহার: ডকুমেন্ট থেকে একাধিক ইমেইল, অর্ডার আইডি, হ্যাশট্যাগ বা লগ এন্ট্রি পার্স করা।`,
+          code: `<?php
+
+$text = "PHP 8.1, Laravel 11, PHP 8.2, and PHP 8.3 released.";
+
+preg_match_all('/PHP\\s+(\\d+\\.\\d+)/', $text, $matches);
+
+echo "Total PHP versions found: " . count($matches[0]) . "<br>";
+echo "Extracted versions: " . implode(", ", $matches[1]);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Total PHP versions found: 3\nExtracted versions: 8.1, 8.2, 8.3`
+        },
+        {
+          title: '৩. preg_replace() — টেক্সট প্যাটার্ন প্রতিস্থাপন ও ক্লিনিং (⭐⭐⭐)',
+          explanationBn: `রেজেক্স ম্যাচ অনুযায়ী টেক্সট প্রতিস্থাপন করে। অতিরিক্ত হোয়াইটস্পেস নরম্যালাইজেশন, স্পেশাল ক্যারেক্টার রিমুভাল ও ফরম্যাটিংয়ে অত্যন্ত কার্যকর।`,
+          code: `<?php
+
+$messy = "PHP     is     extremely     powerful!";
+$clean = preg_replace('/\\s+/', ' ', $messy);
+
+echo "Normalized Text: " . $clean;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Normalized Text: PHP is extremely powerful!`
+        },
+        {
+          title: '৪. preg_replace_callback() — কাস্টম লজিক দিয়ে ডায়নামিক প্রতিস্থাপন (⭐⭐⭐)',
+          explanationBn: `প্রতিটি ম্যাচের উপর একটি কাস্টম পিএইচপি ফাংশন বা অ্যানোনিমাস ফাংশন কল করে। সাধারণ preg_replace যেখানে কেবল ফিক্সড স্ট্রিং বসাতে পারে, এটি সেখানে গাণিতিক বা ডাইনামিক রূপান্তর ঘটাতে পারে।`,
+          code: `<?php
+
+$statement = "Shirt price: 500 BDT, Pant price: 800 BDT";
+
+// প্রতিটি মূল্যে ১০% ডিসকাউন্ট বসানো
+$discounted = preg_replace_callback('/(\\d+)\\s*BDT/', function($matches) {
+    $price = (int) $matches[1];
+    $newPrice = $price * 0.90;
+    return "{$newPrice} BDT (10% OFF)";
+}, $statement);
+
+echo $discounted;
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Shirt price: 450 BDT (10% OFF), Pant price: 720 BDT (10% OFF)`
+        },
+        {
+          title: '৫. preg_split() — ফ্লেক্সিবল ডিলিমিটার দিয়ে স্ট্রিং বিভক্তকরণ (⭐⭐⭐)',
+          explanationBn: `রেজেক্স প্যাটার্ন অনুযায়ী স্ট্রিংকে ভেঙে অ্যারে বানায়। একাধিক সেপারেটর (যেমন: কমা, সেমিকোলন ও স্পেস) যখন একসাথে থাকে তখন explode() এর জায়গায় এটি আদর্শ।`,
+          code: `<?php
+
+$tags = "PHP, Laravel; MySQL,  Docker;Redis";
+$tagArray = preg_split('/[,;]\\s*/', $tags);
+
+print_r($tagArray);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Array\n(\n    [0] => PHP\n    [1] => Laravel\n    [2] => MySQL\n    [3] => Docker\n    [4] => Redis\n)`
+        },
+        {
+          title: '৬. preg_grep() — অ্যারে ফিল্টারিং',
+          explanationBn: `অ্যারের কোন কোন মান রেজেক্স প্যাটার্নের সাথে মেলে, শুধুমাত্র সেগুলোকে ফিল্টার করে একটি নতুন সাব-অ্যারে রিটার্ন করে।`,
+          code: `<?php
+
+$technologies = [
+    "php-backend",
+    "javascript-frontend",
+    "php-cli",
+    "python-ai",
+    "laravel-php"
+];
+
+$phpTechs = preg_grep('/php/i', $technologies);
+
+echo "PHP Related Items: " . implode(", ", $phpTechs);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `PHP Related Items: php-backend, php-cli, laravel-php`
+        },
+        {
+          title: '৭. preg_quote() — মেটাক্যারেক্টার এসকেপ করে সেফ প্যাটার্ন তৈরি',
+          explanationBn: `ইউজারের ইনপুটে থাকা বিশেষ রেজেক্স চিহ্ন (. * + ? ^ $ \ { } ( ) [ ] | :) এসকেপ করে স্লাশ যুক্ত করে, যাতে ডাইনামিক রেজেক্স তৈরির সময় সিনট্যাক্স এরর না ঘটে।`,
+          code: `<?php
+
+$userInput = "Price $50.00 (special)?";
+$safePattern = preg_quote($userInput, '/');
+
+echo "Escaped Pattern: " . $safePattern;
+?>`,
+          codeLanguage: 'Security Pattern',
+          outputPreview: `Escaped Pattern: Price \\$50\\.00 \\(special\\)\\?`
+        },
+        {
+          title: '৮. preg_match() + Capture Group — অংশ আলাদা করা (⭐⭐⭐)',
+          explanationBn: `প্যারেন্থেসিস () দিয়ে গ্রুপ তৈরি করে মূল স্ট্রিং থেকে নির্দিষ্ট অংশগুলোকে $matches অ্যারের ইনডেক্স [1], [2]-এ আলাদাভাবে ক্যাপচার করা যায়।`,
+          code: `<?php
+
+$email = "developer@gmail.com";
+
+if (preg_match('/^([^@]+)@(.+)$/', $email, $matches)) {
+    echo "Username: " . $matches[1] . "<br>";
+    echo "Domain: " . $matches[2];
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Username: developer\nDomain: gmail.com`
+        },
+        {
+          title: '৯. Named Capture Group — নামযুক্ত ক্যাপচার গ্রুপ',
+          explanationBn: `সংখ্যাসূচক ইনডেক্সের বদলে (?<key_name>pattern) সিনট্যাক্স দিলে কোডের রিডাবিলিটি অনেক বৃদ্ধি পায়।`,
+          code: `<?php
+
+$account = "user_roby@company.org";
+
+preg_match('/^(?<user>[^@]+)@(?<host>.+)$/', $account, $info);
+
+echo "Account User: " . $info['user'] . "<br>";
+echo "Mail Host: " . $info['host'];
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Account User: user_roby\nMail Host: company.org`
+        },
+        {
+          title: '১০. Case-Insensitive Matching — \'i\' মডিফায়ার',
+          explanationBn: `প্যাটার্ন ডিলিমিটারের শেষে i যুক্ত করলে বড় হাত বা ছোট হাতের অক্ষরের পার্থক্য উপেক্ষা করে সার্চ করা হয়।`,
+          code: `<?php
+
+$str = "PHP is awesome, php is modern, Php is fast";
+
+preg_match_all('/php/i', $str, $allPhp);
+
+echo "Total occurrences matched with /i: " . count($allPhp[0]);
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Total occurrences matched with /i: 3`
+        },
+        {
+          title: '১১. Multiline Matching — \'m\' মডিফায়ার',
+          explanationBn: `ডিফল্টভাবে ^ এবং $ পুরো স্ট্রিংয়ের শুরু ও শেষ নির্দেশ করে। কিন্তু m মডিফায়ার দিলে প্রতিটি লাইনের শুরু এবং শেষ আলাদাভাবে নির্দেশ করে।`,
+          code: `<?php
+
+$document = "First Line\nTarget Line\nLast Line";
+
+// প্রতিটি লাইনের শুরুতে Target আছে কিনা খোঁজা
+if (preg_match('/^Target/m', $document)) {
+    echo "Matched a line starting with 'Target' in multiline mode.";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Matched a line starting with 'Target' in multiline mode.`
+        },
+        {
+          title: '১২. Dotall Matching — \'s\' মডিফায়ার',
+          explanationBn: `সাধারণত . (ডট) নিউলাইন ছাড়া যেকোনো ক্যারেক্টার ম্যাচ করে। ডিলিমিটারের শেষে s দিলে ডট নিউলাইনকেও (\\n) ম্যাচ করায়।`,
+          code: `<?php
+
+$html = "<div>\n  Hello World\n</div>";
+
+if (preg_match('/<div>.*<\\/div>/s', $html)) {
+    echo "Matched across multiple lines including newlines with /s modifier!";
+}
+?>`,
+          codeLanguage: 'PHP Live Code',
+          outputPreview: `Matched across multiple lines including newlines with /s modifier!`
+        },
+        {
+          title: '১৩. প্রোডাকশন রুল ও বিল্ট-ইন ভ্যালিডেশনের অগ্রাধিকার',
+          explanationBn: `⚠️ গুরুত্বপূর্ণ নীতিমালা:
+• Email ভ্যালিডেশন: filter_var($email, FILTER_VALIDATE_EMAIL)
+• Integer ভ্যালিডেশন: filter_var($id, FILTER_VALIDATE_INT)
+• URL ভ্যালিডেশন: filter_var($url, FILTER_VALIDATE_URL)
+⭐ যেখানে পিএইচপির বিল্ট-ইন ভ্যালিডেটর রয়েছে, সেখানে কখনোই অপ্রয়োজনীয় রেজেক্স ব্যবহার করবেন না। রেজেক্স শুধুমাত্র কাস্টম প্যাটার্ন এবং ডেটা ক্লিনিংয়ে ব্যবহারযোগ্য।`,
+          code: `<?php
+echo "Core Mandate: Prefer built-in filter_var() for emails and numbers; use PCRE functions for custom business patterns.";
+?>`,
+          codeLanguage: 'Best Practice Architecture'
+        }
+      ],
       keyPointsBn: [
-        'preg_match_all() পুরো ডকুমেন্টের সব ম্যাচিং টু-ডাইমেনশনাল অ্যারেতে প্রদান করে।',
-        'preg_split() রেজেক্স প্যাটার্ন অনুযায়ী স্ট্রিংকে অ্যারেতে বিভক্ত করে।'
+        'PCRE2 ফাংশনগুলোর মধ্যে preg_match(), preg_replace() এবং preg_match_all() সর্বাধিক ব্যবহৃত।',
+        'preg_replace_callback() কাস্টম ক্যালকুলেশন ও ডায়নামিক টেক্সট ট্রান্সফরমেশনে অত্যন্ত শক্তিশালী।',
+        'preg_grep() অ্যারে ফিল্টারিং এবং preg_quote() ডায়নামিক ইউজার সার্চ স্ট্রিং নিরাপদ করতে অপরিহার্য।',
+        'ক্যাপচার গ্রুপ () এবং নামযুক্ত গ্রুপ (?<name>) দিয়ে স্ট্রিং থেকে উপাত্ত নিখুঁতভাবে আলাদা করা যায়।',
+        'i (কেস-ইনসেনসিটিভ), m (মাল্টিলাইন) এবং s (ডটঅল) মডিফায়ার সার্চের পরিধি ও আচরণ নিয়ন্ত্রণ করে।'
+      ],
+      practiceExamples: [
+        {
+          title: 'বাস্তব উদাহরণ ১: মার্কডাউন টেক্সটকে HTML-এ রূপান্তর (Regex Parser)',
+          descriptionBn: 'preg_replace ব্যবহার করে বোল্ড (**text**) ও ইটালিক (*text*) মার্কডাউন সিনট্যাক্সকে HTML ট্যাগে রূপান্তর।',
+          code: `<?php
+$markdown = "Welcome to **PHP 8.3**! Learn *Clean Code* practices.";
+
+// ১. বোল্ড সিনট্যাক্স কনভার্সন
+$html = preg_replace('/\\*\\*(.*?)\\*\\*/', '<b>$1</b>', $markdown);
+
+// ২. ইটালিক সিনট্যাক্স কনভার্সন
+$html = preg_replace('/\\*(.*?)\\*/', '<i>$1</i>', $html);
+
+echo "Rendered HTML: " . $html;
+?>`
+        },
+        {
+          title: 'বাস্তব উদাহরণ ২: লগ ফাইল থেকে এরর ও টাইমস্ট্যাম্প পার্সার',
+          descriptionBn: 'preg_match_all ও Named Capture Group দিয়ে সার্ভার লগ থেকে এরর কোড ও সময় এক্সট্র্যাক্ট করা।',
+          code: `<?php
+$logData = "[2026-09-15 10:15:22] ERROR 500: Database connection failed\\n[2026-09-15 10:20:05] ERROR 404: Endpoint not found";
+
+$pattern = '/\\[(?<timestamp>[^\\]]+)\\]\\s+ERROR\\s+(?<code>\\d+):\\s+(?<message>.+)/';
+
+preg_match_all($pattern, $logData, $entries, PREG_SET_ORDER);
+
+foreach ($entries as $log) {
+    echo "Time: {$log['timestamp']} | Code: {$log['code']} | Issue: {$log['message']}<br>";
+}
+?>`
+        }
       ]
     }
   }
 ];
+

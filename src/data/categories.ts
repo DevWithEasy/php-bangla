@@ -36,6 +36,13 @@ export const CATEGORIES: Record<TopicCategory, CategoryMeta> = {
     badge: 'Database',
     description: 'MySQL ডাটাবেস অপারেশন, প্রিপেয়ার্ড স্টেটমেন্ট ও এসকিউএলআই ডিফেন্স'
   },
+  ajax: {
+    id: 'ajax',
+    nameBn: 'পিএইচপি ও এজাক্স (PHP AJAX)',
+    nameEn: 'PHP AJAX',
+    badge: 'AJAX',
+    description: 'অ্যাসিঙ্ক্রোনাস রিকোয়েস্ট, লাইভ সার্চ, ডাটাবেস ইন্টিগ্রেশন, এক্সএমএল ও লাইভ পোলিং'
+  },
   architect: {
     id: 'architect',
     nameBn: '২০ বছরের এন্টারপ্রাইজ আর্কিটেক্ট ডাইভস',

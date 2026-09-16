@@ -25,6 +25,170 @@ import {
 import { TopicItem, ActiveTab } from '../types';
 import { getTopicPedagogy } from '../data/trainerPedagogy';
 
+interface SmartCodeViewerProps {
+  code: string;
+  language?: string;
+  title?: string;
+  outputPreview?: string;
+  onLoadCodeToEditor: (code: string) => void;
+}
+
+export const SmartCodeViewer: React.FC<SmartCodeViewerProps> = ({
+  code,
+  language = 'PHP 8.2 Live Code',
+  title,
+  outputPreview,
+  onLoadCodeToEditor,
+}) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+
+  const handleRun = () => {
+    onLoadCodeToEditor(code);
+  };
+
+  return (
+    <div className="my-3.5 rounded-xl overflow-hidden border border-slate-800 bg-[#0b1120] shadow-md">
+      {/* Code Header Bar */}
+      <div className="px-3.5 py-2 bg-[#1e293b] border-b border-slate-700/80 flex items-center justify-between gap-2 text-xs font-mono select-none">
+        <div className="flex items-center gap-2 text-emerald-400 font-semibold truncate">
+          <Code2 className="w-4 h-4 shrink-0 text-emerald-400" />
+          <span className="truncate">{title || language}</span>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleCopy}
+            className="hover:text-emerald-400 flex items-center gap-1.5 transition cursor-pointer text-slate-300 px-2.5 py-1 rounded bg-slate-800/90 hover:bg-slate-800 border border-slate-700/60 text-[11px]"
+            title="কোড ক্লিপবোর্ডে কপি করুন"
+          >
+            {copied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400 font-semibold">কপি হয়েছে!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5" />
+                <span>কপি</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleRun}
+            className="px-3 py-1 rounded-md bg-[#04AA6D] hover:bg-[#038e5b] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer transition active:scale-95"
+            title="এই কোডটি সরাসরি ডানপাশের এডিটরে লোড করে রান ও টেস্ট করুন"
+          >
+            <Play className="w-3.5 h-3.5 fill-white" />
+            <span>এডিটরে রান ও টেস্ট করুন »</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Code View Body */}
+      <pre className="p-4 text-emerald-300 font-mono text-xs overflow-x-auto leading-relaxed bg-[#0b1120]">
+        <code>{code}</code>
+      </pre>
+
+      {/* Optional Output Preview */}
+      {outputPreview && (
+        <div className="px-4 py-2.5 bg-slate-900/90 border-t border-slate-800 text-slate-300 font-mono text-xs">
+          <span className="text-amber-400 font-bold block mb-1 text-[11px] uppercase tracking-wider">
+            ⚡ কনসোল / আউটপুট প্রিভিউ:
+          </span>
+          <div className="text-slate-200 whitespace-pre-line bg-slate-950 p-2.5 rounded border border-slate-800/80">
+            {outputPreview}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Helper to format inline code backticks in text
+function renderInlineFormatting(text: string): React.ReactNode {
+  const parts = text.split(/(`[^`]+`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('`') && part.endsWith('`') && part.length > 2) {
+      const codeInside = part.slice(1, -1);
+      return (
+        <code
+          key={i}
+          className="px-1.5 py-0.5 mx-0.5 rounded bg-slate-100 text-emerald-800 font-mono text-xs font-semibold border border-slate-200"
+        >
+          {codeInside}
+        </code>
+      );
+    }
+    return part;
+  });
+}
+
+function getLanguageLabel(lang: string): string {
+  const lower = lang.toLowerCase().trim();
+  if (lower === 'php') return 'PHP 8.2 Live Code';
+  if (lower === 'html') return 'HTML Form / Markup';
+  if (lower === 'sql' || lower === 'mysql') return 'SQL / PDO Query';
+  if (lower === 'js' || lower === 'javascript') return 'JavaScript (Fetch API)';
+  if (lower === 'json') return 'JSON Payload';
+  if (lower === 'xml') return 'XML Document';
+  return lang ? `${lang.toUpperCase()} Code` : 'PHP 8.2 Live Code';
+}
+
+export const SmartContentFormatter: React.FC<{
+  text: string;
+  onLoadCodeToEditor: (code: string) => void;
+}> = ({ text, onLoadCodeToEditor }) => {
+  if (!text) return null;
+
+  // Check if text has markdown code fences
+  const fenceRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = fenceRegex.exec(text)) !== null) {
+    const textBefore = text.substring(lastIndex, match.index);
+    if (textBefore.trim()) {
+      parts.push(
+        <div key={`text-${lastIndex}`} className="whitespace-pre-line leading-relaxed">
+          {renderInlineFormatting(textBefore)}
+        </div>
+      );
+    }
+
+    const lang = match[1] || 'PHP';
+    const codeBlock = match[2];
+    parts.push(
+      <SmartCodeViewer
+        key={`code-${match.index}`}
+        code={codeBlock.trim()}
+        language={getLanguageLabel(lang)}
+        onLoadCodeToEditor={onLoadCodeToEditor}
+      />
+    );
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  const remaining = text.substring(lastIndex);
+  if (remaining.trim()) {
+    parts.push(
+      <div key={`text-${lastIndex}`} className="whitespace-pre-line leading-relaxed">
+        {renderInlineFormatting(remaining)}
+      </div>
+    );
+  }
+
+  return <div className="space-y-2">{parts}</div>;
+};
+
 interface TopicDetailsProps {
   topic: TopicItem;
   prevTopic: TopicItem | null;
@@ -52,48 +216,12 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('concept');
   const [showChallengeSolution, setShowChallengeSolution] = useState(false);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [copiedSectionIndex, setCopiedSectionIndex] = useState<number | null>(null);
 
   const pedagogy = getTopicPedagogy(topic);
 
   return (
     <main className="flex-1 bg-white overflow-y-auto flex flex-col p-4 sm:p-6 lg:p-8 min-w-0">
-      {/* 1. Mentor Masterclass Banner */}
-      <div className="mb-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-50 border border-emerald-200/80 rounded-xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
-            <Award className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-900 font-mono">
-                PHP Masterclass • 20+ Years Senior Trainer Curriculum
-              </span>
-              <span className="hidden md:inline px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-200/80 text-emerald-800">
-                Beginner Friendly
-              </span>
-            </div>
-            <p className="text-xs text-slate-600 mt-0.5">
-              বাস্তব জীবনের রূপক, ধাপে ধাপে বিগিনার গাইড, ইন্ডাস্ট্রিয়াল সিক্রেটস ও ইন্টারভিউ প্রস্তুতি।
-            </p>
-          </div>
-        </div>
-
-        {/* Presentation Mode CTA */}
-        {onOpenPresentation && (
-          <button
-            onClick={onOpenPresentation}
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow-sm transition active:scale-95 cursor-pointer"
-            title="ক্লাসরুম স্লাইড প্রেজেন্টেশন ফুলস্ক্রিন ওপেন করুন"
-          >
-            <Presentation className="w-4 h-4 text-emerald-400" />
-            <span>স্লাইড প্রেজেন্টেশন মোড (Presentation)</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Topic Header & Navigation */}
+      {/* 1. Topic Header & Quick Navigation */}
       <div className="border-b border-slate-200 pb-5 mb-5">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
@@ -187,7 +315,7 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
           }`}
         >
           <BookOpen className="w-4 h-4" />
-          <span>১. মেন্টর লেকচার ও কনসেপ্ট</span>
+          <span>১. বিস্তারিত লেকচার ও কনসেপ্ট</span>
         </button>
 
         <button
@@ -211,7 +339,7 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
           }`}
         >
           <Flame className="w-4 h-4 text-amber-500" />
-          <span>৩. ২০ বছরের সিক্রেটস ও কমন ভুল</span>
+          <span>৩. ইন্ডাস্ট্রি সিক্রেটস ও কমন ভুল</span>
         </button>
 
         <button
@@ -264,9 +392,10 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                     <BookOpen className="w-4 h-4 text-emerald-600" />
                     <span>পাঠের ভূমিকা ও ওভারভিউ:</span>
                   </h3>
-                  <p className="text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">
-                    {topic.deepDive.conceptBn}
-                  </p>
+                  <SmartContentFormatter 
+                    text={topic.deepDive.conceptBn} 
+                    onLoadCodeToEditor={onLoadCodeToEditor} 
+                  />
                 </div>
               )}
 
@@ -289,66 +418,22 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                       </div>
                     )}
 
-                    {/* Section Explanation (একটু Explain) */}
-                    <div className="text-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
-                      {sec.explanationBn}
+                    {/* Section Explanation (একটু Explain with Smart formatting) */}
+                    <div className="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                      <SmartContentFormatter 
+                        text={sec.explanationBn} 
+                        onLoadCodeToEditor={onLoadCodeToEditor} 
+                      />
                     </div>
 
                     {/* Section Code Example (সাথে সাথে কোড ও এডিটরে রান করার বাটন) */}
                     {sec.code && (
-                      <div className="mt-3.5 rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
-                        <div className="px-3.5 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-                          <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-                            <Code2 className="w-3.5 h-3.5" />
-                            <span>{sec.codeLanguage || 'PHP 8.2 Live Code'}</span>
-                          </span>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => {
-                                navigator.clipboard?.writeText(sec.code || '');
-                                setCopiedSectionIndex(idx);
-                                setTimeout(() => setCopiedSectionIndex(null), 1800);
-                              }}
-                              className="hover:text-emerald-400 flex items-center gap-1 transition cursor-pointer text-slate-400 px-2 py-0.5 rounded hover:bg-slate-800"
-                            >
-                              {copiedSectionIndex === idx ? (
-                                <>
-                                  <Check className="w-3 h-3 text-emerald-400" />
-                                  <span className="text-emerald-400">কপি হয়েছে!</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3 h-3" />
-                                  <span>কপি করুন</span>
-                                </>
-                              )}
-                            </button>
-
-                            {/* এডিটরে পাঠান ও টেস্ট করুন বাটন */}
-                            <button
-                              onClick={() => onLoadCodeToEditor(sec.code || '')}
-                              className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-2xs cursor-pointer transition active:scale-95"
-                              title="এই কোডটি সরাসরি কোড এডিটরে লোড করে রান বা পরিবর্তন করুন"
-                            >
-                              <Play className="w-3 h-3 fill-white" />
-                              <span>এডিটরে রান ও টেস্ট করুন</span>
-                            </button>
-                          </div>
-                        </div>
-
-                        <pre className="p-3.5 text-emerald-300 font-mono text-xs overflow-x-auto leading-relaxed">
-                          {sec.code}
-                        </pre>
-
-                        {/* Optional Output Preview */}
-                        {sec.outputPreview && (
-                          <div className="px-3.5 py-2 bg-slate-900/90 border-t border-slate-800/80 text-slate-300 font-mono text-[11px]">
-                            <span className="text-amber-400 font-bold block mb-0.5">আউটপুট প্রিভিউ:</span>
-                            <span className="text-slate-200 whitespace-pre-line">{sec.outputPreview}</span>
-                          </div>
-                        )}
-                      </div>
+                      <SmartCodeViewer
+                        code={sec.code}
+                        language={sec.codeLanguage || 'PHP 8.2 Live Code'}
+                        outputPreview={sec.outputPreview}
+                        onLoadCodeToEditor={onLoadCodeToEditor}
+                      />
                     )}
 
                     {/* Optional Note */}
@@ -369,9 +454,10 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                 <BookOpen className="w-4 h-4 text-emerald-600" />
                 <span>মূল ধারণা ও প্রেক্ষাপট:</span>
               </h3>
-              <p className="text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">
-                {topic.deepDive.conceptBn}
-              </p>
+              <SmartContentFormatter 
+                text={topic.deepDive.conceptBn} 
+                onLoadCodeToEditor={onLoadCodeToEditor} 
+              />
             </div>
           )}
 
@@ -400,9 +486,13 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                       {step.explanationBn}
                     </p>
                     {step.codePiece && (
-                      <pre className="mt-2 ml-8 p-2.5 bg-slate-950 text-emerald-300 font-mono text-xs rounded border border-slate-800 overflow-x-auto">
-                        {step.codePiece}
-                      </pre>
+                      <div className="pl-8">
+                        <SmartCodeViewer
+                          code={step.codePiece}
+                          language="PHP Snippet"
+                          onLoadCodeToEditor={onLoadCodeToEditor}
+                        />
+                      </div>
                     )}
                   </div>
                 ))}
@@ -423,7 +513,7 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                     <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
-                    <span>{pt}</span>
+                    <span>{renderInlineFormatting(pt)}</span>
                   </li>
                 ))}
               </ul>
@@ -432,22 +522,18 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
 
           {/* Sample Snippet Preview */}
           <div className="mt-5">
-            <div className="flex items-center justify-between mb-2 text-xs">
+            <div className="flex items-center justify-between mb-1 text-xs">
               <span className="font-bold text-slate-800 flex items-center gap-1.5">
                 <Code2 className="w-4 h-4 text-emerald-600" />
-                <span>মূল উদাহরণ কোড (Primary Interactive Example):</span>
+                <span>মূল ইন্টারেক্টিভ কোড উদাহরণ (Primary Interactive Example):</span>
               </span>
-              <button
-                onClick={() => onLoadCodeToEditor(topic.sampleCode)}
-                className="text-[#04AA6D] hover:underline font-bold flex items-center gap-1 cursor-pointer bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 transition hover:bg-emerald-100"
-              >
-                <span>ডানদিকের এডিটরে ওপেন ও রান করুন</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
             </div>
-            <pre className="p-4 bg-slate-950 text-emerald-300 font-mono text-xs rounded-xl overflow-x-auto leading-relaxed border border-slate-800 shadow-inner">
-              {topic.sampleCode}
-            </pre>
+            <SmartCodeViewer
+              code={topic.sampleCode}
+              language="PHP 8.2 Live Code"
+              title={`${topic.title} • Sample Code`}
+              onLoadCodeToEditor={onLoadCodeToEditor}
+            />
           </div>
 
           {/* Additional Practice Examples */}
@@ -459,7 +545,7 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                   <span>সম্পর্কিত অতিরিক্ত প্র্যাকটিস কোড উদাহরণ ({topic.deepDive.practiceExamples.length}টি):</span>
                 </h4>
                 <span className="text-xs text-slate-500 font-medium">
-                  প্রতিটি কোড ব্লকের "এডিটরে এডিট ও রান করুন" বাটনে ক্লিক করে সরাসরি পরিবর্তন ও পরীক্ষা করতে পারবেন
+                  প্রতিটি কোড ব্লকের "এডিটরে রান ও টেস্ট করুন" বাটনে ক্লিক করে সরাসরি পরীক্ষা করতে পারবেন
                 </span>
               </div>
 
@@ -469,58 +555,25 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                     key={idx} 
                     className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 shadow-2xs hover:border-emerald-300 transition"
                   >
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                            {idx + 1}
-                          </span>
-                          <h5 className="font-bold text-slate-900 text-sm">
-                            {ex.title}
-                          </h5>
-                        </div>
-                        <p className="text-xs text-slate-600 mt-1 pl-7 leading-relaxed">
-                          {ex.descriptionBn}
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={() => onLoadCodeToEditor(ex.code)}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer transition active:scale-95"
-                        title="এই কোডটি সরাসরি কোড এডিটরে লোড করে রান বা এডিট করুন"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-white" />
-                        <span>এডিটরে এডিট ও রান করুন</span>
-                      </button>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                        {idx + 1}
+                      </span>
+                      <h5 className="font-bold text-slate-900 text-sm">
+                        {ex.title}
+                      </h5>
                     </div>
+                    <p className="text-xs text-slate-600 mb-2 pl-7 leading-relaxed">
+                      {ex.descriptionBn}
+                    </p>
 
-                    <div className="mt-2.5 rounded-lg overflow-hidden border border-slate-800 bg-slate-950">
-                      <div className="px-3 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-                        <span>PHP Script</span>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard?.writeText(ex.code);
-                            setCopiedIndex(idx);
-                            setTimeout(() => setCopiedIndex(null), 1800);
-                          }}
-                          className="hover:text-emerald-400 flex items-center gap-1 transition cursor-pointer text-slate-400"
-                        >
-                          {copiedIndex === idx ? (
-                            <>
-                              <Check className="w-3 h-3 text-emerald-400" />
-                              <span className="text-emerald-400">কপি হয়েছে!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-3 h-3" />
-                              <span>কপি করুন</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <pre className="p-3.5 text-emerald-300 font-mono text-xs overflow-x-auto leading-relaxed">
-                        {ex.code}
-                      </pre>
+                    <div className="pl-0 sm:pl-7">
+                      <SmartCodeViewer
+                        code={ex.code}
+                        language="PHP Script"
+                        title={ex.title}
+                        onLoadCodeToEditor={onLoadCodeToEditor}
+                      />
                     </div>
                   </div>
                 ))}
@@ -541,9 +594,12 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                   <AlertTriangle className="w-4 h-4 text-red-600" />
                   <span>জুনিয়র ডেভেলপারদের অ্যান্টি-প্যাটার্ন কোড (Anti-pattern)</span>
                 </div>
-                <pre className="text-xs font-mono bg-white p-3 rounded-lg text-red-950 border border-red-200 overflow-x-auto">
-                  {topic.deepDive.comparison.juniorCode}
-                </pre>
+                <SmartCodeViewer
+                  code={topic.deepDive.comparison.juniorCode}
+                  language="Junior Code (Vulnerable/Inefficient)"
+                  title="Junior Developer Code"
+                  onLoadCodeToEditor={onLoadCodeToEditor}
+                />
                 <div className="mt-3">
                   <span className="text-xs font-semibold text-red-900">ঝুঁকি ও সমস্যাসমূহ:</span>
                   <ul className="list-disc list-inside text-xs text-red-800 mt-1 space-y-1">
@@ -560,9 +616,12 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>সিনিয়র আর্কিটেক্ট স্ট্যান্ডার্ড সল্যুশন (Modern PHP 8+)</span>
                 </div>
-                <pre className="text-xs font-mono bg-white p-3 rounded-lg text-emerald-950 border border-emerald-200 overflow-x-auto">
-                  {topic.deepDive.comparison.seniorCode}
-                </pre>
+                <SmartCodeViewer
+                  code={topic.deepDive.comparison.seniorCode}
+                  language="Senior Code (Optimized & Secure)"
+                  title="Senior Architect Code"
+                  onLoadCodeToEditor={onLoadCodeToEditor}
+                />
                 <div className="mt-3">
                   <span className="text-xs font-semibold text-emerald-900">সুবিধাসমূহ:</span>
                   <ul className="list-disc list-inside text-xs text-emerald-800 mt-1 space-y-1">
@@ -702,9 +761,12 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
             {/* Starter Code */}
             <div>
               <span className="text-xs text-slate-400 block mb-1">শুরুর কোড (Starter Code):</span>
-              <pre className="p-3 bg-slate-950 text-emerald-300 font-mono text-xs rounded border border-slate-800 overflow-x-auto">
-                {pedagogy.studentChallenge.starterCode}
-              </pre>
+              <SmartCodeViewer
+                code={pedagogy.studentChallenge.starterCode}
+                language="PHP Exercise Starter"
+                title="Starter Code"
+                onLoadCodeToEditor={onLoadCodeToEditor}
+              />
             </div>
 
             {/* Toggle Solution */}
@@ -719,18 +781,13 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
 
               {showChallengeSolution && (
                 <div className="mt-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-emerald-400 font-bold">ট্রেইনারের আদর্শ সমাধান:</span>
-                    <button
-                      onClick={() => onLoadCodeToEditor(pedagogy.studentChallenge.solutionCode)}
-                      className="text-xs text-slate-300 hover:text-white underline cursor-pointer"
-                    >
-                      এডিটরে সমাধান পেস্ট করুন »
-                    </button>
-                  </div>
-                  <pre className="p-3 bg-slate-950 text-emerald-300 font-mono text-xs rounded border border-emerald-900/60 overflow-x-auto">
-                    {pedagogy.studentChallenge.solutionCode}
-                  </pre>
+                  <span className="text-xs text-emerald-400 font-bold block mb-1">ট্রেইনারের আদর্শ সমাধান:</span>
+                  <SmartCodeViewer
+                    code={pedagogy.studentChallenge.solutionCode}
+                    language="PHP Verified Solution"
+                    title="Solution Code"
+                    onLoadCodeToEditor={onLoadCodeToEditor}
+                  />
                 </div>
               )}
             </div>
@@ -807,9 +864,12 @@ export const TopicDetails: React.FC<TopicDetailsProps> = ({
                   {topic.deepDive.security.safeCodeSnippet && (
                     <div className="mt-3">
                       <span className="text-[11px] font-bold text-slate-600 block mb-1">নিরাপদ কোড প্যাটার্ন:</span>
-                      <pre className="p-3 bg-slate-950 text-emerald-300 font-mono text-xs rounded overflow-x-auto">
-                        {topic.deepDive.security.safeCodeSnippet}
-                      </pre>
+                      <SmartCodeViewer
+                        code={topic.deepDive.security.safeCodeSnippet}
+                        language="Secure Code Snippet"
+                        title="Safe Code Snippet"
+                        onLoadCodeToEditor={onLoadCodeToEditor}
+                      />
                     </div>
                   )}
                 </div>

@@ -4,10 +4,8 @@ import {
   Terminal, 
   Layers, 
   FileCode2, 
-  PanelLeftClose, 
-  PanelLeftOpen, 
-  PanelRightClose, 
-  PanelRightOpen, 
+  PanelLeft, 
+  PanelRight, 
   Presentation, 
   Home 
 } from 'lucide-react';
@@ -44,155 +42,129 @@ export const Header: React.FC<HeaderProps> = ({
   onGoToHome,
 }) => {
   return (
-    <header className="h-14 bg-white border-b border-slate-200 px-3 sm:px-4 flex items-center justify-between shrink-0 z-40">
-      {/* Brand & Sidebar Toggle Button */}
+    <header className="h-13 bg-white border-b border-slate-200/90 px-3 sm:px-4 flex items-center justify-between shrink-0 z-40 select-none">
+      {/* Left: Sidebar Toggle, Brand & Home */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Clean Sidebar Toggle */}
+        <button
+          onClick={onToggleSidebar}
+          className={`p-1.5 rounded-lg border transition cursor-pointer text-slate-600 hover:text-slate-900 ${
+            sidebarOpen
+              ? 'bg-slate-100 border-slate-200 text-slate-800'
+              : 'bg-white border-slate-200 hover:bg-slate-50'
+          }`}
+          title={sidebarOpen ? 'টপিক সাইডবার লুকান (Ctrl+B)' : 'টপিক সাইডবার খুলুন (Ctrl+B)'}
+        >
+          <PanelLeft className="w-4 h-4" />
+        </button>
+
+        {/* Minimal Clean Brand Logo */}
+        <div 
+          onClick={onGoToHome} 
+          className="flex items-center gap-2 cursor-pointer group"
+          title="হোম পেজে ফিরে যান"
+        >
+          <div className="w-7 h-7 rounded-md bg-[#04AA6D] group-hover:bg-[#038555] flex items-center justify-center text-white font-mono font-bold text-xs shadow-xs transition">
+            &lt;?
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-slate-900 text-sm tracking-tight group-hover:text-emerald-700 transition">
+              PHP Mastery
+            </span>
+            <span className="text-[10px] font-mono font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+              8.2
+            </span>
+          </div>
+        </div>
+
         {onGoToHome && (
           <button
             onClick={onGoToHome}
-            title="হোম পেজে ফিরে যান (Back to Home)"
-            className="flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-bold text-slate-700 hover:text-emerald-800 hover:bg-slate-100 border border-slate-200 transition cursor-pointer shadow-2xs"
+            title="হোম পেজ"
+            className="hidden md:flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer ml-1"
           >
-            <Home className="w-4 h-4 text-slate-600" />
-            <span className="hidden sm:inline">হোম</span>
+            <Home className="w-3.5 h-3.5" />
+            <span>হোম</span>
           </button>
         )}
-
-        <button
-          onClick={onToggleSidebar}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold border transition cursor-pointer select-none ${
-            sidebarOpen
-              ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200'
-              : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100 shadow-xs ring-1 ring-emerald-300/50'
-          }`}
-          title={sidebarOpen ? 'টপিক তালিকা লুকান (Hide Topics Sidebar)' : 'টপিক তালিকা খুলুন (Open Topics Sidebar)'}
-        >
-          {sidebarOpen ? (
-            <>
-              <PanelLeftClose className="w-4 h-4 text-slate-600" />
-              <span className="hidden sm:inline">টপিক লুকান</span>
-            </>
-          ) : (
-            <>
-              <PanelLeftOpen className="w-4 h-4 text-emerald-700" />
-              <span className="font-bold text-emerald-800">টপিক তালিকা</span>
-            </>
-          )}
-        </button>
-
-        <div 
-          onClick={onGoToHome} 
-          className="flex items-center gap-2.5 cursor-pointer select-none group"
-          title="হোমে যেতে ক্লিক করুন"
-        >
-          <div className="w-8 h-8 rounded-lg bg-[#04AA6D] group-hover:bg-[#038354] flex items-center justify-center text-white font-mono font-black text-sm shadow-sm transition">
-            &lt;?
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-900 text-sm tracking-tight group-hover:text-emerald-700 transition">
-                PHP Mastery &amp; Sandbox
-              </span>
-              <span className="hidden sm:inline text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
-                20+ Years Trainer
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 hidden md:block">
-              প্র্যাকটিক্যাল এন্টারপ্রাইজ লার্নিং • ব্রাউজার স্যান্ডবক্স
-            </p>
-          </div>
-        </div>
       </div>
 
-      {/* Center / Right Toolbar */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Presentation Mode Button */}
+      {/* Right: Actions, Status & Run Button */}
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
+        {/* Minimal Presentation Slide Mode Button */}
         {onOpenPresentation && (
           <button
             onClick={onOpenPresentation}
-            title="ক্লাসরুম লেকচার প্রেজেন্টেশন স্লাইড খুলুন"
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition shadow-2xs active:scale-95 cursor-pointer"
+            title="টপিক স্লাইড প্রেজেন্টেশন মোড খুলুন"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition cursor-pointer"
           >
-            <Presentation className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline">স্লাইড মোড (Slides)</span>
+            <Presentation className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="hidden sm:inline">স্লাইড মোড</span>
           </button>
         )}
 
-        {/* Toggle Code Editor Button (Hide / View Toggler) */}
+        {/* Minimal Editor Panel Toggle */}
         <button
           onClick={onToggleEditor}
-          title={isEditorVisible ? 'কোড এডিটর লুকান (Hide Code Editor)' : 'কোড এডিটর দেখুন (View Code Editor)'}
-          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-semibold border transition cursor-pointer select-none ${
+          title={isEditorVisible ? 'কোড এডিটর লুকান' : 'কোড এডিটর দেখুন'}
+          className={`p-1.5 rounded-lg border transition cursor-pointer text-slate-600 hover:text-slate-900 ${
             isEditorVisible
-              ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200'
-              : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100 shadow-xs ring-1 ring-emerald-300/50'
+              ? 'bg-slate-100 border-slate-200 text-slate-800'
+              : 'bg-white border-slate-200 hover:bg-slate-50'
           }`}
         >
-          {isEditorVisible ? (
-            <>
-              <PanelRightClose className="w-4 h-4 text-slate-600" />
-              <span className="hidden sm:inline">Hide Editor</span>
-            </>
-          ) : (
-            <>
-              <PanelRightOpen className="w-4 h-4 text-emerald-700" />
-              <span className="font-bold text-emerald-800">View Editor</span>
-            </>
-          )}
+          <PanelRight className="w-4 h-4" />
         </button>
 
-
-        {/* Responsive View Switcher for Small Screens */}
-        <div className="flex xl:hidden bg-slate-100 p-0.5 rounded-lg text-xs font-medium text-slate-600 border border-slate-200">
+        {/* Small Screen Layout Switcher */}
+        <div className="flex xl:hidden bg-slate-100 p-0.5 rounded-md text-xs font-medium text-slate-600 border border-slate-200">
           <button
             onClick={() => onViewModeChange('all')}
-            className={`px-2.5 py-1 rounded transition flex items-center gap-1 ${
-              viewMode === 'all' ? 'bg-white text-[#04AA6D] font-bold shadow-xs' : 'hover:text-slate-900'
+            className={`px-2 py-1 rounded transition text-[11px] ${
+              viewMode === 'all' ? 'bg-white text-emerald-800 font-bold shadow-2xs' : 'hover:text-slate-900'
             }`}
           >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">সবগুলো</span>
+            সব
           </button>
           <button
             onClick={() => onViewModeChange('doc')}
-            className={`px-2.5 py-1 rounded transition flex items-center gap-1 ${
-              viewMode === 'doc' ? 'bg-white text-[#04AA6D] font-bold shadow-xs' : 'hover:text-slate-900'
+            className={`px-2 py-1 rounded transition text-[11px] ${
+              viewMode === 'doc' ? 'bg-white text-emerald-800 font-bold shadow-2xs' : 'hover:text-slate-900'
             }`}
           >
-            <FileCode2 className="w-3.5 h-3.5" />
-            <span>ডকুমেন্টেশন</span>
+            ডক
           </button>
           <button
             onClick={() => onViewModeChange('editor')}
-            className={`px-2.5 py-1 rounded transition flex items-center gap-1 ${
-              viewMode === 'editor' ? 'bg-white text-[#04AA6D] font-bold shadow-xs' : 'hover:text-slate-900'
+            className={`px-2 py-1 rounded transition text-[11px] ${
+              viewMode === 'editor' ? 'bg-white text-emerald-800 font-bold shadow-2xs' : 'hover:text-slate-900'
             }`}
           >
-            <Terminal className="w-3.5 h-3.5" />
-            <span>এডিটর</span>
+            এডিটর
           </button>
         </div>
 
-        {/* Engine Status Indicator - Always clean & active */}
+        {/* Minimal Engine Status Indicator */}
         <div 
-          className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-emerald-50 rounded-full border border-emerald-200 text-xs font-mono select-none"
-          title="PHP 8.2 Live Execution Engine"
+          className="hidden lg:flex items-center gap-1.5 text-xs text-slate-500 font-mono select-none px-1"
+          title="WebAssembly PHP 8.2 Runtime Ready"
         >
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span className="text-emerald-800 font-semibold text-[11px]">
-            PHP 8.2 Ready
-          </span>
+          <span className="text-[11px] font-medium text-slate-600">Engine Ready</span>
         </div>
 
-        {/* Global Run Button */}
+        {/* Clean Primary Run Action */}
         <button
           onClick={onRunCode}
           disabled={isRunning}
-          className="flex items-center gap-1.5 bg-[#04AA6D] hover:bg-[#037a4e] text-white text-xs font-bold px-3.5 py-1.5 rounded-md shadow-sm transition active:scale-95 disabled:opacity-50 cursor-pointer"
-          title="কীবোর্ড শর্টকাট: Ctrl + Enter"
+          className="flex items-center gap-1.5 bg-[#04AA6D] hover:bg-[#038555] text-white text-xs font-semibold px-3 sm:px-3.5 py-1.5 rounded-lg shadow-xs transition active:scale-95 disabled:opacity-50 cursor-pointer ml-1"
+          title="কোড রান করুন (Ctrl + Enter)"
         >
-          <Play className={`w-3.5 h-3.5 ${isRunning ? 'animate-spin' : ''}`} />
-          <span>{isRunning ? 'Running...' : 'Run (Ctrl+Enter)'}</span>
+          <Play className={`w-3.5 h-3.5 fill-current ${isRunning ? 'animate-spin' : ''}`} />
+          <span>{isRunning ? 'Running...' : 'Run'}</span>
+          <kbd className="hidden md:inline text-[10px] font-mono text-emerald-100 bg-emerald-800/40 px-1 rounded">
+            Ctrl+↵
+          </kbd>
         </button>
       </div>
     </header>
